@@ -1,0 +1,75 @@
+---
+swagger: "2.0"
+info:
+  description: "Cloudy Model"
+  version: "1.0.0"
+  title: Cloudy Model API"
+basePath: "/cloudy"
+tags: 
+- name: User 
+schemes:
+- "https"
+paths:
+  /nothing:
+    options:
+      operationId: "nothing"
+      produces:
+      - "application/json"
+      tags:
+      - User
+      responses:
+        200:
+          description: "200 response"
+definitions:
+  User:
+    type: object
+    properties: 
+      ID:
+        type: string
+      FirstName:
+        type: string
+      LastName:
+        type: string
+      Email:
+        type: string
+      Company: 
+        type: string
+      Department:
+        type: string
+      JobTitle:
+        type: string
+      UserName:
+        type: string
+      Status:
+        type: string
+      MobilePhone:
+        type: string
+      OfficePhone:
+        type: string
+      Password:
+        type: string
+      MustChangePassword:
+        type: string
+  ErrorMessage: 
+    type: object
+    properties: 
+      ID: 
+        type: string
+      Msg: 
+        type: string
+      Details: 
+        type: string
+  Group:
+    type: object
+    properties: 
+      ID: 
+        type: string
+      Name: 
+        type: string
+      Type: 
+        type: string
+      Members:
+        type: array
+        items: 
+          type: string
+  
