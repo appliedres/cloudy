@@ -6,12 +6,12 @@ import (
 	"github.com/appliedres/cloudy/models"
 )
 
-var UserProviders = NewProviderRegistry[Users]()
+var UserProviders = NewProviderRegistry[UserManager]()
 
 /*
 User interface manager
 */
-type Users interface {
+type UserManager interface {
 	ListUsers(ctx context.Context, page interface{}, filter interface{}) ([]*models.User, interface{}, error)
 
 	// Retrieves a specific user.
@@ -21,11 +21,11 @@ type Users interface {
 	// fields populated
 	NewUser(ctx context.Context, newUser *models.User) (*models.User, error)
 
-	UpdateUser(ctx context.Context, usr *models.User) (bool, error)
+	UpdateUser(ctx context.Context, usr *models.User) error
 
-	Enable(ctx context.Context, uid string) (bool, error)
+	Enable(ctx context.Context, uid string) error
 
-	Disable(ctx context.Context, uid string) (bool, error)
+	Disable(ctx context.Context, uid string) error
 
-	DeleteUser(ctx context.Context, uid string) (bool, error)
+	DeleteUser(ctx context.Context, uid string) error
 }

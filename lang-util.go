@@ -46,3 +46,17 @@ func StringP(s string) *string {
 func BoolP(v bool) *bool {
 	return &v
 }
+
+func StringFromP(s *string, missing string) string {
+	if s == nil {
+		return missing
+	}
+	return *s
+}
+
+func BoolFromP(b *bool) bool {
+	if b == nil {
+		return false
+	}
+	return *b
+}

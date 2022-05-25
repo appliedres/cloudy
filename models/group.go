@@ -28,6 +28,9 @@ type Group struct {
 
 	// type
 	Type string `json:"Type,omitempty"`
+
+	// Extra
+	Extra map[string]interface{}
 }
 
 // Validate validates this group

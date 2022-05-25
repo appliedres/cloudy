@@ -4,7 +4,9 @@ import (
 	"errors"
 )
 
-var DriverNotFoundError = errors.New("Drive Not Found")
+var DriverNotFoundError = errors.New("driver not found")
+var InvalidConfigurationError = errors.New("invalid configuration object")
+var OperationNotImplementedError = errors.New("operation not implemented")
 
 type ProviderFactory[T any] interface {
 	Create(cfg interface{}) (T, error)

@@ -48,13 +48,18 @@ type User struct {
 	OfficePhone string `json:"OfficePhone,omitempty"`
 
 	// password
-	Password string `json:"Password,omitempty"`
+	Password string `json:"-"`
 
 	// status
 	Status string `json:"Status,omitempty"`
 
 	// user name
 	UserName string `json:"UserName,omitempty"`
+
+	// user name
+	DisplayName string `json:"DisplayName,omitempty"`
+
+	Extra map[string]interface{}
 }
 
 // Validate validates this user

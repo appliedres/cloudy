@@ -12,7 +12,29 @@ import (
 	"github.com/appliedres/cloudy"
 )
 
+func init() {
+	BinaryDataStoreProviders.Register(FileSytemBinaryStoreID, func(cfg interface{}) (BinaryDataStore, error) {
+		fsConfig := cfg.(*FilesystemStoreConfig)
+		if fsConfig == nil {
+			return nil, InvalidConfiguration
+		}
+		return &FilesystemStore{
+			Dir:   fsConfig.Dir,
+			Ext:   fsConfig.Ext,
+			Perms: fsConfig.Perms,
+		}, nil
+	})
+}
+
+const FileSytemBinaryStoreID = "file-system"
+
 var RootFSDir = ""
+
+type FilesystemStoreConfig struct {
+	Dir   string
+	Ext   string
+	Perms os.FileMode
+}
 
 type FilesystemStore struct {
 	Dir   string

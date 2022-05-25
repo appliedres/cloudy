@@ -3,10 +3,17 @@ package datastore
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 
 	"github.com/appliedres/cloudy"
 )
+
+var InvalidConfiguration = errors.New("invalid configuration object")
+
+var BinaryDataStoreProviders = cloudy.NewProviderRegistry[BinaryDataStore]()
+var JsonDataStoreProviders = cloudy.NewProviderRegistry[JsonDataStore[any]]()
+var IndexerProviders = cloudy.NewProviderRegistry[Indexer[any]]()
 
 type BinaryDataStore interface {
 	Open(ctx context.Context, config interface{}) error

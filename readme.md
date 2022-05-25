@@ -1,5 +1,7 @@
 # Cloudy
 
+IN WORK -- DO NOT USE 
+
 Planned to be an open source library that is a runtime adapter for AWS and Azure cloud capablilies. This library tries to provide simple capalbities instead of trying for a full-coverage. As you ned to use more complex capalbities they you should be able to tie into the underlying APIs from each of the Cloud Vendors. 
 
 ## Structure / Technical Approach

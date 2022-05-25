@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	// rand.Seed(time.Now().UnixNano())
+
 }
 
 func GeneratePassword(passwordLength, minSpecialChar, minNum, minUpperCase int) string {
