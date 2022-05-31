@@ -1,58 +1,59 @@
-package tests
+package datastore
 
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"testing"
 
-	"github.com/appliedres/cloudy/datastore"
 	"github.com/stretchr/testify/assert"
 )
 
-func BinaryDataStoreTest(t *testing.T, ctx context.Context, ds datastore.BinaryDataStore) {
-	// Random Byte Data
-	data := make([]byte, 4000)
-	rand.Read(data)
+type TestItem struct {
+	ID   string
+	Name string
+}
 
-	id := "my-test-data"
-
+func JsonDataStoreTest(t *testing.T, ctx context.Context, ds JsonDataStore[TestItem]) {
+	testDoc := &TestItem{
+		ID:   "12345",
+		Name: "TEST",
+	}
 	fmt.Println("Saving")
-	err := ds.Save(ctx, data, id)
+	err := ds.Save(ctx, testDoc, testDoc.ID)
 	assert.Nil(t, err, "Should not get an error saving to the database")
 
 	// Exists
 	fmt.Println("Checking Existence")
 
-	exists, err := ds.Exists(ctx, id)
+	exists, err := ds.Exists(ctx, testDoc.ID)
 	assert.Nil(t, err, "Should not get an error")
 	assert.True(t, exists, "Should exist")
 
 	// Retrieve
 	fmt.Println("Getting")
-	data2, err := ds.Get(ctx, id)
+	testDoc2, err := ds.Get(ctx, testDoc.ID)
 	assert.Nil(t, err, "Should not get an error saving to the database")
-	assert.NotNil(t, data2, "Item should be found")
-	assert.Equal(t, data, data, "IDs should be equal")
+	assert.NotNil(t, testDoc2, "Item should be found")
+	assert.Equal(t, testDoc2.ID, testDoc.ID, "IDs should be equal")
 
 	// Delete
 	fmt.Println("Deleteing")
 
-	ds.Delete(ctx, id)
+	ds.Delete(ctx, testDoc.ID)
 	assert.Nil(t, err, "Should not get an error")
 
 	// Exists
 	fmt.Println("Checking Existence")
 
-	exists2, err := ds.Exists(ctx, id)
+	exists2, err := ds.Exists(ctx, testDoc.ID)
 	assert.Nil(t, err, "Should not get an error")
 	assert.False(t, exists2, "Should NOT exist")
 
 	// Retrieve
 	fmt.Println("Getting Missing")
 
-	item3, err := ds.Get(ctx, id)
-	assert.Nil(t, err, "Should not get an error retrieving")
+	item3, err := ds.Get(ctx, testDoc.ID)
+	assert.Nil(t, err, "Should not get an error saving to the database")
 	assert.Nil(t, item3, "Should not get an error ")
 
 	fmt.Println("Done")

@@ -1,4 +1,4 @@
-package tests
+package datastore
 
 import (
 	"os"
@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/appliedres/cloudy"
-	"github.com/appliedres/cloudy/datastore"
 )
 
 func TestFilesystemDS(t *testing.T) {
@@ -16,7 +15,7 @@ func TestFilesystemDS(t *testing.T) {
 	dir := filepath.Join(os.TempDir(), "test-fsds")
 	defer cleanup(dir)
 
-	ds := datastore.NewFilesystemStore(".test-data", dir)
+	ds := NewFilesystemStore(".test-data", dir)
 
 	BinaryDataStoreTest(t, ctx, ds)
 }

@@ -68,10 +68,9 @@ func ArrayRemoveIndex[T comparable](all []T, i int) []T {
 }
 
 func ArrayRemove[T comparable](all []T, fn func(item T) bool) ([]T, bool) {
-	i := ArrayFindIndex(all, fn)
-	if i == -1 {
+	s := ArrayFindIndex(all, fn)
+	if s == -1 {
 		return all, false
 	}
-	all[i] = all[len(all)-1]
-	return all[:len(all)-1], true
+	return append(all[:s], all[s+1:]...), true
 }

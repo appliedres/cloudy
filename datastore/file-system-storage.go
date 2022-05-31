@@ -107,8 +107,8 @@ func (fs *FilesystemStore) Get(ctx context.Context, key string) ([]byte, error) 
 
 	// Read the file
 	data, err := ioutil.ReadFile(fullpath)
-	if err != nil && !isPathError(err) {
-		return nil, err
+	if isPathError(err) {
+		return nil, nil
 	}
 	return data, err
 }

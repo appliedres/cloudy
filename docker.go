@@ -1,4 +1,4 @@
-package tests
+package cloudy
 
 import (
 	"bytes"
@@ -7,8 +7,6 @@ import (
 	"os/exec"
 	"strings"
 	"time"
-
-	"github.com/appliedres/cloudy"
 )
 
 func StartDocker(name string, args []string, waitFor string) (bool, error) {
@@ -41,7 +39,7 @@ func StartDocker(name string, args []string, waitFor string) (bool, error) {
 	// check to see if available
 	if waitFor != "" {
 		fmt.Printf("Waiting for %v to become avialable\n", waitFor)
-		found := cloudy.WaitForAddress(waitFor, 60*time.Second)
+		found := WaitForAddress(waitFor, 60*time.Second)
 		if !found {
 			return started, errors.New("unable to connect")
 		}

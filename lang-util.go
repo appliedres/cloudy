@@ -2,6 +2,7 @@ package cloudy
 
 import "strings"
 
+//MapKeyStr is used for dealing with JSON...
 func MapKeyStr(data map[string]interface{}, key string, caseInsensitive bool) (string, bool) {
 	val, ok := data[key]
 
