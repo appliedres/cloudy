@@ -50,14 +50,13 @@ import (
     _ "github.com/appliedres/cloudy-aws" 
 )
 
-// Load some configuration from the environment
-providerName, configurationMap, err := loadFromEnv(ctx)
-if err != nil {
-    panic(err)
-}
-
-ctx := cloudy.StartContext()
-mgr, err := cloudy.UserProviders.New(providerName string, configurationMap)
+// Load some configuration from the environment. In this case we are not specifying a prefix for 
+// the environment variables and our env variable for the user driver name is "USER_DRIVER". The 
+// function will then look for a variable nameed "USER_DRIVER" and expect to find a value like 
+// 'aws-cognito'. It will then scan the environment variables for the ones that driver expects. 
+// In this case it is looking for 'POOL_ID', 'REGION' and optionally 'USER_ATTRIBUTES'. Once
+// created we can safelty cache this provider or create it each time we need it. 
+userMgr, err := cloudy.UserProviders.LoadFromEnv("", "USER_DRIVER" ) 
 if err != nil {
     panic(err)
 }

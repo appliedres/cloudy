@@ -2,28 +2,64 @@ package datastore
 
 import (
 	"context"
+	"errors"
 	"io"
 	iofs "io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 
 	"github.com/appliedres/cloudy"
 )
 
 func init() {
-	BinaryDataStoreProviders.Register(FileSytemBinaryStoreID, func(cfg interface{}) (BinaryDataStore, error) {
-		fsConfig := cfg.(*FilesystemStoreConfig)
-		if fsConfig == nil {
-			return nil, InvalidConfiguration
+	BinaryDataStoreProviders.Register(FileSytemBinaryStoreID, &FilesystemStoreFactory{})
+}
+
+type FilesystemStoreFactory struct{}
+
+func (f *FilesystemStoreFactory) Create(cfg interface{}) (BinaryDataStore, error) {
+	var zeroPerms os.FileMode
+	fsConfig := cfg.(*FilesystemStoreConfig)
+	if fsConfig == nil {
+		return nil, ErrInvalidConfiguration
+	}
+
+	if fsConfig.Ext == "" {
+		fsConfig.Ext = "dat"
+	}
+	if fsConfig.Perms == zeroPerms {
+		fsConfig.Perms = 0600
+	}
+
+	return &FilesystemStore{
+		Dir:   fsConfig.Dir,
+		Ext:   fsConfig.Ext,
+		Perms: fsConfig.Perms,
+	}, nil
+}
+
+func (f *FilesystemStoreFactory) ToConfig(config map[string]interface{}) (interface{}, error) {
+	var found bool
+
+	cfg := &FilesystemStoreConfig{}
+	cfg.Dir, found = cloudy.MapKeyStr(config, "Dir", true)
+	if !found {
+		return nil, errors.New("dir required (dir)")
+	}
+
+	cfg.Ext, _ = cloudy.MapKeyStr(config, "Ext", true)
+	perms, _ := cloudy.MapKeyStr(config, "Perms", true)
+	if perms != "" {
+		i, err := strconv.Atoi(perms)
+		if err != nil {
+			cfg.Perms = os.FileMode(uint32((i)))
 		}
-		return &FilesystemStore{
-			Dir:   fsConfig.Dir,
-			Ext:   fsConfig.Ext,
-			Perms: fsConfig.Perms,
-		}, nil
-	})
+	}
+
+	return cfg, nil
 }
 
 const FileSytemBinaryStoreID = "file-system"
@@ -44,7 +80,7 @@ type FilesystemStore struct {
 
 func NewFilesystemStore(ext string, dir ...string) *FilesystemStore {
 	fs := new(FilesystemStore)
-	fs.Perms = 0660
+	fs.Perms = 0600
 	localdir := filepath.Join(dir...)
 	fs.Dir = filepath.Join(RootFSDir, localdir)
 	fs.Ext = ext

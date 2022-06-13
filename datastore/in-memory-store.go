@@ -6,6 +6,22 @@ import (
 	"io/ioutil"
 )
 
+const InMemoryinaryStoreID = "memory"
+
+func init() {
+	BinaryDataStoreProviders.Register(InMemoryinaryStoreID, &InMemoryStoreFactory{})
+}
+
+type InMemoryStoreFactory struct{}
+
+func (f *InMemoryStoreFactory) Create(cfg interface{}) (BinaryDataStore, error) {
+	return NewInMemoryStore(), nil
+}
+
+func (f *InMemoryStoreFactory) ToConfig(config map[string]interface{}) (interface{}, error) {
+	return nil, nil
+}
+
 type InMemoryStore struct {
 	items map[string][]byte
 }

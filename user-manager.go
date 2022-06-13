@@ -12,6 +12,11 @@ var UserProviders = NewProviderRegistry[UserManager]()
 User interface manager
 */
 type UserManager interface {
+	// ForceUserName takes a proposed user name, validates it and transforms it.
+	// Then it checks to see if it is a real user
+	// Returns: string - updated user name, bool - if the user exists, error - if an error is encountered
+	ForceUserName(ctx context.Context, name string) (string, bool, error)
+
 	ListUsers(ctx context.Context, page interface{}, filter interface{}) ([]*models.User, interface{}, error)
 
 	// Retrieves a specific user.

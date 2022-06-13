@@ -2,6 +2,8 @@ module github.com/appliedres/cloudy
 
 go 1.18
 
+replace github.com/appliedres/cloudy => ../cloudy
+
 require (
 	github.com/Jeffail/gabs/v2 v2.6.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

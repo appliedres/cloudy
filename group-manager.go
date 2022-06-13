@@ -13,7 +13,7 @@ var GroupProviders = NewProviderRegistry[GroupManager]()
 type GroupManager interface {
 
 	// List all the groups available
-	ListGroups(ctx context.Context, uid string) ([]*models.Group, error)
+	ListGroups(ctx context.Context) ([]*models.Group, error)
 
 	// Get all the groups for a single user
 	GetUserGroups(ctx context.Context, uid string) ([]*models.Group, error)

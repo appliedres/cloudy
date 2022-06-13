@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -41,6 +42,7 @@ func JsonDataStoreTest(t *testing.T, ctx context.Context, ds JsonDataStore[TestI
 
 	ds.Delete(ctx, testDoc.ID)
 	assert.Nil(t, err, "Should not get an error")
+	time.Sleep(5 * time.Second)
 
 	// Exists
 	fmt.Println("Checking Existence")
