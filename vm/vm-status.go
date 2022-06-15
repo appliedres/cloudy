@@ -70,19 +70,12 @@ const (
 	VirtualMachineTerminate VirtualMachineAction = "terminate"
 )
 
-type VMState string
-
-const Start = VMState("start")
-const Stop = VMState("stop")
-const Terminate = VMState("terminate")
-
 type VMController interface {
 	ListAll(ctx context.Context) ([]*VirtualMachineStatus, error)
 	ListWithTag(ctx context.Context, tag string) ([]*VirtualMachineStatus, error)
 	Status(ctx context.Context, vmName string) (*VirtualMachineStatus, error)
-	SetState(ctx context.Context, state VMState, vmName string, wait bool)
+	SetState(ctx context.Context, state VirtualMachineAction, vmName string, wait bool) (*VirtualMachineStatus, error)
 	Start(ctx context.Context, vmName string, wait bool) error
 	Stop(ctx context.Context, vmName string, wait bool) error
 	Terminate(ctx context.Context, vmName string, wait bool) error
-	Get(ctx context.Context, vmName string)
 }
