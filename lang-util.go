@@ -97,3 +97,11 @@ func TrimDomain(v string) string {
 	}
 	return v
 }
+
+func RemoveDomain(email string) string {
+	index := strings.Index(email, "@")
+	if index > 0 {
+		email = email[0:index]
+	}
+	return email
+}
