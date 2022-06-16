@@ -40,6 +40,8 @@ type JsonDataStore[T any] interface {
 
 	// Sends a simple Query
 	Query(ctx context.Context, query *SimpleQuery) ([]*T, error)
+
+	// *T
 }
 
 type NativeQuerable[T any] interface {
