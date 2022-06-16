@@ -21,6 +21,10 @@ type Logs struct {
 	Buffer *bytes.Buffer
 }
 
+func NewContext(ctx context.Context) context.Context {
+	return WithLogging(ctx)
+}
+
 func StartContext() context.Context {
 	return WithLogging(context.Background())
 }
