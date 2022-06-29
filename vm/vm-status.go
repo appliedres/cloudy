@@ -16,9 +16,6 @@ Azure:
 - imageSKU       = "21h1-ent"
 - imageVersion   = "latest"
 - location
-
-
-
 */
 
 var VmControllers = cloudy.NewProviderRegistry[VMController]()
@@ -78,4 +75,5 @@ type VMController interface {
 	Start(ctx context.Context, vmName string, wait bool) error
 	Stop(ctx context.Context, vmName string, wait bool) error
 	Terminate(ctx context.Context, vmName string, wait bool) error
+	Create(ctx context.Context, vm *VirtualMachineConfiguration) (*VirtualMachineConfiguration, error)
 }
