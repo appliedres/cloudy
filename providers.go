@@ -120,6 +120,12 @@ func (pr *ProvidersRegistry[T]) NewFromJson(jsonData []byte, prefix string, driv
 	return pr.NewFromMap(result, prefix, driverKey)
 }
 
+func (pr *ProvidersRegistry[T]) Print() {
+	for n := range pr.Providers {
+		fmt.Printf("- %v\n", n)
+	}
+}
+
 type Storage interface {
 }
 
@@ -129,16 +135,31 @@ type Storage interface {
 func LoadEnvPrefixMap(prefix string) map[string]interface{} {
 	all := os.Environ()
 	uprefix := strings.ToUpper(prefix)
+	if !strings.HasPrefix(uprefix, "_") {
+		uprefix += "_"
+	}
 
 	rtn := make(map[string]interface{})
 	for _, env := range all {
+		if env[0:1] == "\"" {
+			env = env[1:]
+		}
+		if strings.HasSuffix(env, "\"") {
+			env = env[:(len(env) - 1)]
+		}
+		i := strings.Index(env, "=")
+		if i < 0 {
+			continue
+		}
+		envName := env[0:i]
+		envValue := env[i+1:]
+
 		// Replace all the _ characters
-		noUnderscore := strings.ReplaceAll(env, "_", "")
-		envu := strings.ToUpper(noUnderscore)
+		envu := strings.ToUpper(envName)
 
 		if strings.HasPrefix(envu, uprefix) {
 			key := envu[len(uprefix):]
-			rtn[key] = os.Getenv(env)
+			rtn[key] = envValue
 		}
 	}
 

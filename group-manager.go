@@ -15,6 +15,9 @@ type GroupManager interface {
 	// List all the groups available
 	ListGroups(ctx context.Context) ([]*models.Group, error)
 
+	// Get a specific group by id
+	GetGroup(ctx context.Context, id string) (*models.Group, error)
+
 	// Get all the groups for a single user
 	GetUserGroups(ctx context.Context, uid string) ([]*models.Group, error)
 
@@ -33,4 +36,6 @@ type GroupManager interface {
 
 	// Add member(s) to a group
 	AddMembers(ctx context.Context, groupId string, userIds []string) error
+
+	DeleteGroup(ctx context.Context, groupId string) error
 }

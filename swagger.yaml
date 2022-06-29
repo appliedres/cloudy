@@ -49,7 +49,7 @@ definitions:
       Password:
         type: string
       MustChangePassword:
-        type: string
+        type: boolean
       Source:
         type: string
       Extra:

@@ -96,8 +96,8 @@ type Datatype[T any] struct {
 	Name      string
 	Prefix    string
 	IDField   string
-	GetIDFunc func(dt *Datatype[T], item interface{}) string
-	SetIDFunc func(dt *Datatype[T], item interface{}, id string) string
+	GetIDFunc func(dt *Datatype[T], item *T) string
+	SetIDFunc func(dt *Datatype[T], item *T, id string) string
 
 	DataStore JsonDataStore[T]
 	Indexer   Indexer[T]
@@ -328,7 +328,7 @@ func (dt *Datatype[T]) Delete(ctx context.Context, key string) error {
 	return dt.DataStore.Delete(ctx, key)
 }
 
-func (dt *Datatype[T]) SetID(ctx context.Context, item interface{}, id string) {
+func (dt *Datatype[T]) SetID(ctx context.Context, item *T, id string) {
 	if dt.SetIDFunc != nil {
 		dt.SetIDFunc(dt, item, id)
 	}

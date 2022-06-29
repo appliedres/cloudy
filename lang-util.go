@@ -6,6 +6,11 @@ import (
 	"strings"
 )
 
+func EnvKeyStr(data map[string]interface{}, key string) (string, bool) {
+	envName := NormalizeEnvName(key)
+	return MapKeyStr(data, envName, false)
+}
+
 //MapKeyStr is used for dealing with JSON...
 func MapKeyStr(data map[string]interface{}, key string, caseInsensitive bool) (string, bool) {
 	val, ok := data[key]

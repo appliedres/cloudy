@@ -42,7 +42,7 @@ type User struct {
 	MobilePhone string `json:"MobilePhone,omitempty"`
 
 	// must change password
-	MustChangePassword string `json:"MustChangePassword,omitempty"`
+	MustChangePassword bool `json:"MustChangePassword,omitempty"`
 
 	// office phone
 	OfficePhone string `json:"OfficePhone,omitempty"`
