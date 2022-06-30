@@ -48,15 +48,25 @@ type VirtualMachineConfiguration struct {
 	CloudProviderSettings interface{} // Custom settings for this cloud provider
 }
 
+type VirtualMachineLimit struct {
+	Name    string
+	Current int
+	Limit   int
+}
+
 type Credientials struct {
 	AdminUser     string
 	AdminPassword string
 }
 
 type VirtualMachineNetwork struct {
+	IP       string
+	External bool
+	Primary  bool
 }
 
 type VirtualMachineDisk struct {
+	Size string
 }
 
 type VirtualMachineAction string
@@ -76,4 +86,5 @@ type VMController interface {
 	Stop(ctx context.Context, vmName string, wait bool) error
 	Terminate(ctx context.Context, vmName string, wait bool) error
 	Create(ctx context.Context, vm *VirtualMachineConfiguration) (*VirtualMachineConfiguration, error)
+	GetLimits(ctx context.Context) ([]*VirtualMachineLimit, error)
 }
