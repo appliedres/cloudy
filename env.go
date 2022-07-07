@@ -40,6 +40,10 @@ func (environ *Environment) Root() *SegmentedEnvironment {
 	}
 }
 
+func (environ *Environment) S(segment string) *SegmentedEnvironment {
+	return environ.Segment(segment)
+}
+
 func (environ *Environment) Segment(segment string) *SegmentedEnvironment {
 	s := NormalizeEnvName(segment)
 	newPrefix := EnvJoin(environ.prefix, s)

@@ -13,6 +13,14 @@ func TestEnv(t *testing.T) {
 	os.Setenv("PREFIXED_V1", "V1")
 	os.Setenv("PREFIXED_V2_MORE_SPACE", "v2MoreSpace")
 	os.Setenv("PREFIXED_AREA_V3", "V3")
+	os.Setenv("PREFIXED_UG", "V1")
+	os.Setenv("PREFIXED_UG_TENTANT", "V1")
+	os.Setenv("PREFIXED_UG_USER", "V1")
+	os.Setenv("PREFIXED_UG_GROUP", "V1")
+
+	// env := NewEnvironment().FromOSEnvironment()
+	// mine := env.S("PREFIXED").S("UG").S("USER")
+	// mine := env.Segments("PREFIXED", "UG", "USER")
 
 	env := NewEnvironment("PREFIXED")
 	env.FromOSEnvironment()
@@ -62,4 +70,73 @@ func TestEnv(t *testing.T) {
 	assert.Equal(t, "AZ_TENANT_ID", EnvJoin("azTenant", "id"))
 	assert.Equal(t, "AZ_TENANT_ID", EnvJoin("azTenantID", ""))
 	assert.Equal(t, "AZ_TENANT_ID", EnvJoin("", "azTenantID", ""))
+}
+
+func TestExample(t *testing.T) {
+	m := make(map[string]string)
+	m["SKYCLOUD_UG_USER_DRIVER"] = "1"
+	m["SKYCLOUD_UG_V2"] = "2"
+	m["SKYCLOUD_V3"] = "3"
+
+	maps := NewMaps(m)
+
+	user := maps.S("SKYCLOUD", "UG", "USER")
+	assert.Equal(t, user.Get("DRIVER"), "1")
+	assert.Equal(t, user.Get("V2"), "2")
+	assert.Equal(t, user.Get("V3"), "3")
+
+	user = maps.S("SKYCLOUD").S("UG").S("USER")
+	assert.Equal(t, user.Get("DRIVER"), "1")
+	assert.Equal(t, user.Get("V2"), "2")
+	assert.Equal(t, user.Get("V3"), "3")
+
+}
+
+type Maps struct {
+	fullSegment string
+	segment     string
+	parts       []string
+	parent      *Maps
+	root        map[string]string
+}
+
+func NewMaps(root map[string]string) *Maps {
+	return &Maps{
+		root: root,
+	}
+}
+
+func (maps *Maps) S(segments ...string) *Maps {
+	var last = maps
+	for _, seg := range segments {
+		last = last.seg(seg)
+	}
+	return last
+}
+
+func (maps *Maps) seg(s string) *Maps {
+	allParts := append(maps.parts, s)
+	full := EnvJoin(allParts...)
+	return &Maps{
+		fullSegment: full,
+		segment:     s,
+		parts:       allParts,
+		parent:      maps,
+		root:        maps.root,
+	}
+}
+
+func (maps *Maps) Get(key string) string {
+	name := EnvJoin(maps.fullSegment, key)
+
+	v, found := maps.root[name]
+	if found {
+		return v
+	}
+
+	if maps.parent != nil {
+		return maps.parent.Get(key)
+	}
+
+	return ""
 }
