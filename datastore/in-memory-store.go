@@ -4,6 +4,8 @@ import (
 	"context"
 	"io"
 	"io/ioutil"
+
+	"github.com/appliedres/cloudy"
 )
 
 const InMemoryinaryStoreID = "memory"
@@ -18,7 +20,7 @@ func (f *InMemoryStoreFactory) Create(cfg interface{}) (BinaryDataStore, error) 
 	return NewInMemoryStore(), nil
 }
 
-func (f *InMemoryStoreFactory) ToConfig(config map[string]interface{}) (interface{}, error) {
+func (f *InMemoryStoreFactory) FromEnv(env *cloudy.SegmentedEnvironment) (interface{}, error) {
 	return nil, nil
 }
 

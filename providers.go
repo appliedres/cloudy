@@ -1,13 +1,10 @@
 package cloudy
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/Jeffail/gabs/v2"
 )
 
 var ErrDriverNotFound = errors.New("driver not found")
@@ -16,7 +13,7 @@ var ErrOperationNotImplemented = errors.New("operation not implemented")
 
 type ProviderFactory[T any] interface {
 	Create(cfg interface{}) (T, error)
-	ToConfig(config map[string]interface{}) (interface{}, error)
+	FromEnv(env *SegmentedEnvironment) (interface{}, error)
 }
 
 type ProvidersRegistry[T any] struct {
@@ -43,23 +40,15 @@ func (pr *ProvidersRegistry[T]) New(name string, cfg interface{}) (T, error) {
 	return factory.Create(cfg)
 }
 
-func (pr *ProvidersRegistry[T]) NewFromMap(cfgMap map[string]interface{}, prefix string, driverKey string) (T, error) {
+func (pr *ProvidersRegistry[T]) NewFromEnv(env *SegmentedEnvironment, driverKey string) (T, error) {
 	var zero T
 
-	// Get the driver
-	driver, found := MapKeyStr(cfgMap, driverKey, true)
-	if !found {
-		return zero, fmt.Errorf("no driver found under key %v", driverKey)
-	}
-	if driver == "" {
-		return zero, fmt.Errorf("empty driver found under key %v", driverKey)
-	}
-
+	driver := env.ForceCascade(driverKey, "DRIVER", "DEFAULT_DRIVER")
 	factory, ok := MapKey(pr.Providers, driver, true)
 	if !ok {
 		return zero, ErrDriverNotFound
 	}
-	cfg, err := factory.ToConfig(cfgMap)
+	cfg, err := factory.FromEnv(env)
 	if err != nil {
 		return zero, err
 	}
@@ -80,45 +69,30 @@ func FromEnv(prefix string, driverKey string) (string, map[string]interface{}, e
 	return driver, env, nil
 }
 
-func (pr *ProvidersRegistry[T]) NewFromEnv(prefix string, driverKey string) (T, error) {
-	var zero T
-	env := LoadEnvPrefixMap(prefix)
-	driver, found := MapKeyStr(env, driverKey, true)
+// func (pr *ProvidersRegistry[T]) NewFromJson(jsonData []byte, prefix string, driverKey string) (T, error) {
+// 	var zero T
 
-	if !found {
-		return zero, fmt.Errorf("no driver found under key %v", driverKey)
-	}
-	if driver == "" {
-		return zero, fmt.Errorf("empty driver found under key %v", driverKey)
-	}
+// 	container, err := gabs.ParseJSON(jsonData)
+// 	if err != nil {
+// 		return zero, err
+// 	}
 
-	return pr.NewFromMap(env, prefix, driverKey)
-}
+// 	if prefix != "" {
+// 		container = container.Path(prefix)
+// 	}
+// 	if container == nil {
+// 		return zero, fmt.Errorf("json key not found %v", prefix)
+// 	}
 
-func (pr *ProvidersRegistry[T]) NewFromJson(jsonData []byte, prefix string, driverKey string) (T, error) {
-	var zero T
+// 	result := make(map[string]interface{})
+// 	data := container.Bytes()
+// 	err = json.Unmarshal(data, &result)
+// 	if err != nil {
+// 		return zero, err
+// 	}
 
-	container, err := gabs.ParseJSON(jsonData)
-	if err != nil {
-		return zero, err
-	}
-
-	if prefix != "" {
-		container = container.Path(prefix)
-	}
-	if container == nil {
-		return zero, fmt.Errorf("json key not found %v", prefix)
-	}
-
-	result := make(map[string]interface{})
-	data := container.Bytes()
-	err = json.Unmarshal(data, &result)
-	if err != nil {
-		return zero, err
-	}
-
-	return pr.NewFromMap(result, prefix, driverKey)
-}
+// 	return pr.NewFromMap(result, prefix, driverKey)
+// }
 
 func (pr *ProvidersRegistry[T]) Print() {
 	for n := range pr.Providers {

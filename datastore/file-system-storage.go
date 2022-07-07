@@ -2,7 +2,6 @@ package datastore
 
 import (
 	"context"
-	"errors"
 	"io"
 	iofs "io/fs"
 	"io/ioutil"
@@ -41,17 +40,13 @@ func (f *FilesystemStoreFactory) Create(cfg interface{}) (BinaryDataStore, error
 	}, nil
 }
 
-func (f *FilesystemStoreFactory) ToConfig(config map[string]interface{}) (interface{}, error) {
-	var found bool
+func (f *FilesystemStoreFactory) FromEnv(env *cloudy.SegmentedEnvironment) (interface{}, error) {
 
 	cfg := &FilesystemStoreConfig{}
-	cfg.Dir, found = cloudy.MapKeyStr(config, "Dir", true)
-	if !found {
-		return nil, errors.New("dir required (dir)")
-	}
+	cfg.Dir = env.Force("FS_DIR")
+	cfg.Ext = env.Force("FS_EXT")
 
-	cfg.Ext, _ = cloudy.MapKeyStr(config, "Ext", true)
-	perms, _ := cloudy.MapKeyStr(config, "Perms", true)
+	perms, _ := env.Default("FS_PERMS", "0600")
 	if perms != "" {
 		i, err := strconv.Atoi(perms)
 		if err != nil {

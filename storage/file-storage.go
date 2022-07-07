@@ -4,6 +4,7 @@ import "context"
 
 // StorageArea is an abstract container / bucket representation
 type FileShare struct {
+	ID   string
 	Name string
 }
 

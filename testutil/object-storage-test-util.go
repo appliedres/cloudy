@@ -17,6 +17,16 @@ func TestObjectStorageManager(t *testing.T, mgr storage.ObjectStorageManager) {
 	meta := map[string]string{
 		"TEST_TAG": "TEST_TAG_VALUE",
 	}
+
+	// Exists
+	exists, err := mgr.Exists(ctx, "object-storage-test")
+	assert.Nil(t, err)
+
+	if exists {
+		err = mgr.Delete(ctx, "object-storage-test")
+		assert.Nil(t, err)
+	}
+
 	// Create
 	osm, err := mgr.Create(ctx, "object-storage-test", false, meta)
 	assert.Nil(t, err)
@@ -33,7 +43,9 @@ func TestObjectStorageManager(t *testing.T, mgr storage.ObjectStorageManager) {
 	assert.NotNil(t, osm2)
 
 	// Test
-	TestObjectStorage(t, osm)
+	if osm2 != nil {
+		TestObjectStorage(t, osm2)
+	}
 
 	// Delete
 	err = mgr.Delete(ctx, "object-storage-test")

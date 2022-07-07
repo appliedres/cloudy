@@ -19,6 +19,7 @@ type StorageArea struct {
 
 // ObjectStorageManager manages storage areas. T
 type ObjectStorageManager interface {
+	Exists(ctx context.Context, key string) (bool, error)
 	List(ctx context.Context) ([]*StorageArea, error)
 	Get(ctx context.Context, key string) (ObjectStorage, error)
 	Create(ctx context.Context, key string, openToPublic bool, tags map[string]string) (ObjectStorage, error)

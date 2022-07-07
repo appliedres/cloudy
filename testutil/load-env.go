@@ -1,7 +1,6 @@
 package testutil
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -18,7 +17,7 @@ func LoadEnv(file string) error {
 
 	all := string(data)
 	lines := strings.Split(all, "\n")
-	for i, line := range lines {
+	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if strings.HasPrefix(trimmed, "#") {
 			// Comment
@@ -28,15 +27,15 @@ func LoadEnv(file string) error {
 			continue
 		}
 
-		parts := strings.Split(trimmed, "=")
-		if len(parts) == 1 {
-			return fmt.Errorf("invalid line %v: %v", i, line)
+		index := strings.Index(trimmed, "=")
+		if index > 0 {
+			k := trimmed[0:index]
+			v := trimmed[index+1:]
+
+			name := cloudy.NormalizeEnvName(k)
+			os.Setenv(name, v)
 		}
 
-		name := cloudy.NormalizeEnvName(parts[0])
-		value := parts[1]
-
-		os.Setenv(name, value)
 	}
 	return nil
 }
