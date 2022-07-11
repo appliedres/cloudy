@@ -76,6 +76,11 @@ func GenerateId(prefix string, num int) string {
 	return prefix + "-" + id
 }
 
+func GenerateRandom(num int) string {
+	id, _ := gonanoid.Generate("abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", num)
+	return id
+}
+
 func HashId(prefix string, parts ...string) string {
 	data := strings.Join(parts, "---")
 

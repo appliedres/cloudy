@@ -34,14 +34,17 @@ type VirtualMachineStatus struct {
 }
 
 type VirtualMachineConfiguration struct {
-	ID                    string             `json:"id,omitempty"`
-	LongID                string             `json:"longId,omitempty"`
-	Name                  string             `json:"name,omitempty"`
-	Tags                  map[string]*string `json:"tags,omitempty"`
-	Size                  string             `json:"size,omitempty"`
+	ID                    string            `json:"id,omitempty"`
+	LongID                string            `json:"longId,omitempty"`
+	Name                  string            `json:"name,omitempty"`
+	Tags                  map[string]string `json:"tags,omitempty"`
+	Size                  string            `json:"size,omitempty"`
+	OSType                string
 	OSDisk                *VirtualMachineDisk
 	Disks                 []*VirtualMachineDisk
 	Image                 string
+	ImageVersion          string
+	PrimaryNetwork        *VirtualMachineNetwork
 	Networks              []*VirtualMachineNetwork
 	Credientials          Credientials
 	StartUpCommand        string
@@ -57,12 +60,14 @@ type VirtualMachineLimit struct {
 type Credientials struct {
 	AdminUser     string
 	AdminPassword string
+	SSHKey        string
 }
 
 type VirtualMachineNetwork struct {
-	IP       string
-	External bool
-	Primary  bool
+	ID        string
+	Name      string
+	PrivateIP string
+	PublicIP  string
 }
 
 type VirtualMachineDisk struct {
