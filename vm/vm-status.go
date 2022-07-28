@@ -2,6 +2,8 @@ package vm
 
 import (
 	"context"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/appliedres/cloudy"
@@ -19,6 +21,40 @@ Azure:
 */
 
 var VmControllers = cloudy.NewProviderRegistry[VMController]()
+
+type VmSize struct {
+	Vendor                string  // Clolud vendor, azure, aws, gcp, etc
+	Name                  string  // name of the size
+	Family                string  // Family of the size
+	Size                  string  // Size ID that the vendor recoknizes
+	MaxNics               int     // Max Network Interfaces
+	AcceleratedNetworking bool    // Supports Accelerated Networking
+	VCPU                  int     // Virtual CPUs
+	PremiumIO             bool    // Supports Premium SSD / IO
+	MemoryGB              float64 // Memory assigned in GB
+	GpuVendor             string  // Vendor for the GPU, expect <blank>, "nvidia", "amd", "random"
+	GPU                   float64 // Number of virtual GPIs
+	Enabled               bool    // If the Size is enabled
+	Notes                 string  // Any admin level notes
+	CpuVendor             string  // Vendor of the CPU, "intel", "amd"
+	CpuGeneration         string  // Generation of the CPU "Ivy Bridge", etc.
+	Cost                  float64 // Cost per hour
+}
+
+type VmSizeRequest struct {
+	AcceleratedNetworking bool    `json:"AcceleratedNetworking,omitempty"`
+	CPUGeneration         string  `json:"CPUGeneration,omitempty"`
+	CPUVendor             string  `json:"CPUVendor,omitempty"`
+	GPUVendor             string  `json:"GPUVendor,omitempty"`
+	MaxCPU                float64 `json:"MaxCPU,omitempty"`
+	MaxGPU                float64 `json:"MaxGPU,omitempty"`
+	MinCPU                float64 `json:"MinCPU,omitempty"`
+	MinGPU                float64 `json:"MinGPU,omitempty"`
+	Name                  string  `json:"Name,omitempty"`
+	PremiumIO             bool    `json:"PremiumIO,omitempty"`
+	SpecificSize          string  `json:"SpecificSize,omitempty"`
+	Vendor                string  `json:"Vendor,omitempty"`
+}
 
 type VirtualMachineStatus struct {
 	ID                string             `json:"id,omitempty"`
@@ -38,7 +74,8 @@ type VirtualMachineConfiguration struct {
 	LongID                string            `json:"longId,omitempty"`
 	Name                  string            `json:"name,omitempty"`
 	Tags                  map[string]string `json:"tags,omitempty"`
-	Size                  string            `json:"size,omitempty"`
+	Size                  *VmSize           `json:"size,omitempty"`
+	SizeRequest           *VmSizeRequest
 	OSType                string
 	OSDisk                *VirtualMachineDisk
 	Disks                 []*VirtualMachineDisk
@@ -92,4 +129,127 @@ type VMController interface {
 	Terminate(ctx context.Context, vmName string, wait bool) error
 	Create(ctx context.Context, vm *VirtualMachineConfiguration) (*VirtualMachineConfiguration, error)
 	GetLimits(ctx context.Context) ([]*VirtualMachineLimit, error)
+	GetVMSizes(ctx context.Context) (map[string]*VmSize, error)
 }
+
+func FindBestVmSizes(sizeRequest *VmSizeRequest, availableSizes []*VmSize) []*VmSize {
+	var toSort []*VmSize
+	for _, s := range availableSizes {
+		if sizeRequest.Matches(s) {
+			toSort = append(toSort, s)
+		}
+	}
+
+	if len(toSort) == 0 {
+		return nil
+	}
+
+	sort.Sort(VMSizeCollection(toSort))
+	return toSort
+}
+
+func FindBestVmSize(sizeRequest *VmSizeRequest, availableSizes []*VmSize) *VmSize {
+	sorted := FindBestVmSizes(sizeRequest, availableSizes)
+	if sorted == nil {
+		return nil
+	}
+	return sorted[0]
+}
+
+func (req *VmSizeRequest) Matches(size *VmSize) bool {
+	if !size.Enabled {
+		return false
+	}
+
+	if req.SpecificSize != "" {
+		if req.SpecificSize == size.Size {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	if req.AcceleratedNetworking && !size.AcceleratedNetworking {
+		return false
+	}
+	if req.PremiumIO && !size.PremiumIO {
+		return false
+	}
+	if req.CPUVendor != "" && strings.EqualFold(req.CPUVendor, size.CpuVendor) {
+		return false
+	}
+	if req.GPUVendor != "" && strings.EqualFold(req.GPUVendor, size.GpuVendor) {
+		return false
+	}
+	if req.CPUGeneration != "" && strings.EqualFold(req.CPUGeneration, size.CpuGeneration) {
+		return false
+	}
+	if float64(size.VCPU) < req.MinCPU {
+		return false
+	}
+	if float64(size.VCPU) >= req.MaxCPU {
+		return false
+	}
+
+	if size.GPU > 0 && req.MinGPU > 0 {
+		if float64(size.GPU) < req.MinGPU {
+			return false
+		}
+		if float64(size.GPU) >= req.MaxGPU {
+			return false
+		}
+	}
+
+	return true
+}
+
+type VMSizeCollection []*VmSize
+
+func (coll VMSizeCollection) Len() int {
+	return len(coll)
+}
+
+func (coll VMSizeCollection) Swap(i, j int) {
+	coll[i], coll[j] = coll[j], coll[i]
+}
+
+func (coll VMSizeCollection) Less(i, j int) bool {
+	s1 := coll[i]
+	s2 := coll[j]
+
+	if s1.AcceleratedNetworking && !s2.AcceleratedNetworking {
+		return true
+	}
+	if s1.PremiumIO && !s2.PremiumIO {
+		return true
+	}
+	if s1.MemoryGB < s2.MemoryGB {
+		return true
+	}
+	if s1.VCPU < s2.VCPU {
+		return true
+	}
+	if s1.GPU < s2.GPU {
+		return true
+	}
+
+	return false
+}
+
+/*
+FILTER
+	Enabled
+	Requires Accelerated Networking
+	Requires PremiumIO
+	CPU Vendor
+	GPU Vendor
+	CPU Generation
+
+SCORE
+	Lowest number of CPUs that match
+	Lowest number of GPUs that match
+	Lowest number of Memory that matches
+	Accelerated Networking Preferred
+	PremiumIO Preferred
+
+*/

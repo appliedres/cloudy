@@ -1,6 +1,7 @@
 package cloudy
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -46,6 +47,11 @@ func (pr *ProvidersRegistry[T]) NewFromEnv(env *SegmentedEnvironment, driverKey 
 	driver := env.ForceCascade(driverKey, "DRIVER", "DEFAULT_DRIVER")
 	factory, ok := MapKey(pr.Providers, driver, true)
 	if !ok {
+		var keys []string
+		for key := range pr.Providers {
+			keys = append(keys, key)
+		}
+		Error(context.Background(), "Driver Not found. Available drivers are: %v", keys)
 		return zero, ErrDriverNotFound
 	}
 	cfg, err := factory.FromEnv(env)
