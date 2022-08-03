@@ -39,21 +39,51 @@ type VmSize struct {
 	CpuVendor             string  // Vendor of the CPU, "intel", "amd"
 	CpuGeneration         string  // Generation of the CPU "Ivy Bridge", etc.
 	Cost                  float64 // Cost per hour
+	QuotaAvailable        int64   // Number of CPUs that are available
 }
 
 type VmSizeRequest struct {
-	AcceleratedNetworking bool    `json:"AcceleratedNetworking,omitempty"`
-	CPUGeneration         string  `json:"CPUGeneration,omitempty"`
-	CPUVendor             string  `json:"CPUVendor,omitempty"`
-	GPUVendor             string  `json:"GPUVendor,omitempty"`
-	MaxCPU                float64 `json:"MaxCPU,omitempty"`
-	MaxGPU                float64 `json:"MaxGPU,omitempty"`
-	MinCPU                float64 `json:"MinCPU,omitempty"`
-	MinGPU                float64 `json:"MinGPU,omitempty"`
-	Name                  string  `json:"Name,omitempty"`
-	PremiumIO             bool    `json:"PremiumIO,omitempty"`
-	SpecificSize          string  `json:"SpecificSize,omitempty"`
-	Vendor                string  `json:"Vendor,omitempty"`
+	// accelerated networking
+	AcceleratedNetworking bool `json:"AcceleratedNetworking,omitempty"`
+
+	// CPU generation
+	CPUGeneration string `json:"CPUGeneration,omitempty"`
+
+	// CPU vendor
+	CPUVendor string `json:"CPUVendor,omitempty"`
+
+	// g p u vendor
+	GPUVendor string `json:"GPUVendor,omitempty"`
+
+	// max CPU
+	MaxCPU float64 `json:"MaxCPU,omitempty"`
+
+	// max g p u
+	MaxGPU float64 `json:"MaxGPU,omitempty"`
+
+	// max memory
+	MaxMemory float64 `json:"MaxMemory,omitempty"`
+
+	// min CPU
+	MinCPU float64 `json:"MinCPU,omitempty"`
+
+	// min g p u
+	MinGPU float64 `json:"MinGPU,omitempty"`
+
+	// min memory
+	MinMemory float64 `json:"MinMemory,omitempty"`
+
+	// name
+	Name string `json:"Name,omitempty"`
+
+	// premium i o
+	PremiumIO bool `json:"PremiumIO,omitempty"`
+
+	// specific size
+	SpecificSize string `json:"SpecificSize,omitempty"`
+
+	// vendor
+	Vendor string `json:"Vendor,omitempty"`
 }
 
 type VirtualMachineStatus struct {
@@ -232,8 +262,20 @@ func (coll VMSizeCollection) Less(i, j int) bool {
 	if s1.GPU < s2.GPU {
 		return true
 	}
+	if s1.QuotaAvailable > s2.QuotaAvailable {
+		return true
+	}
 
 	return false
+}
+
+func FindLimit(limits []*VirtualMachineLimit, size string) *VirtualMachineLimit {
+	for _, l := range limits {
+		if l.Name == size {
+			return l
+		}
+	}
+	return nil
 }
 
 /*

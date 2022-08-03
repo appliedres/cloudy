@@ -56,6 +56,12 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, memberId string) {
 	}
 	assert.NotNil(t, found)
 
+	// Makes sure
+
+	usergroups, err := gm.GetUserGroups(ctx, memberId)
+	assert.Nil(t, err)
+	assert.True(t, len(usergroups) > 0)
+
 	// Remove
 	err = gm.RemoveMembers(ctx, testG, []string{memberId})
 	assert.Nil(t, err)
@@ -78,4 +84,5 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, memberId string) {
 	grpDeleted, err := gm.GetGroup(ctx, testG)
 	assert.Nil(t, err)
 	assert.Nil(t, grpDeleted)
+
 }
