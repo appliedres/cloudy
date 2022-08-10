@@ -3,7 +3,11 @@ package storage
 import (
 	"context"
 	"io"
+
+	"github.com/appliedres/cloudy"
 )
+
+var ObjectStorageProviders = cloudy.NewProviderRegistry[ObjectStorageManager]()
 
 type StoredObject struct {
 	Key  string

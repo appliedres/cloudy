@@ -76,6 +76,18 @@ func GenerateId(prefix string, num int) string {
 	return prefix + "-" + id
 }
 
+// Generate an ID. The ID will follow the pattern {prefix}-{id} where the id
+// is a randomly generated string of alphanumeric characters
+func GenerateIdLower(prefix string, num int) string {
+	if num <= 0 {
+		num = 15
+	}
+	cnt := num - len(prefix) - 1
+
+	id, _ := gonanoid.Generate("abcdefghijklmnopqrstuvxyz1234567890", cnt)
+	return prefix + "-" + id
+}
+
 func GenerateRandom(num int) string {
 	id, _ := gonanoid.Generate("abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", num)
 	return id

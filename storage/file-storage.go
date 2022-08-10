@@ -1,6 +1,12 @@
 package storage
 
-import "context"
+import (
+	"context"
+
+	"github.com/appliedres/cloudy"
+)
+
+var FileShareProviders = cloudy.NewProviderRegistry[FileStorageManager]()
 
 // StorageArea is an abstract container / bucket representation
 type FileShare struct {

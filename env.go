@@ -2,6 +2,7 @@ package cloudy
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -297,4 +298,36 @@ func ToEnvName(name string, prefix string) string {
 		}
 	}
 	return NormalizeEnvName(fullname)
+}
+
+func LoadEnv(file string) error {
+
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+
+	all := string(data)
+	lines := strings.Split(all, "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "#") {
+			// Comment
+			continue
+		}
+		if len(trimmed) == 0 {
+			continue
+		}
+
+		index := strings.Index(trimmed, "=")
+		if index > 0 {
+			k := trimmed[0:index]
+			v := trimmed[index+1:]
+
+			name := NormalizeEnvName(k)
+			os.Setenv(name, v)
+		}
+
+	}
+	return nil
 }
