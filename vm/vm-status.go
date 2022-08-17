@@ -138,6 +138,7 @@ type VirtualMachineNetwork struct {
 }
 
 type VirtualMachineDisk struct {
+	Name string
 	Size string
 }
 
