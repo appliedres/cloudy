@@ -113,6 +113,7 @@ type VirtualMachineConfiguration struct {
 	ImageVersion          string
 	PrimaryNetwork        *VirtualMachineNetwork
 	Networks              []*VirtualMachineNetwork
+	DomainControllers     []*string
 	Credientials          Credientials
 	StartUpCommand        string
 	CloudProviderSettings interface{} // Custom settings for this cloud provider
