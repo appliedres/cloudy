@@ -8,8 +8,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGroupManager(t *testing.T, gm cloudy.GroupManager, memberId string) {
+func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManager) {
 	ctx := cloudy.StartContext()
+
+	user := "test.user@skyborg.onmicrosoft.us"
+
+	u1 := &models.User{
+		ID:                 user,
+		UserName:           user,
+		FirstName:          "test",
+		LastName:           "user",
+		DisplayName:        "Test User",
+		Password:           "dont_ever_use_1234%^&*",
+		MustChangePassword: true,
+	}
+
+	u2, err := umg.NewUser(ctx, u1)
+	assert.Nil(t, err)
+	assert.NotNil(t, u2, "Should be there")
+
+	memberId := u2.ID
 
 	grps, err := gm.ListGroups(ctx)
 	assert.Nil(t, err)
@@ -84,5 +102,8 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, memberId string) {
 	grpDeleted, err := gm.GetGroup(ctx, testG)
 	assert.Nil(t, err)
 	assert.Nil(t, grpDeleted)
+
+	err = umg.DeleteUser(ctx, user)
+	assert.Nil(t, err)
 
 }
