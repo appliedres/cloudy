@@ -160,6 +160,7 @@ type VMController interface {
 	Stop(ctx context.Context, vmName string, wait bool) error
 	Terminate(ctx context.Context, vmName string, wait bool) error
 	Create(ctx context.Context, vm *VirtualMachineConfiguration) (*VirtualMachineConfiguration, error)
+	Delete(ctx context.Context, vm *VirtualMachineConfiguration) (*VirtualMachineConfiguration, error)
 	GetLimits(ctx context.Context) ([]*VirtualMachineLimit, error)
 	GetVMSizes(ctx context.Context) (map[string]*VmSize, error)
 }
