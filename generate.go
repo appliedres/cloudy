@@ -17,50 +17,110 @@ var (
 	upperCharSet   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	specialCharSet = "!@#$%&*"
 	numberSet      = "0123456789"
-	allCharSet     = lowerCharSet + upperCharSet + specialCharSet + numberSet
 )
+
+type PasswordOptions struct {
+	Length int
+
+	MinUpperCase   int
+	MinNum         int
+	MinSpecialChar int
+
+	HasUpperCase   bool
+	HasNum         bool
+	HasSpecialChar bool
+}
+
+func (po PasswordOptions) GetCharSet() string {
+	charSet := lowerCharSet
+
+	if po.HasUpperCase {
+		charSet += upperCharSet
+	}
+
+	if po.HasNum {
+		charSet += numberSet
+	}
+
+	if po.HasSpecialChar {
+		charSet += specialCharSet
+	}
+
+	return charSet
+}
 
 func init() {
 
 }
 
+func GeneratePasswordNoSpecial(passwordLength, minNum, minUpperCase int) string {
+	return GeneratePasswordFromOptions(PasswordOptions{
+		Length:         passwordLength,
+		MinUpperCase:   minUpperCase,
+		MinNum:         minNum,
+		HasUpperCase:   true,
+		HasNum:         true,
+		HasSpecialChar: false,
+	})
+}
+
 func GeneratePassword(passwordLength, minSpecialChar, minNum, minUpperCase int) string {
+	return GeneratePasswordFromOptions(PasswordOptions{
+		Length:         passwordLength,
+		MinUpperCase:   minUpperCase,
+		MinNum:         minNum,
+		MinSpecialChar: minSpecialChar,
+		HasUpperCase:   true,
+		HasNum:         true,
+		HasSpecialChar: true,
+	})
+}
+
+func GeneratePasswordFromOptions(po PasswordOptions) string {
 	var password strings.Builder
 
-	//Set special character
-	for i := 0; i < minSpecialChar; i++ {
-		random, _ := rand.Int(rand.Reader, big.NewInt(int64(len(specialCharSet))))
-		// random := rand.Intn(len(specialCharSet))
-		password.WriteString(string(specialCharSet[random.Int64()]))
+	if po.HasSpecialChar {
+		//Set special character
+		for i := 0; i < po.MinSpecialChar; i++ {
+			random, _ := rand.Int(rand.Reader, big.NewInt(int64(len(specialCharSet))))
+			// random := rand.Intn(len(specialCharSet))
+			password.WriteString(string(specialCharSet[random.Int64()]))
+		}
 	}
 
-	//Set numeric
-	for i := 0; i < minNum; i++ {
-		// random := rand.Intn(len(numberSet))
-		random, _ := rand.Int(rand.Reader, big.NewInt(int64(len(numberSet))))
+	if po.HasNum {
+		//Set numeric
+		for i := 0; i < po.MinNum; i++ {
+			// random := rand.Intn(len(numberSet))
+			random, _ := rand.Int(rand.Reader, big.NewInt(int64(len(numberSet))))
 
-		password.WriteString(string(numberSet[random.Int64()]))
+			password.WriteString(string(numberSet[random.Int64()]))
+		}
 	}
 
-	//Set uppercase
-	for i := 0; i < minUpperCase; i++ {
-		// random := rand.Intn(len(upperCharSet))
-		random, _ := rand.Int(rand.Reader, big.NewInt(int64(len(upperCharSet))))
+	if po.HasUpperCase {
+		//Set uppercase
+		for i := 0; i < po.MinUpperCase; i++ {
+			// random := rand.Intn(len(upperCharSet))
+			random, _ := rand.Int(rand.Reader, big.NewInt(int64(len(upperCharSet))))
 
-		password.WriteString(string(upperCharSet[random.Int64()]))
+			password.WriteString(string(upperCharSet[random.Int64()]))
+		}
 	}
 
-	remainingLength := passwordLength - minSpecialChar - minNum - minUpperCase
+	charSet := po.GetCharSet()
+	remainingLength := po.Length - po.MinSpecialChar - po.MinNum - po.MinUpperCase
 	for i := 0; i < remainingLength; i++ {
 		// random := rand.Intn(len(allCharSet))
-		random, _ := rand.Int(rand.Reader, big.NewInt(int64(len(allCharSet))))
+		random, _ := rand.Int(rand.Reader, big.NewInt(int64(len(charSet))))
 
-		password.WriteString(string(allCharSet[random.Int64()]))
+		password.WriteString(string(charSet[random.Int64()]))
 	}
 	inRune := []rune(password.String())
 	mrand.Shuffle(len(inRune), func(i, j int) {
 		inRune[i], inRune[j] = inRune[j], inRune[i]
 	})
+
 	return string(inRune)
 }
 

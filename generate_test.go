@@ -14,6 +14,14 @@ func TestGeneratePassword(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(".*[0-9].*[0-9].*"), p, "Expecting 2 digits")
 	assert.Regexp(t, regexp.MustCompile(".*[A-Z].*[A-Z].*"), p, "Expecting 2 uppercase")
 	assert.Regexp(t, regexp.MustCompile(".*[!@#$%&*].*[!@#$%&*].*"), p, "Expecting 2 special")
+
+	p = GeneratePasswordNoSpecial(8, 2, 2)
+
+	assert.Equal(t, len(p), 8)
+	assert.Regexp(t, regexp.MustCompile(".*[0-9].*[0-9].*"), p, "Expecting 2 digits")
+	assert.Regexp(t, regexp.MustCompile(".*[A-Z].*[A-Z].*"), p, "Expecting 2 uppercase")
+	assert.Regexp(t, regexp.MustCompile(".*[!@#$%&*]{0}.*"), p, "Expecting 0 special")
+
 }
 
 func TestGeneratedD(t *testing.T) {
