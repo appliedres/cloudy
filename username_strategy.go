@@ -47,17 +47,17 @@ func FindMatchingUser(ctx context.Context, username string, mode DuplicateUserMo
 
 		user, err := manager.GetUser(ctx, guess)
 		if err != nil {
-			return username, nil
+			return guess, nil
 		}
 
 		if mode == UserExists && user != nil {
-			return username, nil
+			return guess, nil
 		}
 		if mode == UserExists && user == nil {
 			return "", nil
 		}
 		if mode == UserDoesNotExist && user == nil {
-			return username, nil
+			return guess, nil
 		}
 
 		Info(ctx, "Found User %v", user.DisplayName)
