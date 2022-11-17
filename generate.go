@@ -2,6 +2,8 @@ package cloudy
 
 import (
 	"crypto/rand"
+	"fmt"
+	"regexp"
 	"strings"
 
 	"math/big"
@@ -13,7 +15,7 @@ import (
 )
 
 var (
-	lowerCharSet   = "abcdedfghijklmnopqrst"
+	lowerCharSet   = "abcdefghijklmnopqrstuvwxyz"
 	upperCharSet   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	specialCharSet = "!@#$%&*"
 	numberSet      = "0123456789"
@@ -62,6 +64,54 @@ func GeneratePasswordNoSpecial(passwordLength, minNum, minUpperCase int) string 
 		HasNum:         true,
 		HasSpecialChar: false,
 	})
+}
+
+func IsValidPassword(password string) bool {
+	return IsValidPasswordWithOptions(password, PasswordOptions{
+		HasUpperCase:   true,
+		HasNum:         true,
+		HasSpecialChar: true,
+	})
+}
+
+func IsValidPasswordNoSpecial(password string) bool {
+	return IsValidPasswordWithOptions(password, PasswordOptions{
+		HasUpperCase:   true,
+		HasNum:         true,
+		HasSpecialChar: false,
+	})
+}
+
+func IsValidPasswordWithOptions(password string, options PasswordOptions) bool {
+
+	var (
+		lower   = regexp.MustCompile(fmt.Sprintf("[%s]{1}", lowerCharSet))
+		upper   = regexp.MustCompile(fmt.Sprintf("[%s]{1}", upperCharSet))
+		number  = regexp.MustCompile(fmt.Sprintf("[%s]{1}", numberSet))
+		special = regexp.MustCompile(fmt.Sprintf("[%s]{1}", specialCharSet))
+	)
+
+	var (
+		lowerFound   = len(lower.FindAllString(password, -1))
+		upperFound   = len(upper.FindAllString(password, -1))
+		numberFound  = len(number.FindAllString(password, -1))
+		specialFound = len(special.FindAllString(password, -1))
+		invalidFound = len(password) - lowerFound - upperFound - numberFound - specialFound
+	)
+
+	var (
+		foundLower   = lowerFound > 0
+		foundUpper   = upperFound > 0
+		foundNumber  = numberFound > 0
+		foundSpecial = specialFound > 0
+		foundInvalid = invalidFound > 0
+	)
+
+	if !options.HasSpecialChar {
+		return foundUpper && foundLower && foundNumber && !foundSpecial && !foundInvalid
+	}
+
+	return foundUpper && foundLower && foundNumber && foundSpecial && !foundInvalid
 }
 
 func GeneratePassword(passwordLength, minSpecialChar, minNum, minUpperCase int) string {

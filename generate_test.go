@@ -15,12 +15,21 @@ func TestGeneratePassword(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(".*[A-Z].*[A-Z].*"), p, "Expecting 2 uppercase")
 	assert.Regexp(t, regexp.MustCompile(".*[!@#$%&*].*[!@#$%&*].*"), p, "Expecting 2 special")
 
+	pv := IsValidPassword(p)
+	assert.True(t, pv, "%s",  p)
+
+	pv = IsValidPasswordNoSpecial(p)
+	assert.False(t, pv)
+
 	p = GeneratePasswordNoSpecial(8, 2, 2)
 
 	assert.Equal(t, len(p), 8)
 	assert.Regexp(t, regexp.MustCompile(".*[0-9].*[0-9].*"), p, "Expecting 2 digits")
 	assert.Regexp(t, regexp.MustCompile(".*[A-Z].*[A-Z].*"), p, "Expecting 2 uppercase")
 	assert.Regexp(t, regexp.MustCompile(".*[!@#$%&*]{0}.*"), p, "Expecting 0 special")
+
+	pv = IsValidPasswordNoSpecial(p)
+	assert.True(t, pv)
 
 }
 
