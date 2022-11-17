@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFileShareStorageManager(t *testing.T, mgr storage.FileStorageManager) {
+func TestFileShareStorageManager(t *testing.T, mgr storage.FileStorageManager, containerName string) {
 	ctx := cloudy.StartContext()
 
 	meta := map[string]string{
@@ -16,16 +16,16 @@ func TestFileShareStorageManager(t *testing.T, mgr storage.FileStorageManager) {
 	}
 
 	// Exists
-	exists, err := mgr.Exists(ctx, "file-storage-test")
+	exists, err := mgr.Exists(ctx, containerName)
 	assert.Nil(t, err)
 
 	if exists {
-		err = mgr.Delete(ctx, "file-storage-test")
+		err = mgr.Delete(ctx, containerName)
 		assert.Nil(t, err)
 	}
 
 	// Create
-	osm, err := mgr.Create(ctx, "file-storage-test", meta)
+	osm, err := mgr.Create(ctx, containerName, meta)
 	assert.Nil(t, err)
 	assert.NotNil(t, osm)
 
@@ -35,12 +35,12 @@ func TestFileShareStorageManager(t *testing.T, mgr storage.FileStorageManager) {
 	assert.Equal(t, 1, len(all))
 
 	// Get
-	osm2, err := mgr.Get(ctx, "file-storage-test")
+	osm2, err := mgr.Get(ctx, containerName)
 	assert.Nil(t, err)
 	assert.NotNil(t, osm2)
 
 	// Delete
-	err = mgr.Delete(ctx, "file-storage-test")
+	err = mgr.Delete(ctx, containerName)
 	assert.Nil(t, err)
 
 }

@@ -16,10 +16,10 @@ func TestGeneratePassword(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(".*[!@#$%&*].*[!@#$%&*].*"), p, "Expecting 2 special")
 
 	pv := IsValidPassword(p)
-	assert.True(t, pv, "%s",  p)
+	assert.True(t, pv, p)
 
 	pv = IsValidPasswordNoSpecial(p)
-	assert.False(t, pv)
+	assert.False(t, pv, p)
 
 	p = GeneratePasswordNoSpecial(8, 2, 2)
 
@@ -29,7 +29,10 @@ func TestGeneratePassword(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(".*[!@#$%&*]{0}.*"), p, "Expecting 0 special")
 
 	pv = IsValidPasswordNoSpecial(p)
-	assert.True(t, pv)
+	assert.True(t, pv, p)
+
+	pv = IsValidPassword(p)
+	assert.False(t, pv, p)
 
 }
 

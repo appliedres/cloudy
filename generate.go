@@ -83,6 +83,9 @@ func IsValidPasswordNoSpecial(password string) bool {
 }
 
 func IsValidPasswordWithOptions(password string, options PasswordOptions) bool {
+	if len(password) == 0{
+		return false
+	} 
 
 	var (
 		lower   = regexp.MustCompile(fmt.Sprintf("[%s]{1}", lowerCharSet))
