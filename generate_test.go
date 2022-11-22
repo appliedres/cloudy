@@ -34,6 +34,9 @@ func TestGeneratePassword(t *testing.T) {
 	pv = IsValidPassword(p)
 	assert.False(t, pv, p)
 
+
+	pv = IsValidPasswordNoSpecial("testpassword123456")
+	assert.False(t, pv, p)
 }
 
 func TestGeneratedD(t *testing.T) {
