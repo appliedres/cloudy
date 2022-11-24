@@ -2,10 +2,11 @@ package cloudy
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type UserJWT struct {
@@ -31,6 +32,7 @@ type UserJWT struct {
 	FamilyName        string                 `json:"family_name"`
 	Email             string                 `json:"email"`
 	UPN               string                 `json:"upn"`
+	Groups            []string               `json:"groups"`
 }
 
 type UserJWTRealmAccess struct {
@@ -43,7 +45,7 @@ type UserJWTResourceAccessAccount struct {
 	Roles []string `json:"roles"`
 }
 
-//Valid determines if the claims are valid
+// Valid determines if the claims are valid
 func (jwt UserJWT) Valid() error {
 	return nil
 }
@@ -55,14 +57,29 @@ func (jwt *UserJWT) IsAuthenticated() bool {
 const UserAnonymous = "ANONYMOUS"
 
 func IsAdmin(user *UserJWT) bool {
-	if user.RealmAccess == nil {
-		return false
-	}
-	for _, role := range user.RealmAccess.Roles {
-		if strings.EqualFold("DevSecOps", role) {
-			return true
+	if user.RealmAccess != nil {
+		for _, role := range user.RealmAccess.Roles {
+			if strings.EqualFold("DevSecOps", role) {
+				return true
+			}
 		}
 	}
+	if user.Groups != nil {
+		admin := GetEnv("ADMIN_GROUP", "")
+
+		if admin != "" {
+			fmt.Printf("Checking Admin %v\n", admin)
+
+			for _, role := range user.Groups {
+				if strings.EqualFold(admin, role) {
+					return true
+				}
+			}
+		} else {
+			fmt.Printf("Admin Group not set\n")
+		}
+	}
+
 	return false
 }
 
@@ -84,7 +101,7 @@ func GetUserFromRequest(ctx context.Context, request *http.Request) (*UserJWT, e
 	return nil, Error(ctx, "No Tokens found: %v\n", tokens)
 }
 
-//GetUserInfoFromToken Gets a user information from the JWT (Authorization Header)
+// GetUserInfoFromToken Gets a user information from the JWT (Authorization Header)
 func GetUserInfoFromToken(token string) *UserJWT {
 	if token == "" || strings.EqualFold(token, "Bearer undefined") {
 		return &UserJWT{
@@ -104,7 +121,7 @@ func GetUserInfoFromToken(token string) *UserJWT {
 	return claims
 }
 
-//ParseToken Parses the id token from cognito
+// ParseToken Parses the id token from cognito
 func ParseToken(tokenstr string) (*UserJWT, error) {
 	// fmt.Printf("PARSING JWT TOKEN %v\n", tokenstr)
 	tokenToParse := tokenstr

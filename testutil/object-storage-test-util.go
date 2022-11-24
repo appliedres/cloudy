@@ -79,9 +79,10 @@ func TestObjectStorage(t *testing.T, osm storage.ObjectStorage) {
 	assert.Nil(t, err)
 	assert.Equal(t, data, blk)
 
-	items, err := osm.List(ctx, "")
+	items, prefixes, err := osm.List(ctx, "")
 	assert.Nil(t, err)
 	assert.Equal(t, len(items), 1)
+	assert.Equal(t, len(prefixes), 0)
 
 	err = osm.Delete(ctx, "test-key")
 	assert.Nil(t, err)

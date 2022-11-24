@@ -12,6 +12,7 @@ var FileShareProviders = cloudy.NewProviderRegistry[FileStorageManager]()
 type FileShare struct {
 	ID   string
 	Name string
+	Tags map[string]string
 }
 
 // ObjectStorageManager manages storage areas. T
