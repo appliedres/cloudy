@@ -341,7 +341,7 @@ func LoadEnv(file string) error {
 
 func CreateCompleteEnvironment(envVar string, PrefixVar string) *Environment {
 	// create a simple env first
-	tempEnv := NewEnvironment(NewOsEnvironmentService())
+	tempEnv := NewEnvironment(NewTieredEnvironment(NewTestFileEnvironmentService(), NewOsEnvironmentService()))
 	envServiceList := tempEnv.Default(envVar, "test|osenv")
 	prefix := tempEnv.Get(PrefixVar)
 
@@ -359,5 +359,4 @@ func CreateCompleteEnvironment(envVar string, PrefixVar string) *Environment {
 	}
 
 	return NewEnvironment(NewHierarchicalEnvironment(NewTieredEnvironment(envServices...), prefix))
-
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 
@@ -160,17 +159,22 @@ func LoadEnvironmentService(file string) (*MapEnvironment, error) {
 	return env, nil
 }
 
-type TestEnvFileFactory struct{}
-
-func (f *TestEnvFileFactory) Create(cfg interface{}) (EnvironmentService, error) {
-	_, currentDir, _, _ := runtime.Caller(0)
-	basePath := filepath.Dir(currentDir)
-	mp, err := LoadEnvironmentService(filepath.Join(basePath, "test.env"))
+func NewTestFileEnvironmentService() *MapEnvironment {
+	// _, currentDir, _, _ := runtime.Caller(0)
+	currentDir, _ := os.Getwd()
+	mp, err := LoadEnvironmentService(filepath.Join(currentDir, "test.env"))
 	if err != nil {
 		fmt.Printf("No test.env found... this is oK")
 	}
-	return mp, nil
+	return mp
 }
+
+type TestEnvFileFactory struct{}
+
+func (f *TestEnvFileFactory) Create(cfg interface{}) (EnvironmentService, error) {
+	return NewTestFileEnvironmentService(), nil
+}
+
 func (f *TestEnvFileFactory) FromEnv(env *Environment) (interface{}, error) {
 	return nil, nil
 }
