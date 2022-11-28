@@ -14,7 +14,7 @@ var ErrOperationNotImplemented = errors.New("operation not implemented")
 
 type ProviderFactory[T any] interface {
 	Create(cfg interface{}) (T, error)
-	FromEnv(env *SegmentedEnvironment) (interface{}, error)
+	FromEnv(env *Environment) (interface{}, error)
 }
 
 type ProvidersRegistry[T any] struct {
@@ -41,10 +41,28 @@ func (pr *ProvidersRegistry[T]) New(name string, cfg interface{}) (T, error) {
 	return factory.Create(cfg)
 }
 
-func (pr *ProvidersRegistry[T]) NewFromEnv(env *SegmentedEnvironment, driverKey string) (T, error) {
+func (pr *ProvidersRegistry[T]) NewFromEnv(env *Environment, driverKey string) (T, error) {
 	var zero T
 
-	driver := env.ForceCascade(driverKey, "DRIVER", "DEFAULT_DRIVER")
+	driver := env.Force(driverKey, "DRIVER", "DEFAULT_DRIVER")
+	factory, ok := MapKey(pr.Providers, driver, true)
+	if !ok {
+		var keys []string
+		for key := range pr.Providers {
+			keys = append(keys, key)
+		}
+		Error(context.Background(), "Driver Not found. Available drivers are: %v", keys)
+		return zero, ErrDriverNotFound
+	}
+	cfg, err := factory.FromEnv(env)
+	if err != nil {
+		return zero, err
+	}
+	return factory.Create(cfg)
+}
+
+func (pr *ProvidersRegistry[T]) NewFromEnvWith(env *Environment, driver string) (T, error) {
+	var zero T
 	factory, ok := MapKey(pr.Providers, driver, true)
 	if !ok {
 		var keys []string

@@ -8,7 +8,7 @@ import (
 	"github.com/appliedres/cloudy"
 )
 
-//Loads a file delimited by \n and =
+// Loads a file delimited by \n and =
 func LoadEnv(file string) error {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {

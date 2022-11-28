@@ -40,13 +40,13 @@ func (f *FilesystemStoreFactory) Create(cfg interface{}) (BinaryDataStore, error
 	}, nil
 }
 
-func (f *FilesystemStoreFactory) FromEnv(env *cloudy.SegmentedEnvironment) (interface{}, error) {
+func (f *FilesystemStoreFactory) FromEnv(env *cloudy.Environment) (interface{}, error) {
 
 	cfg := &FilesystemStoreConfig{}
 	cfg.Dir = env.Force("FS_DIR")
 	cfg.Ext = env.Force("FS_EXT")
 
-	perms, _ := env.Default("FS_PERMS", "0600")
+	perms := env.Default("FS_PERMS", "0600")
 	if perms != "" {
 		i, err := strconv.Atoi(perms)
 		if err != nil {

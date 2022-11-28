@@ -1,209 +1,216 @@
 package cloudy
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
-	"sync"
 	"unicode"
 )
 
-type Environment struct {
-	m      *sync.Mutex
-	prefix string
-	values map[string]string
+type EnvironmentService interface {
+	Get(name string) (string, error)
 }
 
-type SegmentedEnvironment struct {
-	prefix  string
-	segment string
-	environ *Environment
+var DefaultEnvironment = NewEnvironment(NewOsEnvironmentService())
+
+func SetDefaultEnvironment(env *Environment) {
+	DefaultEnvironment = env
 }
 
-func NewEnvironment(prefix string) *Environment {
-	uPrefix := NormalizeEnvName(prefix)
+// type Environment struct {
+// 	prefix string
+// 	values map[string]string
+// }
 
-	environ := &Environment{
-		prefix: uPrefix,
-		values: make(map[string]string),
-	}
+// type SegmentedEnvironment struct {
+// 	prefix  string
+// 	segment string
+// 	environ *Environment
+// }
 
-	return environ
-}
+// func NewEnvironment(prefix string) *Environment {
+// 	uPrefix := NormalizeEnvName(prefix)
 
-func (environ *Environment) Root() *SegmentedEnvironment {
-	return &SegmentedEnvironment{
-		prefix:  environ.prefix,
-		segment: "",
-		environ: environ,
-	}
-}
+// 	environ := &Environment{
+// 		prefix: uPrefix,
+// 		values: make(map[string]string),
+// 	}
 
-func (environ *Environment) S(segment string) *SegmentedEnvironment {
-	return environ.Segment(segment)
-}
+// 	return environ
+// }
 
-func (environ *Environment) Segment(segment string) *SegmentedEnvironment {
-	s := NormalizeEnvName(segment)
-	newPrefix := EnvJoin(environ.prefix, s)
-	return &SegmentedEnvironment{
-		prefix:  newPrefix,
-		segment: s,
-		environ: environ,
-	}
-}
+// func (environ *Environment) Root() *SegmentedEnvironment {
+// 	return &SegmentedEnvironment{
+// 		prefix:  environ.prefix,
+// 		segment: "",
+// 		environ: environ,
+// 	}
+// }
 
-func (segEnv *SegmentedEnvironment) Get(name string) (string, bool) {
-	return segEnv.environ.Get(name, segEnv.segment)
-}
+// func (environ *Environment) S(segment string) *SegmentedEnvironment {
+// 	return environ.Segment(segment)
+// }
 
-func (segEnv *SegmentedEnvironment) Default(name string, defaultValue string) (string, bool) {
-	val, found := segEnv.Get(name)
-	if !found {
-		return defaultValue, false
-	}
-	return val, true
-}
+// func (environ *Environment) Segment(segment string) *SegmentedEnvironment {
+// 	s := NormalizeEnvName(segment)
+// 	newPrefix := EnvJoin(environ.prefix, s)
+// 	return &SegmentedEnvironment{
+// 		prefix:  newPrefix,
+// 		segment: s,
+// 		environ: environ,
+// 	}
+// }
 
-func (segEnv *SegmentedEnvironment) Force(name string) string {
-	val, found := segEnv.Get(name)
-	if !found {
-		full := EnvJoin(segEnv.prefix, name)
-		log.Fatalf("Required Variable not found, %v", full)
-	}
-	return val
-}
+// func (segEnv *SegmentedEnvironment) Get(name string) (string, bool) {
+// 	return segEnv.environ.Get(name, segEnv.segment)
+// }
 
-func (segEnv *SegmentedEnvironment) GetCascade(name string, others ...string) (string, bool) {
-	return segEnv.environ.GetCascade(name, segEnv.segment, others...)
-}
+// func (segEnv *SegmentedEnvironment) Default(name string, defaultValue string) (string, bool) {
+// 	val, found := segEnv.Get(name)
+// 	if !found {
+// 		return defaultValue, false
+// 	}
+// 	return val, true
+// }
 
-func (segEnv *SegmentedEnvironment) ForceCascade(name string, others ...string) string {
-	val, found := segEnv.GetCascade(name, others...)
-	if !found {
-		full := EnvJoin(segEnv.prefix, name)
-		log.Fatalf("Required Variable not found, %v", full)
-	}
-	return val
-}
+// func (segEnv *SegmentedEnvironment) Force(name string) string {
+// 	val, found := segEnv.Get(name)
+// 	if !found {
+// 		full := EnvJoin(segEnv.prefix, name)
+// 		log.Fatalf("Required Variable not found, %v", full)
+// 	}
+// 	return val
+// }
 
-func (environ *Environment) Put(name string, value string) {
-	nName := NormalizeEnvName(name)
-	environ.values[nName] = value
-}
+// func (segEnv *SegmentedEnvironment) GetCascade(name string, others ...string) (string, bool) {
+// 	return segEnv.environ.GetCascade(name, segEnv.segment, others...)
+// }
 
-// Get retrieves an environment value
-func (environ *Environment) Get(name string, area string) (string, bool) {
-	// SKYCLOUD_AZ_TENANT_ID
-	// SKYCLOUD_VMS_AZ_TENTANT_ID
-	// Get("AZ_TENANT_ID", "VMS")
+// func (segEnv *SegmentedEnvironment) ForceCascade(name string, others ...string) string {
+// 	val, found := segEnv.GetCascade(name, others...)
+// 	if !found {
+// 		full := EnvJoin(segEnv.prefix, name)
+// 		log.Fatalf("Required Variable not found, %v", full)
+// 	}
+// 	return val
+// }
 
-	raw := NormalizeEnvName(name)                       // "AZ_TENANT_ID"
-	unprefixed := EnvJoin(area, name)                   // "VMS_AZ_TENANT_ID"
-	fullPrefixed := EnvJoin(environ.prefix, unprefixed) // SKYCLOUD_VMS_AZ_TENTANT_ID
-	rawPrefixed := EnvJoin(environ.prefix, raw)         //SKYCLOUD_AZ_TENTANT_ID
+// func (environ *Environment) Put(name string, value string) {
+// 	nName := NormalizeEnvName(name)
+// 	environ.values[nName] = value
+// }
 
-	val, foundName := environ.values[fullPrefixed]
-	if foundName {
-		return val, true
-	}
+// // Get retrieves an environment value
+// func (environ *Environment) Get(name string, area string) (string, bool) {
+// 	// SKYCLOUD_AZ_TENANT_ID
+// 	// SKYCLOUD_VMS_AZ_TENTANT_ID
+// 	// Get("AZ_TENANT_ID", "VMS")
 
-	val, foundName = environ.values[rawPrefixed]
-	if foundName {
-		return val, true
-	}
+// 	raw := NormalizeEnvName(name)                       // "AZ_TENANT_ID"
+// 	unprefixed := EnvJoin(area, name)                   // "VMS_AZ_TENANT_ID"
+// 	fullPrefixed := EnvJoin(environ.prefix, unprefixed) // SKYCLOUD_VMS_AZ_TENTANT_ID
+// 	rawPrefixed := EnvJoin(environ.prefix, raw)         //SKYCLOUD_AZ_TENTANT_ID
 
-	val, foundName = environ.values[unprefixed]
-	if foundName {
-		return val, true
-	}
+// 	val, foundName := environ.values[fullPrefixed]
+// 	if foundName {
+// 		return val, true
+// 	}
 
-	val, foundName = environ.values[raw]
-	if foundName {
-		return val, true
-	}
+// 	val, foundName = environ.values[rawPrefixed]
+// 	if foundName {
+// 		return val, true
+// 	}
 
-	return "", false
-}
+// 	val, foundName = environ.values[unprefixed]
+// 	if foundName {
+// 		return val, true
+// 	}
 
-func (environ *Environment) GetCascade(name string, area string, others ...string) (string, bool) {
-	val, found := environ.Get(name, area)
-	if found {
-		return val, true
-	}
+// 	val, foundName = environ.values[raw]
+// 	if foundName {
+// 		return val, true
+// 	}
 
-	for _, otherName := range others {
-		val, found := environ.Get(otherName, area)
-		if found {
-			return val, true
-		}
-	}
+// 	return "", false
+// }
 
-	return "", false
-}
+// func (environ *Environment) GetCascade(name string, area string, others ...string) (string, bool) {
+// 	val, found := environ.Get(name, area)
+// 	if found {
+// 		return val, true
+// 	}
 
-func (environ *Environment) Force(name string, area string) string {
-	val, found := environ.Get(name, area)
-	if !found {
-		log.Fatalf("Required Variable not found, %v - %v", area, name)
-	}
-	return val
-}
+// 	for _, otherName := range others {
+// 		val, found := environ.Get(otherName, area)
+// 		if found {
+// 			return val, true
+// 		}
+// 	}
 
-func (environ *Environment) ForceCascade(name string, area string, others ...string) string {
-	val, found := environ.GetCascade(name, area, others...)
-	if !found {
-		log.Fatalf("Required Variable not found, %v - %v", area, name)
-	}
-	return val
-}
+// 	return "", false
+// }
 
-// FromOSEnvironment reads the environment from the OS Environment
-// variables and parsed them into the environment structure. This overwrites
-// whatever is present. All the
-func (environ *Environment) FromOSEnvironment() *Environment {
+// func (environ *Environment) Force(name string, area string) string {
+// 	val, found := environ.Get(name, area)
+// 	if !found {
+// 		log.Fatalf("Required Variable not found, %v - %v", area, name)
+// 	}
+// 	return val
+// }
 
-	// Look for all the
-	for _, env := range os.Environ() {
+// func (environ *Environment) ForceCascade(name string, area string, others ...string) string {
+// 	val, found := environ.GetCascade(name, area, others...)
+// 	if !found {
+// 		log.Fatalf("Required Variable not found, %v - %v", area, name)
+// 	}
+// 	return val
+// }
 
-		if env[0:1] == "\"" {
-			env = env[1:]
-		}
-		if strings.HasSuffix(env, "\"") {
-			env = env[:(len(env) - 1)]
-		}
-		i := strings.Index(env, "=")
-		if i < 0 {
-			continue
-		}
-		envName := NormalizeEnvName(env[0:i])
-		envValue := env[i+1:]
-		environ.Put(envName, envValue)
-	}
+// // FromOSEnvironment reads the environment from the OS Environment
+// // variables and parsed them into the environment structure. This overwrites
+// // whatever is present. All the
+// func (environ *Environment) FromOSEnvironment() *Environment {
 
-	return environ
-}
+// 	// Look for all the
+// 	for _, env := range os.Environ() {
 
-func (environ *Environment) FromFile(f string) *Environment {
+// 		if env[0:1] == "\"" {
+// 			env = env[1:]
+// 		}
+// 		if strings.HasSuffix(env, "\"") {
+// 			env = env[:(len(env) - 1)]
+// 		}
+// 		i := strings.Index(env, "=")
+// 		if i < 0 {
+// 			continue
+// 		}
+// 		envName := NormalizeEnvName(env[0:i])
+// 		envValue := env[i+1:]
+// 		environ.Put(envName, envValue)
+// 	}
 
-	return environ
-}
+// 	return environ
+// }
 
-func (environ *Environment) FromJSON(vals map[string]interface{}, prev string) *Environment {
-	for k, v := range vals {
-		path := EnvJoin(prev, k)
-		m := v.(map[string]interface{})
-		if m != nil {
-			return environ.FromJSON(m, path)
-		} else {
-			vStr := fmt.Sprintf("%v", v)
-			environ.Put(path, vStr)
-		}
-	}
-	return environ
-}
+// func (environ *Environment) FromFile(f string) *Environment {
+
+// 	return environ
+// }
+
+// func (environ *Environment) FromJSON(vals map[string]interface{}, prev string) *Environment {
+// 	for k, v := range vals {
+// 		path := EnvJoin(prev, k)
+// 		m := v.(map[string]interface{})
+// 		if m != nil {
+// 			return environ.FromJSON(m, path)
+// 		} else {
+// 			vStr := fmt.Sprintf("%v", v)
+// 			environ.Put(path, vStr)
+// 		}
+// 	}
+// 	return environ
+// }
 
 func EnvJoin(envParts ...string) string {
 	var trimmed []string
@@ -330,4 +337,27 @@ func LoadEnv(file string) error {
 
 	}
 	return nil
+}
+
+func CreateCompleteEnvironment(envVar string, PrefixVar string) *Environment {
+	// create a simple env first
+	tempEnv := NewEnvironment(NewOsEnvironmentService())
+	envServiceList := tempEnv.Default(envVar, "test|osenv")
+	prefix := tempEnv.Get(PrefixVar)
+
+	// Split and iterate
+	envServiceDrivers := strings.Split(envServiceList, "|")
+
+	// Create the overall environment
+	envServices := make([]EnvironmentService, len(envServiceDrivers))
+	for i, svcDriver := range envServiceDrivers {
+		envSvcInstance, err := EnvironmentProviders.NewFromEnvWith(tempEnv, svcDriver)
+		if err != nil {
+			log.Fatalf("Could not create environment: %v -> %v", svcDriver, err)
+		}
+		envServices[i] = envSvcInstance
+	}
+
+	return NewEnvironment(NewHierarchicalEnvironment(NewTieredEnvironment(envServices...), prefix))
+
 }

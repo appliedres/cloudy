@@ -20,7 +20,7 @@ func (f *InMemoryStoreFactory) Create(cfg interface{}) (BinaryDataStore, error) 
 	return NewInMemoryStore(), nil
 }
 
-func (f *InMemoryStoreFactory) FromEnv(env *cloudy.SegmentedEnvironment) (interface{}, error) {
+func (f *InMemoryStoreFactory) FromEnv(env *cloudy.Environment) (interface{}, error) {
 	return nil, nil
 }
 

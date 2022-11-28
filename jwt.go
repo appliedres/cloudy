@@ -65,7 +65,7 @@ func IsAdmin(user *UserJWT) bool {
 		}
 	}
 	if user.Groups != nil {
-		admin := GetEnv("ADMIN_GROUP", "")
+		admin := DefaultEnvironment.Get("ADMIN_GROUP")
 
 		if admin != "" {
 			fmt.Printf("Checking Admin %v\n", admin)
