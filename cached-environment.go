@@ -160,12 +160,15 @@ func LoadEnvironmentService(file string) (*MapEnvironment, error) {
 }
 
 func NewTestFileEnvironmentService() *MapEnvironment {
-	// _, currentDir, _, _ := runtime.Caller(0)
+	envFile := "test.env"
+
 	currentDir, _ := os.Getwd()
-	mp, err := LoadEnvironmentService(filepath.Join(currentDir, "test.env"))
+	envFilePath := filepath.Join(currentDir, envFile)
+	mp, err := LoadEnvironmentService(envFilePath)
 	if err != nil {
-		fmt.Printf("No test.env found... this is oK")
+		fmt.Printf("No %s found... this is ok\n", envFilePath)
 	}
+
 	return mp
 }
 

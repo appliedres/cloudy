@@ -52,7 +52,7 @@ func (env *Environment) Force(name ...string) string {
 	}
 
 	full := NormalizeEnvName(name[0])
-	log.Fatalf("Required Variable not found, %v", full)
+	log.Fatalf("Required Variable not found, %v (%s)", full, name)
 
 	return ""
 }
