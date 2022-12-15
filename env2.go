@@ -52,7 +52,7 @@ func (env *Environment) Force(name ...string) string {
 	}
 
 	full := NormalizeEnvName(name[0])
-	log.Fatalf("Required Variable not found, %v (%s)", full, name)
+	log.Fatalf("Force Required Variable not found, %v (%s)", full, name)
 
 	return ""
 }
@@ -138,7 +138,7 @@ func (segEnv *HierarchicalEnvironment) ForceNoCascadee(name string) string {
 	val, found := segEnv.GetNoCascade(name)
 	if !found {
 		full := EnvJoin(segEnv.prefix, name)
-		log.Fatalf("Required Variable not found, %v", full)
+		log.Fatalf("ForceNoCascadee Required Variable not found, %v", full)
 	}
 	return val
 }
@@ -160,7 +160,7 @@ func (segEnv *HierarchicalEnvironment) Force(name string) string {
 	val, err := segEnv.Get(name)
 	if err != nil {
 		full := EnvJoin(segEnv.prefix, name)
-		log.Fatalf("Required Variable not found, %v", full)
+		log.Fatalf("Force HierarchicalEnvironment Required Variable not found, %v", full)
 	}
 	return val
 }

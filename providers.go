@@ -93,31 +93,6 @@ func FromEnv(prefix string, driverKey string) (string, map[string]interface{}, e
 	return driver, env, nil
 }
 
-// func (pr *ProvidersRegistry[T]) NewFromJson(jsonData []byte, prefix string, driverKey string) (T, error) {
-// 	var zero T
-
-// 	container, err := gabs.ParseJSON(jsonData)
-// 	if err != nil {
-// 		return zero, err
-// 	}
-
-// 	if prefix != "" {
-// 		container = container.Path(prefix)
-// 	}
-// 	if container == nil {
-// 		return zero, fmt.Errorf("json key not found %v", prefix)
-// 	}
-
-// 	result := make(map[string]interface{})
-// 	data := container.Bytes()
-// 	err = json.Unmarshal(data, &result)
-// 	if err != nil {
-// 		return zero, err
-// 	}
-
-// 	return pr.NewFromMap(result, prefix, driverKey)
-// }
-
 func (pr *ProvidersRegistry[T]) Print() {
 	for n := range pr.Providers {
 		fmt.Printf("- %v\n", n)
