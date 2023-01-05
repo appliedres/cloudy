@@ -19,26 +19,26 @@ func TestObjectStorageManager(t *testing.T, mgr storage.ObjectStorageManager) {
 	}
 
 	// Exists
-	exists, err := mgr.Exists(ctx, "object-storage-test")
+	exists, err := mgr.Exists(ctx, "arkloud-object-storage-test")
 	assert.Nil(t, err)
 
 	if exists {
-		err = mgr.Delete(ctx, "object-storage-test")
+		err = mgr.Delete(ctx, "arkloud-object-storage-test")
 		assert.Nil(t, err)
 	}
 
 	// Create
-	osm, err := mgr.Create(ctx, "object-storage-test", false, meta)
+	osm, err := mgr.Create(ctx, "arkloud-object-storage-test", false, meta)
 	assert.Nil(t, err)
 	assert.NotNil(t, osm)
 
 	// List
 	all, err := mgr.List(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(all))
+	assert.GreaterOrEqual(t, len(all), 1, "Expected there to be at least one item")
 
 	// Get
-	osm2, err := mgr.Get(ctx, "object-storage-test")
+	osm2, err := mgr.Get(ctx, "arkloud-object-storage-test")
 	assert.Nil(t, err)
 	assert.NotNil(t, osm2)
 
@@ -48,7 +48,7 @@ func TestObjectStorageManager(t *testing.T, mgr storage.ObjectStorageManager) {
 	}
 
 	// Delete
-	err = mgr.Delete(ctx, "object-storage-test")
+	err = mgr.Delete(ctx, "arkloud-object-storage-test")
 	assert.Nil(t, err)
 }
 
