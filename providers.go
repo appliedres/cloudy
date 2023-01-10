@@ -28,6 +28,8 @@ func NewProviderRegistry[T any]() *ProvidersRegistry[T] {
 }
 
 func (pr *ProvidersRegistry[T]) Register(name string, factory ProviderFactory[T]) {
+	Info(context.Background(), "Registring Environment Provider: %s", name)
+
 	pr.Providers[name] = factory
 }
 

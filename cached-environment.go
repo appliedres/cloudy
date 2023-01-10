@@ -1,8 +1,10 @@
 package cloudy
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -94,6 +96,8 @@ func NewTieredEnvironment(sources ...EnvironmentService) *TieredEnvironment {
 }
 
 func (te *TieredEnvironment) Get(name string) (string, error) {
+	Info(context.Background(), "TieredEnvironment Get: %s", name)
+
 	for _, env := range te.sources {
 		val, err := env.Get(name)
 		if err == nil {
@@ -101,6 +105,22 @@ func (te *TieredEnvironment) Get(name string) (string, error) {
 		}
 	}
 	return "", ErrKeyNotFound
+}
+
+func (te *TieredEnvironment) Force(name string) (string, error) {
+	Info(context.Background(), "TieredEnvironment Force: %s", name)
+
+	for _, env := range te.sources {
+		val, err := env.Get(name)
+		if err == nil {
+			return val, nil
+		}
+	}
+
+	log.Fatalf("TieredEnvironment: Force Required Variable not found, %s", name)
+
+	return "", ErrKeyNotFound
+
 }
 
 type MapEnvironment struct {

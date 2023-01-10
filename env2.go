@@ -1,6 +1,7 @@
 package cloudy
 
 import (
+	"context"
 	"log"
 	"strconv"
 )
@@ -39,6 +40,8 @@ func (env *Environment) GetInt(name string) (int, bool) {
 }
 
 func (env *Environment) Force(name ...string) string {
+	Info(context.Background(), "Environment Force %s", name)
+
 	if len(name) == 0 {
 		log.Fatalf("no names passed")
 	}
@@ -144,6 +147,8 @@ func (segEnv *HierarchicalEnvironment) ForceNoCascadee(name string) string {
 }
 
 func (segEnv *HierarchicalEnvironment) Get(name string) (string, error) {
+	Info(context.Background(), "HierarchicalEnvironment Get %s", name)
+
 	val, found := segEnv.GetNoCascade(name)
 	if found {
 		return val, nil
@@ -157,10 +162,12 @@ func (segEnv *HierarchicalEnvironment) Get(name string) (string, error) {
 }
 
 func (segEnv *HierarchicalEnvironment) Force(name string) string {
+	Info(context.Background(), "HierarchicalEnvironment Force %s", name)
+
 	val, err := segEnv.Get(name)
 	if err != nil {
 		full := EnvJoin(segEnv.prefix, name)
-		log.Fatalf("Force HierarchicalEnvironment Required Variable not found, %v", full)
+		log.Fatalf("HierarchicalEnvironment Force Required Variable not found, %v", full)
 	}
 	return val
 }
