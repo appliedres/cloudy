@@ -272,7 +272,7 @@ func (coll VMSizeCollection) Less(i, j int) bool {
 	return false
 }
 
-func FindLimit(limits []*VirtualMachineLimit, size string) *VirtualMachineLimit {
+func FindLimit(ctx context.Context, limits []*VirtualMachineLimit, size string) *VirtualMachineLimit {
 	for _, l := range limits {
 		if l.Name == size {
 			return l
