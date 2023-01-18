@@ -62,6 +62,10 @@ func GetLog(ctx context.Context) string {
 	return value
 }
 
+func PrintLog(ctx context.Context) {
+	fmt.Println(GetLog(ctx))
+}
+
 func GetUser(ctx context.Context) *UserJWT {
 	item := ctx.Value(UserKey)
 	if item == nil {
@@ -112,7 +116,8 @@ func getLogs(ctx context.Context) *Logs {
 }
 
 func logme(logger *log.Logger, msg string, args ...interface{}) {
-	fmt.Printf(msg+"\n", args...)
+	log.Printf(msg, args...)
+
 	if logger != nil {
 		logger.Printf(msg+"\n", args...)
 	}
