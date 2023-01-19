@@ -66,9 +66,9 @@ func TestBoolP(t *testing.T) {
 	assert.Equal(t, test, *testp)
 }
 
-func TestStringFromP(t *testing.T) {
+func TestStringFromPWithDefault(t *testing.T) {
 	test := "TEST"
-	testp := StringFromP(&test, "")
+	testp := StringFromPWithDefault(&test, "")
 	assert.Equal(t, test, testp)
 }
 

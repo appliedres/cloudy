@@ -11,7 +11,7 @@ func EnvKeyStr(data map[string]interface{}, key string) (string, bool) {
 	return MapKeyStr(data, envName, false)
 }
 
-//MapKeyStr is used for dealing with JSON...
+// MapKeyStr is used for dealing with JSON...
 func MapKeyStr(data map[string]interface{}, key string, caseInsensitive bool) (string, bool) {
 	val, ok := data[key]
 
@@ -57,7 +57,11 @@ func BoolP(v bool) *bool {
 	return &v
 }
 
-func StringFromP(s *string, missing string) string {
+func StringFromP(val *string) string {
+	return StringFromPWithDefault(val, "")
+}
+
+func StringFromPWithDefault(s *string, missing string) string {
 	if s == nil {
 		return missing
 	}
