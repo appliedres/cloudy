@@ -56,6 +56,14 @@ func (jwt *UserJWT) IsAuthenticated() bool {
 
 const UserAnonymous = "ANONYMOUS"
 
+func IsRequestorAdmin(ctx context.Context, request *http.Request) (bool, error) {
+	jwt, err := GetUserFromRequest(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return IsAdmin(jwt), nil
+}
+
 func IsAdmin(user *UserJWT) bool {
 	if user.RealmAccess != nil {
 		for _, role := range user.RealmAccess.Roles {
@@ -83,27 +91,45 @@ func IsAdmin(user *UserJWT) bool {
 	return false
 }
 
-func GetUserFromRequest(ctx context.Context, request *http.Request) (*UserJWT, error) {
-	// fmt.Printf("Getting User Information\n")
+func GetUserTokenFromRequest(ctx context.Context, request *http.Request) (string, error) {
+	Info(ctx, "cloudy.GetUserTokenFromRequest")
 	tokens := request.Header["Authorization"]
 	if len(tokens) == 1 {
-		// Info(ctx, "Found Token")
-		return GetUserInfoFromToken(tokens[0]), nil
+		Info(ctx, "Found Token in request header")
+		return tokens[0], nil
+
 	} else if len(tokens) > 1 {
-		return nil, Error(ctx, "Multiple Tokens found: %v\n", tokens)
+		return "", Error(ctx, "Multiple Tokens found in request header: %v\n", tokens)
 	}
 
 	token := request.URL.Query().Get("bearer")
 	if token != "" {
-		return GetUserInfoFromToken(token), nil
+		Info(ctx, "Found Token in bearer")
+		return token, nil
 	}
 
-	return nil, Error(ctx, "No Tokens found: %v\n", tokens)
+	return "", Error(ctx, "No Tokens found")
+}
+
+func GetUserFromRequest(ctx context.Context, request *http.Request) (*UserJWT, error) {
+	Info(ctx, "cloudy.GetUserFromRequest")
+
+	token, err := GetUserTokenFromRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	if token == "" {
+		return nil, Error(ctx, "Empty token: %v\n", token)
+	}
+
+	return GetUserInfoFromToken(ctx, token), nil
 }
 
 // GetUserInfoFromToken Gets a user information from the JWT (Authorization Header)
-func GetUserInfoFromToken(token string) *UserJWT {
+func GetUserInfoFromToken(ctx context.Context, token string) *UserJWT {
 	if token == "" || strings.EqualFold(token, "Bearer undefined") {
+		_ = Error(ctx, "GetUserInfoFromToken Bearer token undefined")
 		return &UserJWT{
 			PreferredUserName: UserAnonymous,
 			Email:             "None",
@@ -112,6 +138,8 @@ func GetUserInfoFromToken(token string) *UserJWT {
 
 	claims, err := ParseToken(token)
 	if err != nil {
+		_ = Error(ctx, "GetUserInfoFromToken ParseToken Error %v", err)
+
 		return &UserJWT{
 			PreferredUserName: "PARSING ERROR",
 			Email:             "None",
@@ -137,6 +165,10 @@ func ParseToken(tokenstr string) (*UserJWT, error) {
 		// fmt.Printf("%v\n", err)
 		return nil, err
 	}
+
+	// UPN and Email must be lower!
+	claims.Email = strings.ToLower(claims.Email)
+	claims.UPN = strings.ToLower(claims.UPN)
 
 	return &claims, nil
 }
