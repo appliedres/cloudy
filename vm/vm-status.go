@@ -195,11 +195,7 @@ func (req *VmSizeRequest) Matches(size *VmSize) bool {
 	}
 
 	if req.SpecificSize != "" {
-		if req.SpecificSize == size.Size {
-			return true
-		} else {
-			return false
-		}
+		return strings.EqualFold(req.SpecificSize, size.Name)
 	}
 
 	if req.AcceleratedNetworking && !size.AcceleratedNetworking {
