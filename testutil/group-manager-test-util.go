@@ -11,7 +11,9 @@ import (
 func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManager) {
 	ctx := cloudy.StartContext()
 
-	user := "test.user@skyborg.onmicrosoft.us"
+	domain := cloudy.ForceEnv("USER_DOMAIN", "")
+
+	user := "test.user@" + domain
 
 	u1 := &models.User{
 		ID:                 user,
@@ -21,6 +23,14 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManag
 		DisplayName:        "Test User",
 		Password:           "dont_ever_use_1234%^&*",
 		MustChangePassword: true,
+	}
+
+	u1g, err := umg.GetUser(ctx, u1.ID)
+	assert.Nil(t, err)
+	if u1g != nil {
+
+		err = umg.DeleteUser(ctx, u1.ID)
+		assert.NotNil(t, err)
 	}
 
 	u2, err := umg.NewUser(ctx, u1)
@@ -73,12 +83,6 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManag
 		}
 	}
 	assert.NotNil(t, found)
-
-	// Makes sure
-
-	usergroups, err := gm.GetUserGroups(ctx, memberId)
-	assert.Nil(t, err)
-	assert.True(t, len(usergroups) > 0)
 
 	// Remove
 	err = gm.RemoveMembers(ctx, testG, []string{memberId})

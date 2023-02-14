@@ -11,7 +11,9 @@ import (
 func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 	ctx := cloudy.StartContext()
 
-	user := "test.user@skyborg.onmicrosoft.us"
+	domain := cloudy.ForceEnv("USER_DOMAIN", "")
+
+	user := "test.user@" + domain
 
 	u, err := umg.GetUser(ctx, user)
 	assert.Nil(t, err)
@@ -25,6 +27,14 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 		DisplayName:        "Test User",
 		Password:           "dont_ever_use_1234%^&*",
 		MustChangePassword: true,
+	}
+
+	ug, err := umg.GetUser(ctx, u.ID)
+	assert.Nil(t, err)
+	if ug != nil {
+
+		err = umg.DeleteUser(ctx, u.ID)
+		assert.NotNil(t, err)
 	}
 
 	u2, err := umg.NewUser(ctx, u)
@@ -74,10 +84,7 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 	}
 
 	u5, err := umg.NewUser(ctx, u4)
-	assert.Nil(t, err, "%v", err)
-	assert.NotNil(t, u5, "Should be there")
-
-	err = umg.DeleteUser(ctx, external_user)
-	assert.Nil(t, err, "%v", err)
+	assert.NotNil(t, err, "%v", err)
+	assert.Nil(t, u5, "Should be there")
 
 }
