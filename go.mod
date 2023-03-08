@@ -2,8 +2,6 @@ module github.com/appliedres/cloudy
 
 go 1.19
 
-replace github.com/appliedres/cloudy => ../cloudy
-
 require (
 	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/go-openapi/strfmt v0.21.3
