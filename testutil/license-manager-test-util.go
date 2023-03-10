@@ -4,11 +4,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/appliedres/cloudy/license"
+	"github.com/appliedres/cloudy/licenses"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLicenseManager(t *testing.T, ctx context.Context, lm license.LicenseManager, userId string, sku string) {
+func TestLicenseManager(t *testing.T, ctx context.Context, lm licenses.LicenseManager, userId string, sku string) {
 
 	all, err := lm.ListLicenses(ctx)
 	assert.Nil(t, err)
