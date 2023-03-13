@@ -146,14 +146,15 @@ func LoadEnv(file string) error {
 	return nil
 }
 
-func CreateCompleteEnvironment(envVar string, PrefixVar string) *Environment {
+func CreateCompleteEnvironment(envVar string, PrefixVar string, credentialPrefix string) *Environment {
 	ctx := context.Background()
 
 	// create a simple env first
 	Info(ctx, "CreateCompleteEnvironment: Simple First")
-	tempEnv := NewEnvironment(NewTieredEnvironment(NewTestFileEnvironmentService(), NewOsEnvironmentService()))
+	tempEnv := NewEnvironment(NewHierarchicalEnvironment(NewTieredEnvironment(NewTestFileEnvironmentService(), NewOsEnvironmentService()), ""))
 	envServiceList := tempEnv.Default(envVar, "test|osenv")
 	prefix := tempEnv.Get(PrefixVar)
+	tempEnv.Credentials = tempEnv.LoadCredentials(credentialPrefix)
 
 	// Split and iterate
 	Info(ctx, "CreateCompleteEnvironment: Loading: %s", envServiceList)
