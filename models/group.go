@@ -17,20 +17,20 @@ import (
 // swagger:model Group
 type Group struct {
 
+	// extra
+	Extra interface{} `json:"Extra,omitempty"`
+
 	// ID
 	ID string `json:"ID,omitempty"`
-
-	// members
-	Members []string `json:"Members"`
 
 	// name
 	Name string `json:"Name,omitempty"`
 
+	// source
+	Source string `json:"Source,omitempty"`
+
 	// type
 	Type string `json:"Type,omitempty"`
-
-	// Extra
-	Extra map[string]interface{}
 }
 
 // Validate validates this group
