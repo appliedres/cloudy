@@ -17,12 +17,12 @@ func TestEnv2(t *testing.T) {
 	service := root.S("service")
 	ott := root.S("one", "two", "three")
 
-	assert.Equal(t, root.ForceNoCascadee("v1"), "root-v1")
-	assert.Equal(t, service.Force("v1"), "service-v1")
-	assert.Equal(t, ott.ForceNoCascadee("v1"), "one-two-three-v1")
-	assert.Equal(t, ott.Force("v2"), "root-v2")
+	assert.Equal(t, root.Force("v1"), "root-v1")
+	assert.Equal(t, service.ForceCascade("v1"), "service-v1")
+	assert.Equal(t, ott.Force("V1"), "one-two-three-v1")
+	assert.Equal(t, ott.ForceCascade("v2"), "root-v2")
 
-	v2, e2 := ott.GetNoCascade("v2")
+	v2, e2 := ott.Get("v2")
 	assert.NotNil(t, e2, "Key not found error should occur")
 	assert.Empty(t, v2, "should be empty")
 }

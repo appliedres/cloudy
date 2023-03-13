@@ -9,13 +9,29 @@ import (
 var EnvironmentProviders = NewProviderRegistry[EnvironmentService]()
 
 type Environment struct {
-	EnvSvc EnvironmentService
+	EnvSvc      EnvironmentService
+	Credentials *CredentialManager
 }
 
 func NewEnvironment(envSvc EnvironmentService) *Environment {
 	return &Environment{
-		EnvSvc: envSvc,
+		EnvSvc:      envSvc,
+		Credentials: NewCredentialManager(),
 	}
+}
+
+func (env *Environment) LoadCredentials(prefix string) *CredentialManager {
+	credEnv := env.Segment(prefix)
+	rtn := NewCredentialManager()
+	for source, loader := range CredentialSources {
+		c := loader.ReadFromEnv(credEnv)
+		rtn.credentials[source] = c
+	}
+	return rtn
+}
+
+func (env *Environment) GetCredential(sourceName string) interface{} {
+	return env.Credentials.Get(sourceName)
 }
 
 func (env *Environment) Get(name string) string {
@@ -69,11 +85,27 @@ func (env *Environment) Default(name string, defaultValue string) string {
 }
 
 func (env *Environment) Segment(name ...string) *Environment {
+	var rtn *Environment
 	svc := env.EnvSvc.(*HierarchicalEnvironment)
 	if svc != nil {
-		return NewEnvironment(svc.S(name...))
+		rtn = NewEnvironment(svc.S(name...))
+	} else {
+		rtn = NewEnvironment(NewHierarchicalEnvironment(svc, name...))
 	}
-	return NewEnvironment(NewHierarchicalEnvironment(svc, name...))
+	rtn.Credentials = env.Credentials
+	return rtn
+}
+
+func (env *Environment) SegmentWithCreds(creds *CredentialManager, name ...string) *Environment {
+	var rtn *Environment
+	svc := env.EnvSvc.(*HierarchicalEnvironment)
+	if svc != nil {
+		rtn = NewEnvironment(svc.S(name...))
+	} else {
+		rtn = NewEnvironment(NewHierarchicalEnvironment(svc, name...))
+	}
+	rtn.Credentials = creds
+	return rtn
 }
 
 // HierarchicalEnvironment understands that the envrionment can be split into heirarchical
@@ -149,13 +181,12 @@ func (segEnv *HierarchicalEnvironment) ForceNoCascadee(name string) string {
 func (segEnv *HierarchicalEnvironment) Get(name string) (string, error) {
 	Info(context.Background(), "HierarchicalEnvironment Get %s", name)
 
-	val, found := segEnv.GetNoCascade(name)
-	if found {
-		return val, nil
-	}
+	raw := NormalizeEnvName(name)
+	full := EnvJoin(segEnv.prefix, raw)
 
-	if segEnv.parent != nil {
-		return segEnv.parent.Get(name)
+	v, err := segEnv.environ.Get(full)
+	if err == nil {
+		return v, nil
 	}
 
 	return "", ErrKeyNotFound
@@ -170,4 +201,56 @@ func (segEnv *HierarchicalEnvironment) Force(name string) string {
 		log.Fatalf("HierarchicalEnvironment Force Required Variable not found, %v", full)
 	}
 	return val
+}
+
+func (segEnv *HierarchicalEnvironment) GetCascade(name string) (string, error) {
+	Info(context.Background(), "HierarchicalEnvironment Get %s", name)
+
+	raw := NormalizeEnvName(name)
+	full := EnvJoin(segEnv.prefix, raw)
+
+	v, err := segEnv.environ.Get(full)
+	if v != "" {
+		return v, err
+	}
+
+	if segEnv.parent != nil {
+		return segEnv.parent.GetCascade(name)
+	}
+
+	return "", ErrKeyNotFound
+}
+
+func (segEnv *HierarchicalEnvironment) ForceCascade(name string) string {
+	Info(context.Background(), "HierarchicalEnvironment Force %s", name)
+
+	val, err := segEnv.GetCascade(name)
+	if err != nil {
+		full := EnvJoin(segEnv.prefix, name)
+		log.Fatalf("Error getting variable, %v, %v", full, err)
+	}
+	if val == "" {
+		full := EnvJoin(segEnv.prefix, name)
+		log.Fatalf("HierarchicalEnvironment Force Required Variable not found, %v", full)
+
+	}
+	return val
+}
+
+type CredentialManager struct {
+	credentials map[string]interface{}
+}
+
+func NewCredentialManager() *CredentialManager {
+	return &CredentialManager{
+		credentials: make(map[string]interface{}),
+	}
+}
+
+func (creds *CredentialManager) Get(sourceName string) interface{} {
+	return creds.credentials[sourceName]
+}
+
+func (creds *CredentialManager) Put(sourceName string, obj interface{}) {
+	creds.credentials[sourceName] = obj
 }

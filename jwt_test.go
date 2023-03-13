@@ -13,6 +13,6 @@ func TestJWT(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.True(t, jwt.IsAuthenticated())
-	assert.Equal(t, jwt.Email, "Test.User@email.com")
-	assert.Equal(t, jwt.UPN, "Test.User@upn.com")
+	assert.Equal(t, jwt.Email, "test.user@email.com")
+	assert.Equal(t, jwt.UPN, "test.user@upn.com")
 }

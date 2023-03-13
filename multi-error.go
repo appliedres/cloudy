@@ -24,9 +24,7 @@ func MultiError() *MultiErrors {
 func (e *MultiErrors) Append(err ...error) {
 	e.lock.Lock()
 	defer e.lock.Unlock()
-	for _, v := range err {
-		e.items = append(e.items, v)
-	}
+	e.items = append(e.items, err...)
 }
 
 // Merge Errors
