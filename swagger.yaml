@@ -52,6 +52,8 @@ definitions:
         type: boolean
       Source:
         type: string
+      DisplayName:
+        type: string
       Extra:
         type: object
   ErrorMessage: 
@@ -76,4 +78,14 @@ definitions:
         type: string
       Extra:
         type: object
-  
+  Invite:
+    type: object
+    properties:
+      User:
+        $ref: '#/definitions/User'
+      RedirectUrl:
+        type: string
+      SendEmail:
+        type: boolean
+      Extra:
+        type: object

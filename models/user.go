@@ -23,8 +23,14 @@ type User struct {
 	// department
 	Department string `json:"Department,omitempty"`
 
+	// display name
+	DisplayName string `json:"DisplayName,omitempty"`
+
 	// email
 	Email string `json:"Email,omitempty"`
+
+	// extra
+	Extra interface{} `json:"Extra,omitempty"`
 
 	// first name
 	FirstName string `json:"FirstName,omitempty"`
@@ -48,18 +54,16 @@ type User struct {
 	OfficePhone string `json:"OfficePhone,omitempty"`
 
 	// password
-	Password string `json:"-"`
+	Password string `json:"Password,omitempty"`
+
+	// source
+	Source string `json:"Source,omitempty"`
 
 	// status
 	Status string `json:"Status,omitempty"`
 
 	// user name
 	UserName string `json:"UserName,omitempty"`
-
-	// user name
-	DisplayName string `json:"DisplayName,omitempty"`
-
-	Extra map[string]interface{}
 }
 
 // Validate validates this user
