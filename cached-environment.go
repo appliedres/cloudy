@@ -149,6 +149,8 @@ func (te *MapEnvironment) Set(name string, v string) {
 
 func LoadEnvironmentService(file string) (*MapEnvironment, error) {
 	env := NewMapEnvironment()
+	fmt.Println(file)
+
 	data, err := os.ReadFile(file)
 	if err != nil {
 		return env, err
@@ -180,13 +182,15 @@ func LoadEnvironmentService(file string) (*MapEnvironment, error) {
 }
 
 func NewTestFileEnvironmentService() *MapEnvironment {
-	envFile := "test.env"
+	envFilePath := os.Getenv("ARKLOUD_ENVFILE")
+	if envFilePath == "" {
+		currentDir, _ := os.Getwd()
+		envFilePath = filepath.Join(currentDir, "test.env")
+	}
 
-	currentDir, _ := os.Getwd()
-	envFilePath := filepath.Join(currentDir, envFile)
 	mp, err := LoadEnvironmentService(envFilePath)
 	if err != nil {
-		fmt.Printf("No %s found... this is ok\n", envFilePath)
+		fmt.Printf("Unable to load %s environment file... this is ok\n", envFilePath)
 	}
 
 	return mp
