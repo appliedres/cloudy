@@ -15,8 +15,7 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 
 	domain := cloudy.DefaultEnvironment.Force("USER_DOMAIN")
 
-	// build a 'unique' user for testing
-	user := fmt.Sprintf("test.user.%x@%s", time.Now().UnixNano(), domain)
+	user := "test.user@" + domain
 
 	u := &models.User{
 		ID:                 user,

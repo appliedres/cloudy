@@ -1,9 +1,7 @@
 package testutil
 
 import (
-	"fmt"
 	"testing"
-	"time"
 
 	"github.com/appliedres/cloudy"
 	"github.com/appliedres/cloudy/models"
@@ -15,8 +13,7 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManag
 
 	domain := cloudy.DefaultEnvironment.Force("USER_DOMAIN")
 
-	// build a 'unique' user for testing
-	user := fmt.Sprintf("test.user.%x@%s", time.Now().UnixNano(), domain)
+	user := "test.user@" + domain
 
 	u1 := &models.User{
 		ID:                 user,
