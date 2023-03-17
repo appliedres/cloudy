@@ -9,7 +9,7 @@ import (
 var InviteProviders = NewProviderRegistry[InviteManager]()
 
 /*
-User interface manager
+Invite interface manager
 */
 type InviteManager interface {
 	CreateInvitation(ctx context.Context, user *models.User, emailInvite bool, inviteRedirectUrl string) error

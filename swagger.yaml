@@ -89,3 +89,22 @@ definitions:
         type: boolean
       Extra:
         type: object
+  AzureVirtualDesktop:
+    type: object
+    properties: 
+      ResourceGroup:
+        type: string
+      UserPrincipalName:
+        type: string
+      UserObjectId:
+        type: string
+      HostPoolName:
+        type: string
+      SessionHost:
+        type: string
+      RoleId:
+        type: string
+      Extra:
+        type: object
+
+      
