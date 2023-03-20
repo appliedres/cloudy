@@ -18,12 +18,12 @@ type AVDManager interface {
 	RetrieveRegistrationToken(ctx context.Context, rg string, hpname string) (*string, error)
 
 	// assign a session host to a user (currently must use user object id)
-	AssignSessionHost(ctx context.Context, rg string, hpname string, sessionhost string, userobjectid string)
+	AssignSessionHost(ctx context.Context, rg string, hpname string, sessionhost string, userobjectid string) error
 
 	// needs to be called twice to assign to user to following roles at resouce group level, need object id of the role
 	// Desktop Virtualization User
 	// Virtual Machine User Login
-	AssignRoleToUser(ctx context.Context, rg string, roleid string, upn string)
+	AssignRoleToUser(ctx context.Context, rg string, roleid string, upn string) error
 
 	// utility methods
 	// remove session host from AVD, does not delete VM
