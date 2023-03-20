@@ -27,11 +27,11 @@ type AVDManager interface {
 
 	// utility methods
 	// remove session host from AVD, does not delete VM
-	DeleteSessionHost(ctx context.Context, rg string, hpname string, sessionhost string)
+	DeleteSessionHost(ctx context.Context, rg string, hpname string, sessionhost string) error
 
 	// Delete a user from a session host, user would have to be re assigned to use VM
-	DeleteUserSession(ctx context.Context, rg string, hpname string, sessionHost string, upn string)
+	DeleteUserSession(ctx context.Context, rg string, hpname string, sessionHost string, upn string) error
 
 	// Disconnect a user from a session host, user still assigned to VM
-	DisconnecteUserSession(ctx context.Context, rg string, hpname string, sessionHost string, upn string)
+	DisconnecteUserSession(ctx context.Context, rg string, hpname string, sessionHost string, upn string) error
 }
