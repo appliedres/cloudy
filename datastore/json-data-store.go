@@ -143,6 +143,8 @@ func (ts *TypedJsonStore[T]) Get(ctx context.Context, key string) (*T, error) {
 
 // Gets all the items in the store.
 func (ts *TypedJsonStore[T]) GetAll(ctx context.Context) ([]*T, error) {
+	cloudy.Info(ctx, "TypedJsonStore.GetAll")
+
 	results, err := ts.ds.GetAll(ctx)
 	if err != nil {
 		return nil, err

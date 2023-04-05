@@ -56,7 +56,7 @@ func (dtc *DatatypeCollection) Shutdown(ctx context.Context) {
 	for _, dt := range dtc.byName {
 		err := dt.Shutdown(ctx)
 		if err != nil {
-			cloudy.Error(ctx, "Error shutting down %v, %v", dt.Name, err)
+			_ = cloudy.Error(ctx, "Error shutting down %v, %v", dt.Name, err)
 		}
 	}
 }
@@ -180,6 +180,8 @@ func (dt *Datatype[T]) Get(ctx context.Context, ID string) (*T, error) {
 }
 
 func (dt *Datatype[T]) GetAll(ctx context.Context) ([]*T, error) {
+	cloudy.Info(ctx, "Datatype.GetAll %s", dt.Name)
+
 	var err error
 	var output []*T
 
@@ -350,7 +352,10 @@ func (dt *Datatype[T]) Exists(ctx context.Context, id string) (bool, error) {
 }
 
 func (dt *Datatype[T]) initIfNeeded(ctx context.Context) error {
+	// cloudy.Info(ctx, "dt.initIfNeeded %s", dt.Name)
+
 	if dt.initialized {
+		// cloudy.Info(ctx, "dt.initIfNeeded already initialized")
 		return nil
 	}
 
@@ -367,11 +372,15 @@ func (dt *Datatype[T]) initIfNeeded(ctx context.Context) error {
 			return err
 		}
 	}
+
+	// cloudy.Info(ctx, "dt.initIfNeeded complete")
 	dt.initialized = true
 	return nil
 }
 
 func (dt *Datatype[T]) Initialize(ctx context.Context) error {
+	cloudy.Info(ctx, "dt.Initialize %s", dt.Name)
+
 	if dt.DataStore != nil {
 		err := dt.DataStore.Open(ctx, nil)
 		if err != nil {
