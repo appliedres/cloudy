@@ -112,7 +112,7 @@ func GetUserTokenFromRequest(ctx context.Context, request *http.Request) (string
 }
 
 func GetUserFromRequest(ctx context.Context, request *http.Request) (*UserJWT, error) {
-	Info(ctx, "cloudy.GetUserFromRequest")
+	Info(ctx, "cloudy.jwt.GetUserFromRequest")
 
 	token, err := GetUserTokenFromRequest(ctx, request)
 	if err != nil {

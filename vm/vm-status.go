@@ -23,7 +23,7 @@ Azure:
 var VmControllers = cloudy.NewProviderRegistry[VMController]()
 
 type VmSize struct {
-	Vendor                string  // Clolud vendor, azure, aws, gcp, etc
+	Vendor                string  // Cloud vendor, azure, aws, gcp, etc
 	Name                  string  // name of the size
 	Family                string  // Family of the size
 	Size                  string  // Size ID that the vendor recoknizes
@@ -166,6 +166,7 @@ type VMController interface {
 }
 
 func FindBestVmSizes(sizeRequest *VmSizeRequest, availableSizes []*VmSize) []*VmSize {
+	cloudy.Info(context.Background(), "FindBestVmSizes")
 	var toSort []*VmSize
 	for _, s := range availableSizes {
 		if sizeRequest.Matches(s) {
