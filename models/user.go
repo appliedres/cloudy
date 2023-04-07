@@ -17,17 +17,11 @@ import (
 // swagger:model User
 type User struct {
 
-	// account type
-	AccountType string `json:"AccountType,omitempty"`
-
 	// company
 	Company string `json:"Company,omitempty"`
 
-	// contract expiration date
-	ContractExpirationDate string `json:"ContractExpirationDate,omitempty"`
-
-	// contract number
-	ContractNumber string `json:"ContractNumber,omitempty"`
+	// custom security attributes
+	CustomSecurityAttributes interface{} `json:"CustomSecurityAttributes,omitempty"`
 
 	// department
 	Department string `json:"Department,omitempty"`
@@ -50,9 +44,6 @@ type User struct {
 	// job title
 	JobTitle string `json:"JobTitle,omitempty"`
 
-	// justification
-	Justification string `json:"Justification,omitempty"`
-
 	// last name
 	LastName string `json:"LastName,omitempty"`
 
@@ -71,14 +62,8 @@ type User struct {
 	// source
 	Source string `json:"Source,omitempty"`
 
-	// sponsor
-	Sponsor string `json:"Sponsor,omitempty"`
-
 	// status
 	Status string `json:"Status,omitempty"`
-
-	// status reason
-	StatusReason string `json:"StatusReason,omitempty"`
 
 	// user name
 	UserName string `json:"UserName,omitempty"`

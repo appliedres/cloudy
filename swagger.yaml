@@ -54,18 +54,8 @@ definitions:
         type: string
       DisplayName:
         type: string
-      Sponsor:
-        type: string
-      ContractNumber:
-        type: string
-      ContractExpirationDate:
-        type: string
-      Justification:
-        type: string
-      StatusReason:
-        type: string
-      AccountType:
-        type: string
+      CustomSecurityAttributes:
+        type: object
       Extra:
         type: object
   ErrorMessage: 
