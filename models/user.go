@@ -21,7 +21,7 @@ type User struct {
 	Company string `json:"Company,omitempty"`
 
 	// custom security attributes
-	CustomSecurityAttributes interface{} `json:"CustomSecurityAttributes,omitempty"`
+	CustomSecurityAttributes string `json:"CustomSecurityAttributes,omitempty"`
 
 	// department
 	Department string `json:"Department,omitempty"`

@@ -55,7 +55,7 @@ definitions:
       DisplayName:
         type: string
       CustomSecurityAttributes:
-        type: object
+        type: string
       Extra:
         type: object
   ErrorMessage: 
