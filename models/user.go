@@ -20,6 +20,9 @@ type User struct {
 	// company
 	Company string `json:"Company,omitempty"`
 
+	// custom security attributes
+	CustomSecurityAttributes string `json:"CustomSecurityAttributes,omitempty"`
+
 	// department
 	Department string `json:"Department,omitempty"`
 
