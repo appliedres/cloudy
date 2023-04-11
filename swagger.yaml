@@ -23,22 +23,38 @@ paths:
 definitions:
   User:
     type: object
-    properties: 
+    properties:
       ID:
         type: string
       FirstName:
         type: string
       LastName:
         type: string
+      JobTitle:
+        type: string
+      DisplayName:
+        type: string
       Email:
         type: string
-      Company: 
+      Company:
         type: string
       Department:
         type: string
-      JobTitle:
+      Citizenship:
         type: string
-      UserName:
+      Sponsor:
+        type: string
+      ContractNumber:
+        type: string
+      ContractDate:
+        type: string
+      Justification:
+        type: string
+      ProgramRole:
+        type: string
+      AccountType:
+        type: string
+      UPN:
         type: string
       Status:
         type: string
@@ -50,14 +66,11 @@ definitions:
         type: string
       MustChangePassword:
         type: boolean
-      Source:
+      GitLabOnboardingIssue:
+        type: number
+        format: integer
+      ActionLog:
         type: string
-      DisplayName:
-        type: string
-      CustomSecurityAttributes:
-        type: string
-      Extra:
-        type: object
   ErrorMessage: 
     type: object
     properties: 
