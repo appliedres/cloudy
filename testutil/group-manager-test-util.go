@@ -17,7 +17,7 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManag
 
 	u1 := &models.User{
 		ID:                 user,
-		UserName:           user,
+		UPN:                user,
 		FirstName:          "test",
 		LastName:           "user",
 		DisplayName:        "Test User",
@@ -93,7 +93,7 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManag
 	assert.NotNil(t, people2)
 	var found2 *models.User
 	for _, u := range people2 {
-		if u.UserName == memberId {
+		if u.UPN == memberId {
 			found2 = u
 			break
 		}
