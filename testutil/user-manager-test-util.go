@@ -19,7 +19,7 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 
 	u := &models.User{
 		ID:                 user,
-		UserName:           user,
+		UPN:                user,
 		FirstName:          "test",
 		LastName:           "user",
 		DisplayName:        "Test User",
@@ -41,7 +41,7 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 	assert.Equal(t, u.LastName, u2.LastName)
 	assert.Equal(t, u.DisplayName, u2.DisplayName)
 	assert.Equal(t, "", u2.Password)
-	assert.Equal(t, u.UserName, u2.UserName)
+	assert.Equal(t, u.UPN, u2.UPN)
 
 	u3, err := umg.GetUser(ctx, user)
 	assert.Nil(t, err)
@@ -50,7 +50,7 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 	assert.Equal(t, u.LastName, u2.LastName)
 	assert.Equal(t, u.DisplayName, u3.DisplayName)
 	assert.Equal(t, "", u3.Password)
-	assert.Equal(t, u.UserName, u3.UserName)
+	assert.Equal(t, u.UPN, u3.UPN)
 	assert.Equal(t, u2.ID, u3.ID)
 
 	err = umg.Disable(ctx, user)
@@ -83,7 +83,7 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 	external_user := "test@notskyborg.com"
 	u4 := &models.User{
 		ID:                 external_user,
-		UserName:           external_user,
+		UPN:                external_user,
 		FirstName:          "externaltest",
 		LastName:           "externaluser",
 		DisplayName:        "External Test User",
@@ -113,7 +113,7 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 	// create a user to test the ForceUserName where the user does exist
 	u = &models.User{
 		ID:                 usernameToForce,
-		UserName:           usernameToForce,
+		UPN:                usernameToForce,
 		FirstName:          "externaltest",
 		LastName:           "externaluser",
 		DisplayName:        "External Test User",
