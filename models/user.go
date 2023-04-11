@@ -17,11 +17,23 @@ import (
 // swagger:model User
 type User struct {
 
+	// account type
+	AccountType string `json:"AccountType,omitempty"`
+
+	// action log
+	ActionLog string `json:"ActionLog,omitempty"`
+
+	// citizenship
+	Citizenship string `json:"Citizenship,omitempty"`
+
 	// company
 	Company string `json:"Company,omitempty"`
 
-	// custom security attributes
-	CustomSecurityAttributes string `json:"CustomSecurityAttributes,omitempty"`
+	// contract date
+	ContractDate string `json:"ContractDate,omitempty"`
+
+	// contract number
+	ContractNumber string `json:"ContractNumber,omitempty"`
 
 	// department
 	Department string `json:"Department,omitempty"`
@@ -32,17 +44,20 @@ type User struct {
 	// email
 	Email string `json:"Email,omitempty"`
 
-	// extra
-	Extra interface{} `json:"Extra,omitempty"`
-
 	// first name
 	FirstName string `json:"FirstName,omitempty"`
+
+	// git lab onboarding issue
+	GitLabOnboardingIssue int64 `json:"GitLabOnboardingIssue,omitempty"`
 
 	// ID
 	ID string `json:"ID,omitempty"`
 
 	// job title
 	JobTitle string `json:"JobTitle,omitempty"`
+
+	// justification
+	Justification string `json:"Justification,omitempty"`
 
 	// last name
 	LastName string `json:"LastName,omitempty"`
@@ -59,14 +74,17 @@ type User struct {
 	// password
 	Password string `json:"Password,omitempty"`
 
-	// source
-	Source string `json:"Source,omitempty"`
+	// program role
+	ProgramRole string `json:"ProgramRole,omitempty"`
+
+	// sponsor
+	Sponsor string `json:"Sponsor,omitempty"`
 
 	// status
 	Status string `json:"Status,omitempty"`
 
-	// user name
-	UserName string `json:"UserName,omitempty"`
+	// u p n
+	UPN string `json:"UPN,omitempty"`
 }
 
 // Validate validates this user
