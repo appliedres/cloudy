@@ -8,6 +8,10 @@ import (
 
 var UserProviders = NewProviderRegistry[UserManager]()
 
+type UserOptions struct {
+	IncludeLastSignIn *bool
+}
+
 /*
 User interface manager
 */
@@ -23,7 +27,7 @@ type UserManager interface {
 	GetUser(ctx context.Context, uid string) (*models.User, error)
 
 	// Retrieves a specific user.
-	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
+	GetUserByEmail(ctx context.Context, email string, opts *UserOptions) (*models.User, error)
 
 	// NewUser creates a new user with the given information and returns the new user with any additional
 	// fields populated
