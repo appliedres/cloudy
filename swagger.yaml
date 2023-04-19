@@ -71,6 +71,11 @@ definitions:
       GitLabOnboardingIssue:
         type: number
         format: integer
+      LastSignInDate:
+        type: string
+        format: datetime
+      Enabled: 
+        type: boolean
       ActionLog:
         type: string
   ErrorMessage: 
