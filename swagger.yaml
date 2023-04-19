@@ -54,9 +54,11 @@ definitions:
         type: string
       AccountType:
         type: string
+      Status:
+        type: string
       UPN:
         type: string
-      Status:
+      StatusReason:
         type: string
       MobilePhone:
         type: string

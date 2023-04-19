@@ -83,6 +83,9 @@ type User struct {
 	// status
 	Status string `json:"Status,omitempty"`
 
+	// status reason
+	StatusReason string `json:"StatusReason,omitempty"`
+
 	// u p n
 	UPN string `json:"UPN,omitempty"`
 }
