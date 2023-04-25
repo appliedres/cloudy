@@ -23,7 +23,7 @@ paths:
 definitions:
   User:
     type: object
-    properties:
+    properties: 
       ID:
         type: string
       FirstName:
@@ -36,27 +36,21 @@ definitions:
         type: string
       Email:
         type: string
-      Company:
+      Company: 
         type: string
       Department:
         type: string
       Citizenship:
         type: string
-      Sponsor:
-        type: string
       ContractNumber:
         type: string
       ContractDate:
-        type: string
-      Justification:
         type: string
       ProgramRole:
         type: string
       AccountType:
         type: string
       UPN:
-        type: string
-      Status:
         type: string
       MobilePhone:
         type: string
@@ -69,11 +63,6 @@ definitions:
       GitLabOnboardingIssue:
         type: number
         format: integer
-      LastSignInDate:
-        type: string
-        format: datetime
-      Enabled: 
-        type: boolean
       ActionLog:
         type: string
   ErrorMessage: 
