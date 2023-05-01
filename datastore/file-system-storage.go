@@ -75,7 +75,7 @@ type FilesystemStore struct {
 
 func NewFilesystemStore(ext string, dir ...string) *FilesystemStore {
 	fs := new(FilesystemStore)
-	fs.Perms = 0600
+	fs.Perms = 0700
 	localdir := filepath.Join(dir...)
 	fs.Dir = filepath.Join(RootFSDir, localdir)
 	fs.Ext = ext

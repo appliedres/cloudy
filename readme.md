@@ -1,4 +1,5 @@
 # Cloudy
+![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/wtiger001/3652cbbb7e810afda7a001bf1859e16c/raw/cloudy-coverage.json)
 
 IN WORK -- DO NOT USE 
 
