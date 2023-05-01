@@ -31,4 +31,35 @@ jobs:
       run: go build -v ./...
 
     - name: Test
-      run: go test -v ./...
+      run: go test -cover -v ./...
+
+    - uses: gwatts/go-coverage-action@v1
+      id: coverage
+      with:
+        # Optional coverage threshold
+        # use fail-coverage to determine what should happen below this threshold
+        coverage-threshold: 20
+
+        # collect coverage for all packages beyond the one under test
+        cover-pkg: ./...
+
+        # Ignore code-generated files when calculating coverage totals
+        ignore-pattern: |
+          \.pb\.go$
+          \_string\.go$
+        
+        # A url that the html report will be accessible at, once your
+        # workflow uploads it.  Used in the pull request comment.
+        report-url: https://artifacts.example.com/go-coverage/${{ github.ref_name}}.html
+
+    - name: Update coverage badge
+      uses: schneegans/dynamic-badges-action@v1.3.0
+      # if: github.ref_name == 'master'
+      if: github.ref_name == 'lab-jira-574'
+      with:
+        auth: ${{ secrets.GIST_TOKEN }}
+        gistID: 3652cbbb7e810afda7a001bf1859e16c
+        filename: cloudy-coverage.json
+        label: Go Coverage
+        message: ${{ steps.coverage.outputs.coverage-pct }}%
+        color: ${{ steps.coverage.outputs.meets-threshold == 'true' && 'green' || 'red' }}
