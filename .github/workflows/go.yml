@@ -47,6 +47,7 @@ jobs:
         ignore-pattern: |
           \.pb\.go$
           \_string\.go$
+          \testutil
         
         # A url that the html report will be accessible at, once your
         # workflow uploads it.  Used in the pull request comment.

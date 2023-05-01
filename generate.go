@@ -103,7 +103,7 @@ func IsValidPasswordWithOptions(password string, options PasswordOptions) bool {
 	)
 
 	var (
-		foundLower   = lowerFound > 0
+		foundLower   = lowerFound >= 0 // Dont actually care about lower case
 		foundUpper   = upperFound > 0
 		foundNumber  = numberFound > 0
 		foundSpecial = specialFound > 0
@@ -119,7 +119,8 @@ func IsValidPasswordWithOptions(password string, options PasswordOptions) bool {
 
 func GeneratePassword(passwordLength, minSpecialChar, minNum, minUpperCase int) string {
 	return GeneratePasswordFromOptions(PasswordOptions{
-		Length:         passwordLength,
+		Length: passwordLength,
+
 		MinUpperCase:   minUpperCase,
 		MinNum:         minNum,
 		MinSpecialChar: minSpecialChar,
