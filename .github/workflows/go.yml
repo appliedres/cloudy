@@ -52,11 +52,15 @@ jobs:
         # A url that the html report will be accessible at, once your
         # workflow uploads it.  Used in the pull request comment.
         report-url: https://artifacts.example.com/go-coverage/${{ github.ref_name}}.html
+        
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ github.ref_name}}.html
+        path: ${{ steps.coverage.outputs.report-pathname }}
 
     - name: Update coverage badge
       uses: schneegans/dynamic-badges-action@v1.3.0
-      # if: github.ref_name == 'master'
-      if: github.ref_name == 'lab-jira-574'
+      if: github.ref_name == 'master'
       with:
         auth: ${{ secrets.GIST_TOKEN }}
         gistID: 3652cbbb7e810afda7a001bf1859e16c
