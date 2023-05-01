@@ -55,8 +55,8 @@ jobs:
 
     - uses: actions/upload-artifact@v3
       with:
-        name: ${{ github.ref_name}}.html
-        path: ${{ steps.coverage.outputs.report-pathname }}/go-coverage.html
+        name: go-coverage.html
+        path: ${{ steps.coverage.outputs.report-pathname }}
 
     - name: Update coverage badge
       uses: schneegans/dynamic-badges-action@v1.3.0
