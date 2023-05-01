@@ -8,10 +8,8 @@ package models
 import (
 	"context"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // User user
@@ -46,9 +44,6 @@ type User struct {
 	// email
 	Email string `json:"Email,omitempty"`
 
-	// enabled
-	Enabled bool `json:"Enabled,omitempty"`
-
 	// first name
 	FirstName string `json:"FirstName,omitempty"`
 
@@ -61,15 +56,8 @@ type User struct {
 	// job title
 	JobTitle string `json:"JobTitle,omitempty"`
 
-	// justification
-	Justification string `json:"Justification,omitempty"`
-
 	// last name
 	LastName string `json:"LastName,omitempty"`
-
-	// last sign in date
-	// Format: datetime
-	LastSignInDate strfmt.DateTime `json:"LastSignInDate,omitempty"`
 
 	// mobile phone
 	MobilePhone string `json:"MobilePhone,omitempty"`
@@ -86,39 +74,12 @@ type User struct {
 	// program role
 	ProgramRole string `json:"ProgramRole,omitempty"`
 
-	// sponsor
-	Sponsor string `json:"Sponsor,omitempty"`
-
-	// status
-	Status string `json:"Status,omitempty"`
-
 	// u p n
 	UPN string `json:"UPN,omitempty"`
 }
 
 // Validate validates this user
 func (m *User) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateLastSignInDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *User) validateLastSignInDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.LastSignInDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("LastSignInDate", "body", "datetime", m.LastSignInDate.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
