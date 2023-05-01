@@ -2,9 +2,15 @@ name: Master
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches:
+    - master
+    - main
+    - lab-jira-574
   pull_request:
-    branches: [ $default-branch ]
+    branches: 
+    - master
+    - main
+    - lab-jira-574
 
 jobs:
 
