@@ -30,9 +30,8 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Test
-      run: go test -cover -v ./...
-
+    # - name: Test
+    #   run: go test -cover -v ./...
     - uses: gwatts/go-coverage-action@v1
       id: coverage
       with:
@@ -51,7 +50,7 @@ jobs:
         
         # A url that the html report will be accessible at, once your
         # workflow uploads it.  Used in the pull request comment.
-        report-url: https://artifacts.example.com/go-coverage/${{ github.ref_name}}.html
+        # report-url: https://artifacts.example.com/go-coverage/${{github.ref_name}}.html
 
     - uses: actions/upload-artifact@v3
       with:
