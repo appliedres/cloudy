@@ -2,11 +2,54 @@ package testutil
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/appliedres/cloudy"
 )
+
+// Starts in the current directory and checks for "arkloud.env" OR "arkloud-conf/arkloud.env"
+// Keeps going up until it either finds it or there are no more directories
+func MustSetTestEnv() {
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("IO Error : %v", err)
+	}
+	working := dir
+	for {
+		// Check
+		path := filepath.Join(working, "arkloud.env")
+		exists, _ := cloudy.Exists(path)
+		if exists {
+			os.Setenv("ARKLOUD_ENVFILE", path)
+			return
+		}
+
+		// Check
+		path = filepath.Join(working, "arkloud-conf", "arkloud.env")
+		exists, _ = cloudy.Exists(path)
+		if exists {
+			os.Setenv("ARKLOUD_ENVFILE", path)
+			return
+		}
+
+		// next
+		working = filepath.Dir(working)
+		if working == "" {
+			log.Fatal("NOT FOUND")
+		}
+	}
+}
+
+func EnvFileMustExist(path string) {
+	exists, _ := cloudy.Exists("../../arkloud-conf/arkloud.env")
+	if !exists {
+		log.Fatalf("CREATE FILE: %v", path)
+	}
+	os.Setenv("ARKLOUD_ENVFILE", path)
+}
 
 // Loads a file delimited by \n and =
 func LoadEnv(file string) error {
