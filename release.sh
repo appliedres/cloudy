@@ -12,6 +12,7 @@ debug() {
     fi
 }
 
+# Updates the cloudy version in a repo
 updatecloudy() {
     echo ""
     echo "Updating Cloudy version $nextVersion for $1"
@@ -24,7 +25,7 @@ updatecloudy() {
     popd &> /dev/null
 }
 
-
+# finds a version number give a version string and position
 versions() {
     my_string=$1  
     my_array=($(echo $my_string | tr "." "\n"))
@@ -34,15 +35,29 @@ versions() {
     a=${a/-*/}      # Remove everything after dash
 
     echo $a
-
 }
 
+# Verifies that the argument is a number
 mustBeNumber() {
     re='^[0-9]+$'
     if ! [[ $1 =~ $re ]] ; then
     echo "error: $1 is not a number" >&2; exit 1
     fi
 }
+
+# MAIN CODE STARTS HERE
+# ------------------------------------------------------------------------------------
+echo ""
+echo "          _____           __    .__                      .___    "
+echo "         /  _  \ _______ |  | __|  |    ____   __ __   __| _/    "
+echo "        /  /_\  \\_  __  \|  |/ /|  |   /  _ \ |  |  \ / __ |     "
+echo "       /    |    \|  | \/|    < |  |__(  <_> )|  |  // /_/ |     "
+echo "       \____|__  /|__|   |__|_ \|____/ \____/ |____/ \____ |     "
+echo "               \/             \/                          \/     "
+echo "                                                                 "
+echo ""
+echo "    Release New Version of Cloudy and/or Update Cloudy Users"
+echo ""
 
 # Determine the version to update
 versionIndicator='none'
