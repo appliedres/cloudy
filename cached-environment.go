@@ -147,17 +147,10 @@ func (te *MapEnvironment) Set(name string, v string) {
 	te.data[name] = v
 }
 
-func LoadEnvironmentService(file string) (*MapEnvironment, error) {
+func LoadEnvironmentServiceFromString(data string) (*MapEnvironment, error) {
 	env := NewMapEnvironment()
-	fmt.Println(file)
 
-	data, err := os.ReadFile(file)
-	if err != nil {
-		return env, err
-	}
-
-	all := string(data)
-	lines := strings.Split(all, "\n")
+	lines := strings.Split(data, "\n")
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if strings.HasPrefix(trimmed, "#") {
@@ -181,7 +174,39 @@ func LoadEnvironmentService(file string) (*MapEnvironment, error) {
 	return env, nil
 }
 
+func LoadEnvironmentService(file string) (*MapEnvironment, error) {
+	fmt.Println(file)
+
+	data, err := os.ReadFile(file)
+	if err != nil {
+		return NewMapEnvironment(), err
+	}
+
+	return LoadEnvironmentServiceFromString(string(data))
+}
+
+func NewCIEnvironmentService() *MapEnvironment {
+	envCI := os.Getenv("ARKLOUD_ENV_CI")
+	if envCI != "" {
+		mp, err := LoadEnvironmentServiceFromString(envCI)
+		if err != nil {
+			fmt.Printf("Unable to load environment CI data... %v\n", err)
+		} else {
+			fmt.Printf("Loaded  %v from ARKLOUD_ENV_CI\n", len(mp.data))
+			return mp
+		}
+	}
+	return nil
+}
+
 func NewTestFileEnvironmentService() *MapEnvironment {
+	// Loads the environment from a Environment variable (generally set in the CI)
+	mp := NewCIEnvironmentService()
+	if mp != nil {
+		return mp
+	}
+
+	// Now check if there is a file
 	envFilePath := os.Getenv("ARKLOUD_ENVFILE")
 	if envFilePath == "" {
 		currentDir, _ := os.Getwd()

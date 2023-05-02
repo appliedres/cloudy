@@ -43,3 +43,13 @@ Microsoft Azure
 ### Keycloak
 - User Management
 - Group Management
+
+
+## For Developers
+
+### Releasing a Version
+
+```
+git tag v0.1.0
+git push origin v0.1.0
+```

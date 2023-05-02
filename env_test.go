@@ -6,7 +6,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// func TestEnv(t *testing.T) {
+// func TestEnvCI(t *testing.T) {
+// 	mp := NewCIEnvironmentService()
+// 	assert.NotNil(t, mp)
+// 	assert.Greater(t, len(mp.data), 8)
+// }
 
 // 	os.Setenv("UNPREFIXED", "unprefixed-value")
 // 	os.Setenv("PREFIXED_V1", "V1")

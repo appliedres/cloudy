@@ -13,6 +13,13 @@ import (
 // Starts in the current directory and checks for "arkloud.env" OR "arkloud-conf/arkloud.env"
 // Keeps going up until it either finds it or there are no more directories
 func MustSetTestEnv() {
+	// First look for "ARKLOUD_ENV_CI"
+	mp := cloudy.NewCIEnvironmentService()
+	if mp != nil {
+		return
+	}
+
+	// Now Find the first file
 	dir, err := os.Getwd()
 	if err != nil {
 		log.Fatalf("IO Error : %v", err)
