@@ -18,6 +18,9 @@ type GroupManager interface {
 	// Get a specific group by id
 	GetGroup(ctx context.Context, id string) (*models.Group, error)
 
+	// Get a group id from name
+	GetGroupId(ctx context.Context, name string) (string, error)
+
 	// Get all the groups for a single user
 	GetUserGroups(ctx context.Context, uid string) ([]*models.Group, error)
 
