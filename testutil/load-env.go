@@ -10,6 +10,11 @@ import (
 	"github.com/appliedres/cloudy"
 )
 
+func CreateTestEnvironment() *cloudy.Environment {
+	MustSetTestEnv()
+	return cloudy.CreateCompleteEnvironment("ARKLOUD_ENV", "", "TEST")
+}
+
 // Starts in the current directory and checks for "arkloud.env" OR "arkloud-conf/arkloud.env"
 // Keeps going up until it either finds it or there are no more directories
 func MustSetTestEnv() {

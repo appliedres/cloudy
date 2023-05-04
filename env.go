@@ -146,6 +146,10 @@ func LoadEnv(file string) error {
 	return nil
 }
 
+func CreateEnvironment() *Environment {
+	return CreateCompleteEnvironment("ARKLOUD_ENV", "", "")
+}
+
 func CreateCompleteEnvironment(envVar string, PrefixVar string, credentialPrefix string) *Environment {
 	ctx := context.Background()
 
