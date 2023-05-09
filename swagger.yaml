@@ -120,5 +120,23 @@ definitions:
         type: string
       Extra:
         type: object
-
+  Mailer:
+    type: object
+    properties: 
+      HelpDeskEmail:
+        type: string
+      InviteEmailRedirect:
+        type: string
+      KnowlegeBaseUrl:
+        type: string
+      LoginUrl:
+        type: string
+      Host:
+        type: string
+      Port:
+        type: string
+      Username:
+        type: string
+      Password:
+        type: string
       
