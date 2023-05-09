@@ -38,6 +38,9 @@ type Mailer struct {
 	// port
 	Port string `json:"Port,omitempty"`
 
+	// program name
+	ProgramName string `json:"ProgramName,omitempty"`
+
 	// username
 	Username string `json:"Username,omitempty"`
 }

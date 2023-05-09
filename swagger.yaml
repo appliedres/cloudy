@@ -131,6 +131,8 @@ definitions:
         type: string
       LoginUrl:
         type: string
+      ProgramName:
+        type: string
       Host:
         type: string
       Port:
