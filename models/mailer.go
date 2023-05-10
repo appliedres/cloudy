@@ -20,9 +20,6 @@ type Mailer struct {
 	// help desk email
 	HelpDeskEmail string `json:"HelpDeskEmail,omitempty"`
 
-	// host
-	Host string `json:"Host,omitempty"`
-
 	// invite email redirect
 	InviteEmailRedirect string `json:"InviteEmailRedirect,omitempty"`
 
@@ -32,17 +29,8 @@ type Mailer struct {
 	// login Url
 	LoginURL string `json:"LoginUrl,omitempty"`
 
-	// password
-	Password string `json:"Password,omitempty"`
-
-	// port
-	Port string `json:"Port,omitempty"`
-
 	// program name
 	ProgramName string `json:"ProgramName,omitempty"`
-
-	// username
-	Username string `json:"Username,omitempty"`
 }
 
 // Validate validates this mailer
