@@ -133,4 +133,14 @@ definitions:
         type: string
       ProgramName:
         type: string
-      
+  Email:
+    type: object
+    properties:
+      Host:
+        type: string
+      Port:
+        type: string
+      From:
+        type: string
+      Password:
+        type: string
