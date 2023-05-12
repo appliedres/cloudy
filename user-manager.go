@@ -1,6 +1,7 @@
 package cloudy
 
 import (
+	"bytes"
 	"context"
 
 	"github.com/appliedres/cloudy/models"
@@ -40,4 +41,8 @@ type UserManager interface {
 	Disable(ctx context.Context, uid string) error
 
 	DeleteUser(ctx context.Context, uid string) error
+
+	InitSMTPMailer(MailerConfig *models.Email) error
+
+	SendSMTPMail(to []string, from string, body bytes.Buffer) error
 }
