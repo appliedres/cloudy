@@ -120,19 +120,6 @@ definitions:
         type: string
       Extra:
         type: object
-  Mailer:
-    type: object
-    properties: 
-      HelpDeskEmail:
-        type: string
-      InviteEmailRedirect:
-        type: string
-      KnowlegeBaseUrl:
-        type: string
-      LoginUrl:
-        type: string
-      ProgramName:
-        type: string
   Email:
     type: object
     properties:
