@@ -92,35 +92,34 @@ func IsAdmin(user *UserJWT) bool {
 }
 
 func GetUserTokenFromRequest(ctx context.Context, request *http.Request) (string, error) {
-	Info(ctx, "cloudy.GetUserTokenFromRequest")
 	tokens := request.Header["Authorization"]
 	if len(tokens) == 1 {
-		Info(ctx, "Found Token in request header")
+		Info(ctx, "cloudy.GetUserTokenFromRequest Found Token in request header")
 		return tokens[0], nil
 
 	} else if len(tokens) > 1 {
-		return "", Error(ctx, "Multiple Tokens found in request header: %v\n", tokens)
+		return "", Error(ctx, "cloudy.GetUserTokenFromRequest Multiple Tokens found in request header: %v\n", tokens)
 	}
 
 	token := request.URL.Query().Get("bearer")
 	if token != "" {
-		Info(ctx, "Found Token in bearer")
+		Info(ctx, "cloudy.GetUserTokenFromRequest Found Token in bearer")
 		return token, nil
 	}
 
-	return "", Error(ctx, "No Tokens found")
+	return "", Error(ctx, "cloudy.GetUserTokenFromRequest No Tokens found")
 }
 
 func GetUserFromRequest(ctx context.Context, request *http.Request) (*UserJWT, error) {
-	Info(ctx, "cloudy.jwt.GetUserFromRequest")
 
 	token, err := GetUserTokenFromRequest(ctx, request)
 	if err != nil {
+		_ = Error(ctx, "cloudy.jwt.GetUserFromRequest error: %v", err)
 		return nil, err
 	}
 
 	if token == "" {
-		return nil, Error(ctx, "Empty token: %v\n", token)
+		return nil, Error(ctx, "cloudy.jwt.GetUserFromRequest Empty token: %v\n", token)
 	}
 
 	return GetUserInfoFromToken(ctx, token), nil
