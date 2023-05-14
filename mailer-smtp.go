@@ -11,7 +11,7 @@ import (
 var auth smtp.Auth
 var addr string
 
-func InitSMTPMailer(MailerConfig *models.Email) {
+func InitSMTPMailer(ctx context.Context, MailerConfig *models.Email) {
 	auth = smtp.PlainAuth("", MailerConfig.From, MailerConfig.Password, MailerConfig.Host)
 	addr = MailerConfig.Host + ":" + MailerConfig.Port
 }

@@ -42,7 +42,7 @@ type UserManager interface {
 
 	DeleteUser(ctx context.Context, uid string) error
 
-	InitSMTPMailer(MailerConfig *models.Email) error
+	InitSMTPMailer(ctx context.Context, MailerConfig *models.Email) error
 
-	SendSMTPMail(to []string, from string, body bytes.Buffer) error
+	SendSMTPMail(ctx context.Context, to []string, from string, body bytes.Buffer) error
 }
