@@ -195,37 +195,47 @@ func (req *VmSizeRequest) Matches(size *VmSize) bool {
 		return false
 	}
 
-	if req.SpecificSize != "" {
-		return strings.EqualFold(req.SpecificSize, size.Name)
+	if req.SpecificSize != "" && !strings.EqualFold(req.SpecificSize, size.Name) {
+		return false
 	}
 
 	if req.AcceleratedNetworking && !size.AcceleratedNetworking {
 		return false
 	}
+
 	if req.PremiumIO && !size.PremiumIO {
 		return false
 	}
-	if req.CPUVendor != "" && strings.EqualFold(req.CPUVendor, size.CpuVendor) {
-		return false
-	}
-	if req.GPUVendor != "" && strings.EqualFold(req.GPUVendor, size.GpuVendor) {
-		return false
-	}
-	if req.CPUGeneration != "" && strings.EqualFold(req.CPUGeneration, size.CpuGeneration) {
-		return false
-	}
-	if float64(size.VCPU) < req.MinCPU {
-		return false
-	}
-	if float64(size.VCPU) >= req.MaxCPU {
+
+	if req.CPUVendor != "" && !strings.EqualFold(req.CPUVendor, size.CpuVendor) {
 		return false
 	}
 
-	if size.GPU > 0 && req.MinGPU > 0 {
-		if float64(size.GPU) < req.MinGPU {
-			return false
-		}
-		if float64(size.GPU) >= req.MaxGPU {
+	if req.GPUVendor != "" && !strings.EqualFold(req.GPUVendor, size.GpuVendor) {
+		return false
+	}
+
+	if req.CPUGeneration != "" && !strings.EqualFold(req.CPUGeneration, size.CpuGeneration) {
+		return false
+	}
+
+	if req.MinCPU != 0 && float64(size.VCPU) < req.MinCPU {
+		return false
+	}
+
+	if req.MaxCPU != 0 && float64(size.VCPU) >= req.MaxCPU {
+		return false
+	}
+
+	if req.MinGPU != 0 {
+		if size.GPU > 0 {
+			if float64(size.GPU) < req.MinGPU {
+				return false
+			}
+			if float64(size.GPU) >= req.MaxGPU {
+				return false
+			}
+		} else {
 			return false
 		}
 	}
