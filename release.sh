@@ -136,9 +136,9 @@ if [[ $upgrade == 'yes' ]]; then
     updatecloudy cloudy-azure
     updatecloudy cloudy-pg
     updatecloudy cloudy-aws
-    updatecloudy cloudy-gcp
+    # updatecloudy cloudy-gcp
     updatecloudy cloudy-elastic
-    updatecloudy go-skycloud
+    # updatecloudy go-arkloud
     updatecloudy user-api
     updatecloudy folders-api
     updatecloudy cac-api
