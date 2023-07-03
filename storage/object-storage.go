@@ -42,4 +42,5 @@ type ObjectStorage interface {
 	Download(ctx context.Context, key string) (io.ReadCloser, error)
 	Delete(ctx context.Context, key string) error
 	List(ctx context.Context, prefix string) ([]*StoredObject, []*StoredPrefix, error)
+	UpdateMetadata(ctx context.Context, key string, tags map[string]string) error
 }
