@@ -169,5 +169,9 @@ func ParseToken(tokenstr string) (*UserJWT, error) {
 	claims.Email = strings.ToLower(claims.Email)
 	claims.UPN = strings.ToLower(claims.UPN)
 
+	if claims.UPN == "" {
+		Info(context.Background(), "UPN not found in JWT (Email: %s)", claims.Email)
+	}
+
 	return &claims, nil
 }
