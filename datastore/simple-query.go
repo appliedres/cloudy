@@ -82,6 +82,13 @@ func (sqc *SimpleQueryCondition) GetDate(key string) (val time.Time) {
 	return
 }
 
+func (cg *SimpleQueryConditionGroup) Null(field string) {
+	cg.Conditions = append(cg.Conditions, &SimpleQueryCondition{
+		Type: "null",
+		Data: []string{field},
+	})
+}
+
 func (cg *SimpleQueryConditionGroup) Contains(field string, value string) {
 	cg.Conditions = append(cg.Conditions, &SimpleQueryCondition{
 		Type: "contains",
