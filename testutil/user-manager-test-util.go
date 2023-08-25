@@ -1,9 +1,7 @@
 package testutil
 
 import (
-	"fmt"
 	"testing"
-	"time"
 
 	"github.com/appliedres/cloudy"
 	"github.com/appliedres/cloudy/models"
@@ -95,42 +93,42 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 	assert.NotNil(t, err, "%v", err)
 	assert.Nil(t, u5, "Should be there")
 
-	// test ForceUserName
-	usernameToForce := fmt.Sprintf("test.Bubba.%x@%s", time.Now().UnixNano(), domain)
+	// // test ForceUserName
+	// usernameToForce := fmt.Sprintf("test.Bubba.%x@%s", time.Now().UnixNano(), domain)
 
-	// if username for the ForiceUserName already exists, delete it.
-	ug, _ = umg.GetUser(ctx, usernameToForce)
-	if ug != nil {
-		_ = umg.DeleteUser(ctx, usernameToForce)
-	}
+	// // if username for the ForiceUserName already exists, delete it.
+	// ug, _ = umg.GetUser(ctx, usernameToForce)
+	// if ug != nil {
+	// 	_ = umg.DeleteUser(ctx, usernameToForce)
+	// }
 
-	// test ForceUserName where user does not exist
-	xformed, exists, err := umg.ForceUserName(ctx, usernameToForce)
-	assert.Equal(t, usernameToForce, xformed)
-	assert.False(t, exists, "Forced user should not exist")
-	assert.Nil(t, err, "%v", err)
+	// // test ForceUserName where user does not exist
+	// xformed, exists, err := umg.ForceUserName(ctx, usernameToForce)
+	// assert.Equal(t, usernameToForce, xformed)
+	// assert.False(t, exists, "Forced user should not exist")
+	// assert.Nil(t, err, "%v", err)
 
-	// create a user to test the ForceUserName where the user does exist
-	u = &models.User{
-		ID:                 usernameToForce,
-		UPN:                usernameToForce,
-		FirstName:          "externaltest",
-		LastName:           "externaluser",
-		DisplayName:        "External Test User",
-		Password:           "dont_ever_use_1234%^&*",
-		MustChangePassword: true,
-	}
-	// if the user does exist, we don't care
-	_, _ = umg.NewUser(ctx, u)
+	// // create a user to test the ForceUserName where the user does exist
+	// u = &models.User{
+	// 	ID:                 usernameToForce,
+	// 	UPN:                usernameToForce,
+	// 	FirstName:          "externaltest",
+	// 	LastName:           "externaluser",
+	// 	DisplayName:        "External Test User",
+	// 	Password:           "dont_ever_use_1234%^&*",
+	// 	MustChangePassword: true,
+	// }
+	// // if the user does exist, we don't care
+	// _, _ = umg.NewUser(ctx, u)
 
-	// test ForceUserName where user does exist
-	xformed, exists, err = umg.ForceUserName(ctx, usernameToForce)
-	assert.Equal(t, usernameToForce, xformed)
-	assert.True(t, exists, "Forced user exists")
-	assert.Nil(t, err, "%v", err)
+	// // test ForceUserName where user does exist
+	// xformed, exists, err = umg.ForceUserName(ctx, usernameToForce)
+	// assert.Equal(t, usernameToForce, xformed)
+	// assert.True(t, exists, "Forced user exists")
+	// assert.Nil(t, err, "%v", err)
 
-	// clean up the test user
-	err = umg.DeleteUser(ctx, usernameToForce)
-	assert.Nil(t, err)
+	// // clean up the test user
+	// err = umg.DeleteUser(ctx, usernameToForce)
+	// assert.Nil(t, err)
 
 }

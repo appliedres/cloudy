@@ -104,7 +104,7 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManag
 	assert.Nil(t, err)
 
 	grpDeleted, err := gm.GetGroup(ctx, testG)
-	assert.Nil(t, err)
+	assert.NotNil(t, err)
 	assert.Nil(t, grpDeleted)
 
 	err = umg.DeleteUser(ctx, user)
