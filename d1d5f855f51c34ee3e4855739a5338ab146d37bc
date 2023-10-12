@@ -1,0 +1,1 @@
+{"go-coverage-action-fmt":1,"coverage_pct":20.941336971350612,"pkg_stats":{"github.com/appliedres/cloudy/datastore":[17.355371900826448],"github.com/appliedres/cloudy/secrets":[0],"github.com/appliedres/cloudy":[27.63320941759603],"github.com/appliedres/cloudy/vm":[0],"github.com/appliedres/cloudy/metrics":[0],"github.com/appliedres/cloudy/account":[0]},"skipped_count":13}
