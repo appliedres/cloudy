@@ -52,20 +52,20 @@ func FindMatchingUser(ctx context.Context, username string, mode DuplicateUserMo
 
 		user, err := manager.GetUser(ctx, guess)
 		if err != nil {
-			return "", Error(ctx, "Error getting user during FindMatchingUser: %v", err)
+			return "", Error(ctx, "[%s] FindMatchingUser GetUser Error %v", guess, err)
 		}
 
 		if mode == UserExists && user != nil {
-			Info(ctx, "UserExists -> guessing username %s", guess)
+			Info(ctx, "[%s] FindMatchingUser (UserExists)", guess)
 			return guess, nil
 		}
 		if mode == UserDoesNotExist && user == nil {
-			Info(ctx, "UserDoesNotExist -> guessing username %s", guess)
+			Info(ctx, "[%s] FindMatchingUser (UserDoesNotExist)", guess)
 			return guess, nil
 		}
 	}
 
-	return "", Error(ctx, "Unable to find a matching user for username: %s (mode: %s)", lowerUser, DuplicateUserNames[mode])
+	return "", Error(ctx, "[%s] FindMatchingUser Unable guess username (mode: %s)", AddDomain(lowerUser, lowerDomain), DuplicateUserNames[mode])
 }
 
 func AddDomain(user string, domain string) string {
