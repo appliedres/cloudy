@@ -24,3 +24,38 @@ func SendSMTPMail(ctx context.Context, to []string, from string, body bytes.Buff
 
 	return nil
 }
+
+func SendSMTPMailNoAuth(ctx context.Context, server string, to []string, from string, body bytes.Buffer) error {
+	client, err := smtp.Dial(server)
+	if err != nil {
+		return err
+	}
+
+	defer client.Quit()
+	defer client.Close()
+
+	err = client.Mail(from)
+	if err != nil {
+		return err
+	}
+
+	for i := range to {
+		err = client.Rcpt(to[i])
+		if err != nil {
+			return err
+		}
+	}
+
+	writer, err := client.Data()
+	if err != nil {
+		return err
+	}
+	defer writer.Close()
+
+	_, err = writer.Write(body.Bytes())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
