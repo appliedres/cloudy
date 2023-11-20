@@ -3,7 +3,9 @@ package cloudy
 import (
 	"bytes"
 	"context"
+	"net"
 	"net/smtp"
+	"time"
 
 	"github.com/appliedres/cloudy/models"
 )
@@ -26,6 +28,15 @@ func SendSMTPMail(ctx context.Context, to []string, from string, body bytes.Buff
 }
 
 func SendSMTPMailNoAuth(ctx context.Context, server string, to []string, from string, body bytes.Buffer) error {
+
+	//verify connectivity as smtp.Dial blocks
+	dialer := net.Dialer{Timeout: 2 * time.Second}
+	conn, err := dialer.Dial("tcp", server)
+	if err != nil {
+		return err
+	}
+	conn.Close()
+
 	client, err := smtp.Dial(server)
 	if err != nil {
 		return err
