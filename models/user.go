@@ -77,11 +77,17 @@ type User struct {
 	// office phone
 	OfficePhone string `json:"OfficePhone,omitempty"`
 
+	// organization
+	Organization string `json:"Organization,omitempty"`
+
 	// password
 	Password string `json:"Password,omitempty"`
 
 	// program role
 	ProgramRole string `json:"ProgramRole,omitempty"`
+
+	// project
+	Project string `json:"Project,omitempty"`
 
 	// u p n
 	UPN string `json:"UPN,omitempty"`

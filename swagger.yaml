@@ -70,6 +70,10 @@ definitions:
         type: boolean
       ActionLog:
         type: string
+      Organization:
+        type: string
+      Project:
+        type: string
   ErrorMessage: 
     type: object
     properties: 
