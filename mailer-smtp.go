@@ -10,16 +10,37 @@ import (
 	"github.com/appliedres/cloudy/models"
 )
 
-var auth smtp.Auth
-var addr string
+var authCfg smtp.Auth
+var addrCfg string
+var fromCfg string
 
-func InitSMTPMailer(ctx context.Context, MailerConfig *models.Email) {
-	auth = smtp.PlainAuth("", MailerConfig.From, MailerConfig.Password, MailerConfig.Host)
-	addr = MailerConfig.Host + ":" + MailerConfig.Port
+func SendSMTPMail(ctx context.Context, mailerConfig *models.Email, to []string, body bytes.Buffer, authRequired bool) error {
+	var err error
+	initSMTPMailer(mailerConfig)
+
+	dialer := net.Dialer{Timeout: 2 * time.Second}
+	conn, err := dialer.Dial("tcp", addrCfg)
+	if err != nil {
+		return err
+	}
+	conn.Close()
+
+	if authRequired {
+		err = sendSMTPMailAuth(addrCfg, authCfg, to, fromCfg, body)
+	} else {
+		err = SendSMTPMailNoAuth(addrCfg, to, fromCfg, body)
+	}
+	return err
 }
 
-func SendSMTPMail(ctx context.Context, to []string, from string, body bytes.Buffer) error {
-	err := smtp.SendMail(addr, auth, from, to, body.Bytes())
+func initSMTPMailer(mailerConfig *models.Email) {
+	authCfg = smtp.PlainAuth("", mailerConfig.From, mailerConfig.Password, mailerConfig.Host)
+	addrCfg = mailerConfig.Host + ":" + mailerConfig.Port
+	fromCfg = mailerConfig.From
+}
+
+func sendSMTPMailAuth(server string, auth smtp.Auth, to []string, from string, body bytes.Buffer) error {
+	err := smtp.SendMail(server, auth, from, to, body.Bytes())
 	if err != nil {
 		return err
 	}
@@ -27,9 +48,11 @@ func SendSMTPMail(ctx context.Context, to []string, from string, body bytes.Buff
 	return nil
 }
 
-func SendSMTPMailNoAuth(ctx context.Context, server string, to []string, from string, body bytes.Buffer) error {
+// change to private after user-api uses SendSMTPMail with authreq parameter
+func SendSMTPMailNoAuth(server string, to []string, from string, body bytes.Buffer) error {
 
 	//verify connectivity as smtp.Dial blocks
+	// remove dialer block after user-api uses SendSMTPMail with authreq parameter
 	dialer := net.Dialer{Timeout: 2 * time.Second}
 	conn, err := dialer.Dial("tcp", server)
 	if err != nil {
