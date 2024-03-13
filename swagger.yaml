@@ -135,3 +135,5 @@ definitions:
         type: string
       Password:
         type: string
+      AuthenticationRequired:
+        type: boolean
