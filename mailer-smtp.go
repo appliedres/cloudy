@@ -28,7 +28,7 @@ func SendSMTPMail(ctx context.Context, mailerConfig *models.Email, to []string, 
 	if mailerConfig.AuthenticationRequired {
 		err = sendSMTPMailAuth(addrCfg, authCfg, to, fromCfg, body)
 	} else {
-		err = SendSMTPMailNoAuth(addrCfg, to, fromCfg, body)
+		err = SendSMTPMailNoAuth(ctx, addrCfg, to, fromCfg, body)
 	}
 	return err
 }
@@ -49,7 +49,7 @@ func sendSMTPMailAuth(server string, auth smtp.Auth, to []string, from string, b
 }
 
 // change to private after user-api uses SendSMTPMail with authreq parameter
-func SendSMTPMailNoAuth(server string, to []string, from string, body bytes.Buffer) error {
+func SendSMTPMailNoAuth(ctx context.Context, server string, to []string, from string, body bytes.Buffer) error {
 
 	//verify connectivity as smtp.Dial blocks
 	// remove dialer block after user-api uses SendSMTPMail with authreq parameter
