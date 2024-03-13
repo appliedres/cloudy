@@ -14,7 +14,7 @@ var authCfg smtp.Auth
 var addrCfg string
 var fromCfg string
 
-func SendSMTPMail(ctx context.Context, mailerConfig *models.Email, to []string, body bytes.Buffer, authRequired bool) error {
+func SendSMTPMail(ctx context.Context, mailerConfig *models.Email, to []string, body bytes.Buffer) error {
 	var err error
 	initSMTPMailer(mailerConfig)
 
@@ -25,7 +25,7 @@ func SendSMTPMail(ctx context.Context, mailerConfig *models.Email, to []string, 
 	}
 	conn.Close()
 
-	if authRequired {
+	if mailerConfig.AuthenticationRequired {
 		err = sendSMTPMailAuth(addrCfg, authCfg, to, fromCfg, body)
 	} else {
 		err = SendSMTPMailNoAuth(addrCfg, to, fromCfg, body)

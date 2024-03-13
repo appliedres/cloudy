@@ -17,6 +17,9 @@ import (
 // swagger:model Email
 type Email struct {
 
+	// authentication required
+	AuthenticationRequired bool `json:"AuthenticationRequired,omitempty"`
+
 	// from
 	From string `json:"From,omitempty"`
 
