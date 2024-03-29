@@ -12,7 +12,7 @@ import (
 func BinaryDataStoreTest(t *testing.T, ctx context.Context, ds BinaryDataStore) {
 	// Random Byte Data
 	data := make([]byte, 4000)
-	rand.Read(data)
+	rand.Read(data) // #nosec G404 For Testing only
 
 	id := "my-test-data"
 
