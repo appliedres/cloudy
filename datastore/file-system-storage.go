@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	BinaryDataStoreProviders.Register(FileSytemBinaryStoreID, &FilesystemStoreFactory{})
+	BinaryDataStoreProviders.Register(FileSytemBinaryStoreID, &FilesystemStoreFactory{}, []cloudy.EnvDefinition{})
 }
 
 type FilesystemStoreFactory struct{}
@@ -40,13 +40,14 @@ func (f *FilesystemStoreFactory) Create(cfg interface{}) (BinaryDataStore, error
 	}, nil
 }
 
-func (f *FilesystemStoreFactory) FromEnv(env *cloudy.Environment) (interface{}, error) {
+func (f *FilesystemStoreFactory) FromEnvMgr(em *cloudy.EnvManager, prefix string) (interface{}, error) {
 
 	cfg := &FilesystemStoreConfig{}
-	cfg.Dir = env.Force("FS_DIR")
-	cfg.Ext = env.Force("FS_EXT")
+	cfg.Dir = em.GetVar("FS_DIR")
+	cfg.Ext = em.GetVar("FS_EXT")
 
-	perms := env.Default("FS_PERMS", "0600")
+	// TODO: perms := env.Default("FS_PERMS", "0600")
+	perms := ""
 	if perms != "" {
 		i, err := strconv.Atoi(perms)
 		if err != nil {

@@ -9,6 +9,12 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+func init() {
+	Info(context.Background(), "jwt init()")
+
+	DefaultEnvManager.NewVar("ADMIN_GROUP", "ADMIN_GROUP", "", "")
+}
+
 type UserJWT struct {
 	EXP               int64                  `json:"exp"`
 	IAT               int64                  `json:"iat"`
@@ -73,7 +79,7 @@ func IsAdmin(user *UserJWT) bool {
 		}
 	}
 	if user.Groups != nil {
-		admin := DefaultEnvironment.Get("ADMIN_GROUP")
+		admin := DefaultEnvManager.GetVar("ADMIN_GROUP")
 
 		if admin != "" {
 			fmt.Printf("Checking Admin %v\n", admin)

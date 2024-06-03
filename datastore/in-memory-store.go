@@ -11,7 +11,7 @@ import (
 const InMemoryinaryStoreID = "memory"
 
 func init() {
-	BinaryDataStoreProviders.Register(InMemoryinaryStoreID, &InMemoryStoreFactory{})
+	BinaryDataStoreProviders.Register(InMemoryinaryStoreID, &InMemoryStoreFactory{}, []cloudy.EnvDefinition{})
 }
 
 type InMemoryStoreFactory struct{}
@@ -20,7 +20,7 @@ func (f *InMemoryStoreFactory) Create(cfg interface{}) (BinaryDataStore, error) 
 	return NewInMemoryStore(), nil
 }
 
-func (f *InMemoryStoreFactory) FromEnv(env *cloudy.Environment) (interface{}, error) {
+func (f *InMemoryStoreFactory) FromEnvMgr(em *cloudy.EnvManager, prefix string) (interface{}, error) {
 	return nil, nil
 }
 

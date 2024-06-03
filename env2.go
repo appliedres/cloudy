@@ -20,21 +20,27 @@ func NewEnvironment(envSvc EnvironmentService) *Environment {
 	}
 }
 
-func (env *Environment) LoadCredentials(prefix string) *CredentialManager {
-	credEnv := env.Segment(prefix)
-	rtn := NewCredentialManager()
-	for source, loader := range CredentialSources {
-		c := loader.ReadFromEnv(credEnv)
-		rtn.credentials[source] = c
-	}
-	return rtn
-}
+// func (env *Environment) LoadCredentials(prefix string) *CredentialManager {
+// 	Info(context.Background(), "LoadCredentials prefix:%s", prefix)
+
+// 	credEnv := env.Segment(prefix)
+// 	rtn := NewCredentialManager()
+// 	for source, loader := range CredentialSources {
+// 		c := loader.ReadFromEnvMgr(credEnv)
+// 		rtn.credentials[source] = c
+// 	}
+// 	return rtn
+// }
 
 func (env *Environment) GetCredential(sourceName string) interface{} {
+	Info(context.Background(), "GetCredential sourceName:%s", sourceName)
+
 	return env.Credentials.Get(sourceName)
 }
 
 func (env *Environment) Get(name string) string {
+	Info(context.Background(), "Get name:%s", name)
+
 	v, err := env.EnvSvc.Get(name)
 	if err == nil && v != "" {
 		return v
@@ -43,6 +49,8 @@ func (env *Environment) Get(name string) string {
 }
 
 func (env *Environment) GetInt(name string) (int, bool) {
+	Info(context.Background(), "GetInt name:%s", name)
+
 	v, err := env.EnvSvc.Get(name)
 	if err == nil && v != "" {
 		vi, err := strconv.Atoi(v)
@@ -71,12 +79,14 @@ func (env *Environment) Force(name ...string) string {
 	}
 
 	full := NormalizeEnvName(name[0])
-	log.Fatalf("Force Required Variable not found, %v (%s)", full, name)
+	log.Fatalf("env2 Force Required Variable not found, %v (%s)", full, name)
 
 	return ""
 }
 
 func (env *Environment) Default(name string, defaultValue string) string {
+	Info(context.Background(), "Default name:%s", name)
+
 	val := env.Get(name)
 	if val == "" {
 		return defaultValue
@@ -119,6 +129,8 @@ type HierarchicalEnvironment struct {
 }
 
 func NewHierarchicalEnvironment(env EnvironmentService, segments ...string) *HierarchicalEnvironment {
+	Info(context.Background(), "S ?? segments:%s", segments)
+
 	h := &HierarchicalEnvironment{
 		environ: env,
 		prefix:  EnvJoin(segments...),
@@ -128,7 +140,8 @@ func NewHierarchicalEnvironment(env EnvironmentService, segments ...string) *Hie
 }
 
 func (segEnv *HierarchicalEnvironment) S(name ...string) *HierarchicalEnvironment {
-
+	Info(context.Background(), "S ?? name:%s", name)
+	
 	nameReal := segEnv.prefix
 	last := segEnv
 	for _, namepart := range name {
@@ -145,6 +158,8 @@ func (segEnv *HierarchicalEnvironment) S(name ...string) *HierarchicalEnvironmen
 }
 
 func (segEnv *HierarchicalEnvironment) GetNoCascade(name string) (string, bool) {
+	Info(context.Background(), "H GetNoCascade %s", name)
+
 	raw := NormalizeEnvName(name)
 	full := EnvJoin(segEnv.prefix, raw)
 
@@ -162,6 +177,8 @@ func (segEnv *HierarchicalEnvironment) GetNoCascade(name string) (string, bool) 
 }
 
 func (segEnv *HierarchicalEnvironment) Default(name string, defaultValue string) (string, bool) {
+	Info(context.Background(), "H Default name:%s, defualt:%s", name, defaultValue)
+
 	val, found := segEnv.Get(name)
 	if found != nil || val == "" {
 		return defaultValue, false
@@ -170,6 +187,8 @@ func (segEnv *HierarchicalEnvironment) Default(name string, defaultValue string)
 }
 
 func (segEnv *HierarchicalEnvironment) ForceNoCascadee(name string) string {
+	Info(context.Background(), "H ForceNoCascadee %s", name)
+
 	val, found := segEnv.GetNoCascade(name)
 	if !found {
 		full := EnvJoin(segEnv.prefix, name)
@@ -231,7 +250,7 @@ func (segEnv *HierarchicalEnvironment) ForceCascade(name string) string {
 	}
 	if val == "" {
 		full := EnvJoin(segEnv.prefix, name)
-		log.Fatalf("HierarchicalEnvironment Force Required Variable not found, %v", full)
+		log.Fatalf("HierarchicalEnvironment ForceCascade Required Variable not found, %v", full)
 
 	}
 	return val

@@ -1,7 +1,6 @@
 package cloudy
 
 import (
-	"context"
 	"io/ioutil"
 	"log"
 	"os"
@@ -13,11 +12,11 @@ type EnvironmentService interface {
 	Get(name string) (string, error)
 }
 
-var DefaultEnvironment = NewEnvironment(NewOsEnvironmentService())
+// var DefaultEnvironment = NewEnvironment(NewOsEnvironmentService())
 
-func SetDefaultEnvironment(env *Environment) {
-	DefaultEnvironment = env
-}
+// func SetDefaultEnvironment(env *Environment) {
+// 	DefaultEnvironment = env
+// }
 
 func EnvJoin(envParts ...string) string {
 	var trimmed []string
@@ -146,33 +145,44 @@ func LoadEnv(file string) error {
 	return nil
 }
 
-func CreateEnvironment() *Environment {
-	return CreateCompleteEnvironment("ARKLOUD_ENV", "", "")
-}
+// func CreateEnvironment() *Environment {
+// 	return CreateCompleteEnvironment("ARKLOUD_ENV", "", "")
+// }
 
-func CreateCompleteEnvironment(envVar string, PrefixVar string, credentialPrefix string) *Environment {
-	ctx := context.Background()
+// func CreateSimpleEnvironment() *Environment {
+// 	ctx := context.Background()
+// 	Info(ctx, "CreateSimpleEnvironment: ")
 
-	// create a simple env first
-	Info(ctx, "CreateCompleteEnvironment: Simple First")
-	tempEnv := NewEnvironment(NewHierarchicalEnvironment(NewTieredEnvironment(NewTestFileEnvironmentService(), NewOsEnvironmentService()), ""))
-	envServiceList := tempEnv.Default(envVar, "test|osenv")
-	prefix := tempEnv.Get(PrefixVar)
-	tempEnv.Credentials = tempEnv.LoadCredentials(credentialPrefix)
+// 	sources := []EnvironmentService{NewTestFileEnvironmentService(), NewOsEnvironmentService()}
+// 	envManager := NewEnvManager("USER_API", sources)
 
-	// Split and iterate
-	Info(ctx, "CreateCompleteEnvironment: Loading: %s", envServiceList)
-	envServiceDrivers := strings.Split(envServiceList, "|")
+// 	return envManager
+// }
 
-	// Create the overall environment
-	envServices := make([]EnvironmentService, len(envServiceDrivers))
-	for i, svcDriver := range envServiceDrivers {
-		envSvcInstance, err := EnvironmentProviders.NewFromEnvWith(tempEnv, svcDriver)
-		if err != nil {
-			log.Fatalf("Could not create environment: %v -> %v", svcDriver, err)
-		}
-		envServices[i] = envSvcInstance
-	}
+// func CreateCompleteEnvironment(envVar string, PrefixVar string, credentialPrefix string) *Environment {
+// 	ctx := context.Background()
+// 	Info(ctx, "CreateCompleteEnvironment: envVar=%s, PrefixVar=%s, credentialPrefix=%s", envVar, PrefixVar, credentialPrefix)
 
-	return NewEnvironment(NewHierarchicalEnvironment(NewTieredEnvironment(envServices...), prefix))
-}
+// 	// create a simple env first
+// 	Info(ctx, "CreateCompleteEnvironment: Simple First")
+// 	tempEnv := NewEnvironment(NewHierarchicalEnvironment(NewTieredEnvironment(NewTestFileEnvironmentService(), NewOsEnvironmentService()), ""))
+// 	envServiceList := tempEnv.Default(envVar, "test|osenv")
+// 	prefix := tempEnv.Get(PrefixVar)
+// 	tempEnv.Credentials = tempEnv.LoadCredentials(credentialPrefix)
+
+// 	// Split and iterate
+// 	Info(ctx, "CreateCompleteEnvironment: Loading: %s", envServiceList)
+// 	envServiceDrivers := strings.Split(envServiceList, "|")
+
+// 	// Create the overall environment
+// 	envServices := make([]EnvironmentService, len(envServiceDrivers))
+// 	for i, svcDriver := range envServiceDrivers {
+// 		envSvcInstance, err := EnvironmentProviders.NewFromEnvMgrWith(em, svcDriver)
+// 		if err != nil {
+// 			log.Fatalf("Could not create environment: %v -> %v", svcDriver, err)
+// 		}
+// 		envServices[i] = envSvcInstance
+// 	}
+
+// 	return NewEnvironment(NewHierarchicalEnvironment(NewTieredEnvironment(envServices...), prefix))
+// }

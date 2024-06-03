@@ -10,9 +10,11 @@ import (
 	"github.com/appliedres/cloudy"
 )
 
-func CreateTestEnvironment() *cloudy.Environment {
+func CreateTestEnvMgr() *cloudy.EnvManager {
 	MustSetTestEnv()
-	return cloudy.CreateCompleteEnvironment("ARKLOUD_ENV", "", "TEST")
+	em := cloudy.GetDefaultEnvManager()
+	em.LoadSources("test")
+	return em
 }
 
 // Starts in the current directory and checks for "arkloud.env" OR "arkloud-conf/arkloud.env"

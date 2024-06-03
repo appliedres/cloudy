@@ -14,8 +14,8 @@ import (
 )
 
 func init() {
-	EnvironmentProviders.Register("osenv", &SystemEnvironmentVariablesFactory{})
-	EnvironmentProviders.Register("test", &TestEnvFileFactory{})
+	EnvironmentProviders.Register("osenv", &SystemEnvironmentVariablesFactory{}, []EnvDefinition{})
+	EnvironmentProviders.Register("test", &TestEnvFileFactory{}, []EnvDefinition{})
 }
 
 var ErrKeyNotFound = errors.New("key not found")
@@ -65,7 +65,7 @@ type SystemEnvironmentVariablesFactory struct{}
 func (f *SystemEnvironmentVariablesFactory) Create(cfg interface{}) (EnvironmentService, error) {
 	return &SystemEnvironmentVariables{}, nil
 }
-func (f *SystemEnvironmentVariablesFactory) FromEnv(env *Environment) (interface{}, error) {
+func (f *SystemEnvironmentVariablesFactory) FromEnvMgr(em *EnvManager, prefix string) (interface{}, error) {
 	return nil, nil
 }
 
@@ -143,6 +143,7 @@ func (te *MapEnvironment) Get(name string) (string, error) {
 	return val, nil
 }
 
+// Sets a variable inside a MapEnvironment.
 func (te *MapEnvironment) Set(name string, v string) {
 	te.data[name] = v
 }
@@ -227,6 +228,6 @@ func (f *TestEnvFileFactory) Create(cfg interface{}) (EnvironmentService, error)
 	return NewTestFileEnvironmentService(), nil
 }
 
-func (f *TestEnvFileFactory) FromEnv(env *Environment) (interface{}, error) {
+func (f *TestEnvFileFactory) FromEnvMgr(em *EnvManager, prefix string) (interface{}, error) {
 	return nil, nil
 }

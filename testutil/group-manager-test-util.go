@@ -11,7 +11,7 @@ import (
 func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManager) {
 	ctx := cloudy.StartContext()
 
-	domain := cloudy.DefaultEnvironment.Force("USER_DOMAIN")
+	domain := cloudy.DefaultEnvManager.GetVar("USER_DOMAIN")
 
 	user := "test.user@" + domain
 
