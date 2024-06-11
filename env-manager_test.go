@@ -99,41 +99,41 @@ func TestValidateKey(t *testing.T) {
 func TestValidateKeys(t *testing.T) {
 	em := NewEnvManager("test")
 
-    invalidKeys := []string{"VALID_NAME123", "invalid_name!", "ANOTHER_VALID_NAME", "123_456"}
-	
+	invalidKeys := []string{"VALID_NAME123", "invalid_name!", "ANOTHER_VALID_NAME", "123_456"}
+
 	validatedKeys, err := em.ValidateKeys(invalidKeys)
 	assert.NotNil(t, err)
 	assert.Nil(t, validatedKeys)
 
-    validKeys := []string{"VALID_NAME123", "ANOTHER_VALID_NAME", "123_456"}
+	validKeys := []string{"VALID_NAME123", "ANOTHER_VALID_NAME", "123_456"}
 
 	validatedKeys, err = em.ValidateKeys(validKeys)
 	assert.Nil(t, err)
 	assert.Equal(t, validatedKeys, validKeys)
 }
 
-func TestNewVarFromDef(t *testing.T) {
+func TestAddDef(t *testing.T) {
 	em := NewEnvManager("test")
 	newDef := EnvDefinition{
-		Name:        "test_var",
-		Description: "A test variable",
-		Keys:        []string{"TEST_VAR"},
-		DefaultValue:     "default_value",
+		Key:          "TEST_VAR",
+		Name:         "test_var",
+		Description:  "A test variable",
+		DefaultValue: "default_value",
 	}
 
-	em.NewVarFromDef(newDef)
+	em.RegisterDef(newDef)
 	assert.Len(t, em.envDefinitions, 1)
-	assert.Equal(t, newDef, em.envDefinitions[0])
+	assert.Equal(t, newDef, em.envDefinitions["TEST_VAR"])
 }
 
 func TestNewVar(t *testing.T) {
 	em := NewEnvManager("test")
-	em.NewVar("TEST_KEY", "test_var", "A test variable", "default_value")
+	em.AddDef("TEST_KEY", "test_var", "A test variable", []string{}, "default_value")
 
 	assert.Len(t, em.envDefinitions, 1)
-	assert.Equal(t, "test_var", em.envDefinitions[0].Name)
-	assert.Equal(t, "TEST_KEY", em.envDefinitions[0].Keys[0])
-	assert.Equal(t, "default_value", em.envDefinitions[0].DefaultValue)
+	assert.Equal(t, "test_var", em.envDefinitions["TEST_KEY"].Name)
+	assert.Equal(t, "TEST_KEY", em.envDefinitions["TEST_KEY"].Key)
+	assert.Equal(t, "default_value", em.envDefinitions["TEST_KEY"].DefaultValue)
 }
 
 func TestGetVar(t *testing.T) {
@@ -151,13 +151,13 @@ func TestGetVar(t *testing.T) {
 	em.Sources = append(em.Sources, source)
 
 	// test loading defaults
-	em.NewVar("TEST_DEFAULT_KEY", "test default key", "entry used for testing default key retrieval", testDefaultString)
+	em.AddDef("TEST_DEFAULT_KEY", "test default key", "entry used for testing default key retrieval", []string{}, testDefaultString)
 	em.LoadAllVars()
 	value := em.GetVar("TEST_DEFAULT_KEY")
 	assert.Equal(t, testDefaultString, value)
 
 	// test loading non-default
-	em.NewVar("TEST_KEY", "test key", "entry used for testing non-default key retrieval", "")
+	em.AddDef("TEST_KEY", "test key", "entry used for testing non-default key retrieval", []string{}, "")
 	em.LoadAllVars()
 	value = em.GetVar("TEST_KEY")
 	assert.Equal(t, testString, value)
@@ -181,13 +181,13 @@ func TestGetInt(t *testing.T) {
 	em.Sources = append(em.Sources, source)
 
 	// test loading defaults
-	em.NewVar("TEST_DEFAULT_KEY", "test default key", "entry used for testing default key retrieval", testDefaultString)
+	em.AddDef("TEST_DEFAULT_KEY", "test default key", "entry used for testing default key retrieval", []string{}, testDefaultString)
 	em.LoadAllVars()
 	value := em.GetInt("TEST_DEFAULT_KEY")
 	assert.Equal(t, testDefaultInt, value)
 
 	// test loading non-default
-	em.NewVar("TEST_KEY", "test key", "entry used for testing non-default key retrieval", "")
+	em.AddDef("TEST_KEY", "test key", "entry used for testing non-default key retrieval", []string{}, "")
 	em.LoadAllVars()
 	value = em.GetInt("TEST_KEY")
 	assert.Equal(t, testInt, value)
@@ -210,8 +210,8 @@ func TestLoadVars(t *testing.T) {
 	testString := "test_value"
 
 	em := NewEnvManager("test")
-	em.NewVar("UNLOADED_KEY", "unused key", "for verifying we don't load this key", "")
-	em.NewVar("TEST_KEY", "test var", "A test variable", "")
+	em.AddDef("UNLOADED_KEY", "unused key", "for verifying we don't load this key", []string{}, "")
+	em.AddDef("TEST_KEY", "test var", "A test variable", []string{}, "")
 	mockService := NewMockEnvironmentService()
 	mockService.Set("TEST_KEY", testString)
 	em.Sources = []EnvSource{
@@ -232,8 +232,8 @@ func TestFilteredEnvManagerByKeyPrefix(t *testing.T) {
 	testString := "test_value"
 
 	em := NewEnvManager("test")
-	em.NewVar("TEST_KEY_1", "test_var_1", "A test variable 1", "")
-	em.NewVar("ANOTHER_KEY_2", "test_var_2", "A test variable 2", "")
+	em.AddDef("TEST_KEY_1", "test_var_1", "A test variable 1", []string{}, "")
+	em.AddDef("ANOTHER_KEY_2", "test_var_2", "A test variable 2", []string{}, "")
 	mockService := NewMockEnvironmentService()
 	mockService.Set("TEST_KEY_1", testString)
 	em.Sources = []EnvSource{
@@ -256,7 +256,7 @@ func TestGetDefault(t *testing.T) {
 	defaultString := "default_val"
 
 	em := NewEnvManager("test")
-	em.NewVar("TEST_KEY", "test var", "A test variable", defaultString)
+	em.AddDef("TEST_KEY", "test var", "A test variable", []string{}, defaultString)
 	mockService := NewMockEnvironmentService()
 	em.Sources = []EnvSource{
 		{

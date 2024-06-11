@@ -12,7 +12,7 @@ import (
 func init() {
 	Info(context.Background(), "jwt init()")
 
-	DefaultEnvManager.NewVar("ADMIN_GROUP", "ADMIN_GROUP", "", "")
+	DefaultEnvManager.AddDef("ADMIN_GROUP", "ADMIN_GROUP", "", []string{}, "")
 }
 
 type UserJWT struct {

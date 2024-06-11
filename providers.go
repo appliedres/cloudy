@@ -19,7 +19,7 @@ type ProviderFactory[T any] interface {
 }
 
 type Provider[T any] struct {
-	Factory ProviderFactory[T]
+	Factory      ProviderFactory[T]
 	RequiredVars []EnvDefinition
 }
 
@@ -36,19 +36,19 @@ func NewProviderRegistry[T any]() *ProvidersRegistry[T] {
 func (pr *ProvidersRegistry[T]) Register(name string, factory ProviderFactory[T], requiredVars []EnvDefinition) {
 	Info(context.Background(), "Provider.Register(): name=%s, requiredVars=%s", name, requiredVars)
 
-    if _, exists := pr.Providers[name]; exists {
+	if _, exists := pr.Providers[name]; exists {
 		log.Fatalf("Provider \"%s\" already registerd in this provider registry", name)
 	}
 
 	pr.Providers[name] = Provider[T]{
-		Factory: factory,
+		Factory:      factory,
 		RequiredVars: requiredVars, // change requiredVars to EnvDefinition type
 	}
 
 	if len(requiredVars) > 0 {
 		for _, def := range requiredVars {
 			Info(context.Background(), "\t\tprovider [%s]: adding provider var named \"%s\"", name, def.Name)
-			DefaultEnvManager.NewVarFromDef(def)  // TODO: provider var description
+			DefaultEnvManager.RegisterDef(def) // TODO: provider var description
 		}
 	}
 }
@@ -72,17 +72,15 @@ func (pr *ProvidersRegistry[T]) GetRequiredVars(em *EnvManager, driver string) (
 	var keys []string
 
 	for _, def := range provider.RequiredVars {
-		for _, key := range def.Keys {
-			if _, exists := keyMap[key]; exists {
-				log.Fatalf("GetRequiredVars: non-unique key found \"%s\"", key)
-			}
-			keyMap[key] = struct{}{}
-			keys = append(keys, key)
+		if _, exists := keyMap[def.Key]; exists {
+			log.Fatalf("GetRequiredVars: duplicate key found in required vars \"%s\"", def.Key)
 		}
+		keyMap[def.Key] = struct{}{}
+		keys = append(keys, def.Key)
 	}
 
 	return keys, nil
-} 
+}
 
 func (pr *ProvidersRegistry[T]) New(name string, cfg interface{}) (T, error) {
 	Info(context.Background(), "Provider.New(): name=%s, cfg=%s", name, cfg)
@@ -142,7 +140,7 @@ func (pr *ProvidersRegistry[T]) NewFromEnvMgrWith(em *EnvManager, driver string)
 	return provider.Factory.Create(cfg)
 }
 
-func FromEnvMgr (prefix string, driverKey string) (string, map[string]interface{}, error) {
+func FromEnvMgr(prefix string, driverKey string) (string, map[string]interface{}, error) {
 	Info(context.Background(), "Provider.FromEnvMgr(): prefix=%s, driver=%s", prefix, driverKey)
 
 	env := LoadEnvPrefixMap(prefix)
