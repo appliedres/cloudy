@@ -193,41 +193,6 @@ func TestGetInt(t *testing.T) {
 	assert.Equal(t, testInt, value)
 }
 
-func TestLoadVarList(t *testing.T) {
-	em := NewEnvManager("test")
-	em.Sources = []EnvSource{
-		{
-			Name:    "test",
-			Service: NewMockEnvironmentService(),
-		},
-	}
-
-	err := em.LoadVarList([]string{})
-	assert.Error(t, err, "LoadVarList: cannot load empty list")
-}
-
-func TestLoadVars(t *testing.T) {
-	testString := "test_value"
-
-	em := NewEnvManager("test")
-	em.AddDef("UNLOADED_KEY", "unused key", "for verifying we don't load this key", []string{}, "")
-	em.AddDef("TEST_KEY", "test var", "A test variable", []string{}, "")
-	mockService := NewMockEnvironmentService()
-	mockService.Set("TEST_KEY", testString)
-	em.Sources = []EnvSource{
-		{
-			Name:    "test",
-			Service: mockService,
-		},
-	}
-
-	err := em.LoadVars([]string{"TEST_KEY"})
-	assert.NoError(t, err)
-
-	value := em.GetVar("TEST_KEY")
-	assert.Equal(t, testString, value)
-}
-
 func TestFilteredEnvManagerByKeyPrefix(t *testing.T) {
 	testString := "test_value"
 
@@ -270,4 +235,119 @@ func TestGetDefault(t *testing.T) {
 
 	value := em.GetVar("TEST_KEY")
 	assert.Equal(t, defaultString, value)
+}
+
+func TestLoadEmptyVarList(t *testing.T) {
+	em := NewEnvManager("test")
+	em.Sources = []EnvSource{
+		{
+			Name:    "test",
+			Service: NewMockEnvironmentService(),
+		},
+	}
+
+	err := em.LoadVarList([]string{})
+	assert.Error(t, err, "LoadVarList: cannot load empty list")
+}
+
+func TestLoadVars(t *testing.T) {
+	testString := "test_value"
+
+	em := NewEnvManager("test")
+	em.AddDef("UNLOADED_KEY", "unused key", "for verifying we don't load this key", []string{}, "")
+	em.AddDef("TEST_KEY", "test var", "A test variable", []string{}, "")
+	mockService := NewMockEnvironmentService()
+	mockService.Set("TEST_KEY", testString)
+	em.Sources = []EnvSource{
+		{
+			Name:    "test",
+			Service: mockService,
+		},
+	}
+
+	err := em.LoadVars([]string{"TEST_KEY"})
+	assert.NoError(t, err)
+
+	value := em.GetVar("TEST_KEY")
+	assert.Equal(t, testString, value)
+
+	value, err = em.getVar("UNLOADED_KEY")
+	assert.Error(t, err)
+	assert.Equal(t, "", value)
+}
+
+func TestLoadVars_AllVariables(t *testing.T) {
+	envService := NewMockEnvironmentService()
+	envService.Set("VAR1", "value1")
+	envService.Set("VAR2", "value2")
+
+	em := NewEnvManager("test")
+	em.AddDef("VAR1", "Variable 1", "A test variable 1", []string{}, "")
+	em.AddDef("VAR2", "Variable 2", "A test variable 2", []string{}, "")
+
+	em.Sources = []EnvSource{
+		{Name: "mockService", Service: envService},
+	}
+
+	err := em.LoadAllVars()
+	assert.NoError(t, err)
+	assert.Equal(t, "value1", em.GetVar("VAR1"))
+	assert.Equal(t, "value2", em.GetVar("VAR2"))
+}
+
+func TestLoadVars_SpecificVariables(t *testing.T) {
+	envService := NewMockEnvironmentService()
+	envService.Set("VAR1", "value1")
+	envService.Set("VAR2", "value2")
+
+	em := NewEnvManager("test")
+	em.AddDef("VAR1", "Variable 1", "A test variable 1", []string{}, "")
+	em.AddDef("VAR2", "Variable 2", "A test variable 2", []string{}, "")
+
+	em.Sources = []EnvSource{
+		{Name: "mockService", Service: envService},
+	}
+
+	err := em.LoadVars([]string{"VAR1"})
+	assert.NoError(t, err)
+	assert.Equal(t, "value1", em.GetVar("VAR1"))
+
+	val, err := em.getVar("VAR2")
+	assert.Error(t, err)
+	assert.Equal(t, "", val)
+}
+
+func TestLoadVars_DefaultValues(t *testing.T) {
+	envService := NewMockEnvironmentService()
+
+	em := NewEnvManager("test")
+	em.AddDef("VAR1", "Variable 1", "A test variable 1", []string{}, "default1")
+	em.AddDef("VAR2", "Variable 2", "A test variable 2", []string{}, "default2")
+
+	em.Sources = []EnvSource{
+		{Name: "mockService", Service: envService},
+	}
+
+	err := em.LoadVars(nil)
+	assert.NoError(t, err)
+	assert.Equal(t, "default1", em.GetVar("VAR1"))
+	assert.Equal(t, "default2", em.GetVar("VAR2"))
+}
+
+func TestLoadVars_OverridesDefaultValues(t *testing.T) {
+	envService := NewMockEnvironmentService()
+	envService.Set("VAR1", "value1")
+
+	em := NewEnvManager("test")
+	em.AddDef("VAR1", "Variable 1", "A test variable 1", []string{}, "default1")
+	em.AddDef("VAR2", "Variable 2", "A test variable 2", []string{}, "default2")
+
+	em.Sources = []EnvSource{
+		{Name: "mockService", Service: envService},
+	}
+
+	err := em.LoadVars(nil)
+	assert.NoError(t, err)
+	assert.Equal(t, "value1", em.GetVar("VAR1"))
+	assert.Equal(t, "default2", em.GetVar("VAR2"))
 }

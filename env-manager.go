@@ -220,25 +220,35 @@ func (em *EnvManager) AddDef(key string, name string, description string, fallba
 
 // Get retrieves the value of the specified environment variable from the EnvManager
 // fails if an empty value is retrieved.
-func (em *EnvManager) GetVar(keys ...string) string {
+func (em *EnvManager) getVar(keys ...string) (string, error) {
 	Info(context.Background(), "EnvMgr[%s]: GetVar keys=%s", em.Prefix, keys)
 
 	for i, key := range keys {
 		if def, exists := em.envDefinitions[key]; exists {
 			if def.Value == "" && def.DefaultValue == "" {
-				log.Fatalf("EnvMgr[%s]: Environment variable %s is not set for definition name [%s]", em.Prefix, key, def.Name)
+				return "", fmt.Errorf("EnvMgr[%s]: Environment variable %s is not set for definition name [%s]", em.Prefix, key, def.Name)
 			}
 			Info(context.Background(), "EnvMgr[%s]: Retrieved key \"%s\"", em.Prefix, key)
-			return def.Value
+			return def.Value, nil
 		}
 
 		if i < len(keys)-1 {
 			Warn(context.Background(), "EnvMgr[%s]: Key \"%s\" not found, falling back to the next key", em.Prefix, key)
-		} else {
-			log.Fatalf("EnvMgr[%s]: None of the provided keys %v were found. Ensure they are registered with NewVar()", em.Prefix, keys)
 		}
 	}
-	return ""
+	return "", fmt.Errorf("EnvMgr[%s]: None of the provided keys %v were found. Ensure they are registered with NewVar()", em.Prefix, keys)
+}
+
+
+func (em *EnvManager) GetVar(keys ...string) string {
+	Info(context.Background(), "EnvMgr[%s]: GetVar keys=%s", em.Prefix, keys)
+
+	val, err := em.getVar(keys...)
+	if err != nil {
+		log.Fatalf("EnvMgr[%s]: None of the provided keys %v were found. Ensure they are registered with NewVar()", em.Prefix, keys)
+	}
+
+	return val
 }
 
 func (em *EnvManager) GetInt(key string) int {
