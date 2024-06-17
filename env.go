@@ -13,6 +13,12 @@ type EnvironmentService interface {
 	Get(name string) (string, error)
 }
 
+type WritableEnvironmentService interface {
+	EnvironmentService
+	Set(name string, value string) error
+	SetMany(many map[string]string) error
+}
+
 var DefaultEnvironment = NewEnvironment(NewOsEnvironmentService())
 
 func SetDefaultEnvironment(env *Environment) {
@@ -80,6 +86,7 @@ func NormalizeEnvName(v string) string {
 
 	vfixed := strings.ReplaceAll(v, "-", "_")
 	vfixed = strings.ReplaceAll(vfixed, " ", "_")
+	vfixed = strings.ReplaceAll(vfixed, ".", "_")
 	vUpper := strings.ToUpper(vfixed)
 	return vUpper
 }
@@ -111,6 +118,7 @@ func ToEnvName(name string, prefix string) string {
 			fullname = prefix + "_" + name
 		}
 	}
+
 	return NormalizeEnvName(fullname)
 }
 

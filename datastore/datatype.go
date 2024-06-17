@@ -111,6 +111,9 @@ type Datatype[T any] struct {
 	initialized bool
 }
 
+// Go is really crazy in how it handles Generics.. So in order to call all the "non typed" methods
+// on each datatype we need an interface
+
 // Handles Raw Files (including Images)
 type Filetype struct {
 }

@@ -17,3 +17,15 @@ func (idgen *IdGenerator[T]) BeforeSave(ctx context.Context, dt *Datatype[T], it
 
 	return item, nil
 }
+
+type UIdGenerator struct{}
+
+func (idgen *UIdGenerator) BeforeSave(ctx context.Context, dt *UDatatype, item interface{}) (interface{}, error) {
+	id := dt.GetID(ctx, item)
+	if id == "" {
+		id = cloudy.GenerateId(dt.Prefix, 15)
+		dt.SetID(ctx, item, id)
+	}
+
+	return item, nil
+}

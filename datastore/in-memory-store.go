@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"context"
+	"errors"
 	"io"
 	"io/ioutil"
 
@@ -9,6 +10,8 @@ import (
 )
 
 const InMemoryinaryStoreID = "memory"
+
+var _ UntypedJsonDataStore = (*InMemoryStore)(nil)
 
 func init() {
 	BinaryDataStoreProviders.Register(InMemoryinaryStoreID, &InMemoryStoreFactory{})
@@ -26,6 +29,7 @@ func (f *InMemoryStoreFactory) FromEnv(env *cloudy.Environment) (interface{}, er
 
 type InMemoryStore struct {
 	items map[string][]byte
+	fn    OnCreateDS
 }
 
 func NewInMemoryStore() *InMemoryStore {
@@ -34,6 +38,12 @@ func NewInMemoryStore() *InMemoryStore {
 
 func (mem *InMemoryStore) Open(ctx context.Context, config interface{}) error {
 	mem.items = make(map[string][]byte)
+	if mem.fn != nil {
+		err := mem.fn(ctx, mem)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -65,4 +75,22 @@ func (mem *InMemoryStore) Delete(ctx context.Context, key string) error {
 func (mem *InMemoryStore) Exists(ctx context.Context, key string) (bool, error) {
 	_, found := mem.items[key]
 	return found, nil
+}
+
+func (mem *InMemoryStore) GetAll(ctx context.Context) ([][]byte, error) {
+	rtn := make([][]byte, len(mem.items))
+	i := 0
+	for _, v := range rtn {
+		rtn[i] = v
+		i++
+	}
+	return rtn, nil
+}
+
+func (mem *InMemoryStore) OnCreate(fn OnCreateDS) {
+	mem.fn = fn
+}
+
+func (mem *InMemoryStore) Query(ctx context.Context, query *SimpleQuery) ([][]byte, error) {
+	return nil, errors.New("not implemented")
 }

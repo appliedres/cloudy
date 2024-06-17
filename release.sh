@@ -142,6 +142,7 @@ if [[ $upgrade == 'yes' ]]; then
     updatecloudy user-api
     updatecloudy folders-api
     updatecloudy cac-api
+    updatecloudy cloudy-keycloak
 
 else 
     echo "Client update skipped"

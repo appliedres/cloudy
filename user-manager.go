@@ -41,3 +41,8 @@ type UserManager interface {
 
 	DeleteUser(ctx context.Context, uid string) error
 }
+
+type AvatarManager interface {
+	GetProfilePicture(ctx context.Context, uid string) ([]byte, error)
+	UploadProfilePicture(ctx context.Context, uid string, picture []byte) error
+}

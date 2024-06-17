@@ -175,3 +175,21 @@ func ParseToken(tokenstr string) (*UserJWT, error) {
 
 	return &claims, nil
 }
+
+func EncodeJWT(user *UserJWT) string {
+	hmacSampleSecret := []byte("This is a cool secret")
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, user)
+
+	// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
+	// 		jwt.MapClaims{
+	// 	   "foo": "bar",
+	// 	   "nbf": time.Date(2015, 10, 10, 12, 0, 0, 0, time.UTC).Unix(),
+	//    })
+
+	tokenString, err := token.SignedString(hmacSampleSecret)
+	if err != nil {
+		panic(err)
+	}
+
+	return tokenString
+}

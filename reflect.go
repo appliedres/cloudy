@@ -19,6 +19,14 @@ func SetFieldString(v interface{}, field string, value string) {
 }
 
 func NewInstance(v interface{}) interface{} {
+	myStructPtr := reflect.New(reflect.TypeOf(v))
+
+	// Dereference the pointer to get the actual struct value
+	rtn := myStructPtr.Elem().Interface()
+	return rtn
+}
+
+func NewInstancePtr(v interface{}) interface{} {
 	if reflect.TypeOf(v) == nil {
 		return fmt.Errorf("the type specified is a pointer... it needs to be an actual object")
 	}

@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
 type TestItem struct {
-	ID   string
+	ID   string `json:"id"`
 	Name string
 }
 
@@ -33,16 +32,16 @@ func JsonDataStoreTest(t *testing.T, ctx context.Context, ds JsonDataStore[TestI
 	// Retrieve
 	fmt.Println("Getting")
 	testDoc2, err := ds.Get(ctx, testDoc.ID)
-	assert.Nil(t, err, "Should not get an error saving to the database")
+	assert.Nil(t, err, "Should not get an error retrieving from the database")
 	assert.NotNil(t, testDoc2, "Item should be found")
 	assert.Equal(t, testDoc2.ID, testDoc.ID, "IDs should be equal")
 
 	// Delete
 	fmt.Println("Deleteing")
 
-	ds.Delete(ctx, testDoc.ID)
+	err = ds.Delete(ctx, testDoc.ID)
 	assert.Nil(t, err, "Should not get an error")
-	time.Sleep(5 * time.Second)
+	// time.Sleep(5 * time.Second)
 
 	// Exists
 	fmt.Println("Checking Existence")

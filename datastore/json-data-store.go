@@ -42,6 +42,8 @@ type JsonDataStore[T any] interface {
 	Query(ctx context.Context, query *SimpleQuery) ([]*T, error)
 
 	// *T
+	// Hook for the datastore to call when the table is created
+	OnCreate(fn func(ctx context.Context, ds JsonDataStore[T]) error)
 }
 
 type NativeQuerable[T any] interface {
@@ -89,23 +91,6 @@ func (j *JsonDataStoreAdapter[T]) Get(ctx context.Context, key string) (T, error
 	return v, nil
 }
 
-// var jsonstores = make(map[string]JsonDataStoreFactory[any])
-
-// type JsonDataStoreFactory[M any] interface {
-// 	Create(cfg interface{}) (JsonDataStore[M], error)
-// 	ToConfig(cfgMap map[string]interface{}) (interface{}, error)
-// }
-
-// func RegisterJsonDatastore(providerName string, factory JsonDataStoreFactory[any]) {
-// 	jsonstores[providerName] = factory
-// }
-
-// func NewJsonDatastore[M any](providerName string, cfg interface{}) (JsonDataStore[M], error) {
-// 	factory := jsonstores[providerName]
-// 	ds, err := factory.Create(cfg)
-// 	return ds.(JsonDataStore[M]), err
-// }
-
 func NewTypedStore[T any](store UntypedJsonDataStore) JsonDataStore[T] {
 	return &TypedJsonStore[T]{ds: store}
 }
@@ -128,7 +113,11 @@ func (ts *TypedJsonStore[T]) Close(ctx context.Context) error {
 // Save stores an item in the datastore. There is no difference
 // between an insert and an update.
 func (ts *TypedJsonStore[T]) Save(ctx context.Context, item *T, key string) error {
-	return ts.ds.Save(ctx, item, key)
+	data, err := json.Marshal(item)
+	if err != nil {
+		return err
+	}
+	return ts.ds.Save(ctx, data, key)
 }
 
 // Get retrieves an item by it's unique id
@@ -138,7 +127,11 @@ func (ts *TypedJsonStore[T]) Get(ctx context.Context, key string) (*T, error) {
 	if err != nil {
 		return zero, err
 	}
-	return item.(*T), err
+	if item == nil {
+		return nil, nil
+	}
+	obj, err := ts.fromBytes(item)
+	return obj, err
 }
 
 // Gets all the items in the store.
@@ -151,7 +144,11 @@ func (ts *TypedJsonStore[T]) GetAll(ctx context.Context) ([]*T, error) {
 	}
 	rtn := make([]*T, len(results))
 	for i, v := range results {
-		rtn[i] = v.(*T)
+		obj, err := ts.fromBytes(v)
+		if err != nil {
+			return nil, err
+		}
+		rtn[i] = obj
 	}
 	return rtn, err
 }
@@ -174,9 +171,30 @@ func (ts *TypedJsonStore[T]) Query(ctx context.Context, query *SimpleQuery) ([]*
 	}
 	rtn := make([]*T, len(results))
 	for i, v := range results {
-		rtn[i] = v.(*T)
+		obj, err := ts.fromBytes(v)
+		if err != nil {
+			return nil, err
+		}
+		rtn[i] = obj
 	}
 	return rtn, err
+}
+
+// Hook for the datastore to call when the table is created
+func (ts *TypedJsonStore[T]) OnCreate(fn func(ctx context.Context, ds JsonDataStore[T]) error) {
+	ts.ds.OnCreate(func(ctx context.Context, uds UntypedJsonDataStore) error {
+		err := fn(ctx, ts)
+		return err
+	})
+}
+
+func (ts *TypedJsonStore[T]) fromBytes(data []byte) (*T, error) {
+	v, err := cloudy.NewT[T]()
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(data, &v)
+	return &v, err
 }
 
 type UntypedJsonDataStore interface {
@@ -190,13 +208,13 @@ type UntypedJsonDataStore interface {
 
 	// Save stores an item in the datastore. There is no difference
 	// between an insert and an update.
-	Save(ctx context.Context, item interface{}, key string) error
+	Save(ctx context.Context, item []byte, key string) error
 
 	// Get retrieves an item by it's unique id
-	Get(ctx context.Context, key string) (interface{}, error)
+	Get(ctx context.Context, key string) ([]byte, error)
 
 	// Gets all the items in the store.
-	GetAll(ctx context.Context) ([]interface{}, error)
+	GetAll(ctx context.Context) ([][]byte, error)
 
 	// Deletes an item
 	Delete(ctx context.Context, key string) error
@@ -205,8 +223,13 @@ type UntypedJsonDataStore interface {
 	Exists(ctx context.Context, key string) (bool, error)
 
 	// Sends a simple Query
-	Query(ctx context.Context, query *SimpleQuery) ([]interface{}, error)
+	Query(ctx context.Context, query *SimpleQuery) ([][]byte, error)
+
+	// Hook for the datastore to call when the table is created
+	OnCreate(fn OnCreateDS)
 }
+
+type OnCreateDS = func(ctx context.Context, ds UntypedJsonDataStore) error
 
 var jsonstores = make(map[string]JsonDataStoreFactory)
 

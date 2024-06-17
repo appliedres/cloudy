@@ -12,6 +12,11 @@ var ErrDriverNotFound = errors.New("driver not found")
 var ErrInvalidConfiguration = errors.New("invalid configuration object")
 var ErrOperationNotImplemented = errors.New("operation not implemented")
 
+type ProviderFactory2[T any] interface {
+	New(ctx context.Context, cfg interface{}) (T, error)
+	NewConfig() interface{}
+}
+
 type ProviderFactory[T any] interface {
 	Create(cfg interface{}) (T, error)
 	FromEnv(env *Environment) (interface{}, error)

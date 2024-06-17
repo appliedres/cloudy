@@ -60,6 +60,23 @@ func (ce *SystemEnvironmentVariables) Get(name string) (string, error) {
 	return value, nil
 }
 
+func (ce *SystemEnvironmentVariables) GetAll() map[string]string {
+	m := make(map[string]string)
+	kvs := os.Environ()
+	for _, kv := range kvs {
+		indx := strings.Index(kv, "+")
+		if indx > 0 {
+			key := kv[:indx]
+			val := kv[indx:]
+
+			nkey := NormalizeKey(key)
+			m[nkey] = val
+		}
+	}
+
+	return m
+}
+
 type SystemEnvironmentVariablesFactory struct{}
 
 func (f *SystemEnvironmentVariablesFactory) Create(cfg interface{}) (EnvironmentService, error) {
@@ -86,19 +103,49 @@ For Example, consider the following
 In this example. The cached tier is used first
 */
 type TieredEnvironment struct {
-	sources []EnvironmentService
+	Sources []EnvironmentService
 }
 
 func NewTieredEnvironment(sources ...EnvironmentService) *TieredEnvironment {
 	return &TieredEnvironment{
-		sources: sources,
+		Sources: sources,
 	}
+}
+
+func (te *TieredEnvironment) Set(name string, value string) error {
+	w := te.getWritable()
+	if w == nil {
+		return errors.New("No Writable Environment")
+	}
+	return w.Set(name, value)
+}
+
+func (te *TieredEnvironment) SetMany(many map[string]string) error {
+	w := te.getWritable()
+	if w == nil {
+		return errors.New("No Writable Environment")
+	}
+	return w.SetMany(many)
+}
+
+func (te *TieredEnvironment) getWritable() WritableEnvironmentService {
+	for _, svc := range te.Sources {
+		w, is := svc.(WritableEnvironmentService)
+		if is {
+			return w
+		}
+	}
+	return nil
+}
+
+func (te *TieredEnvironment) AddFirst(svc EnvironmentService) {
+	te.Sources = append([]EnvironmentService{svc}, te.Sources...)
 }
 
 func (te *TieredEnvironment) Get(name string) (string, error) {
 	Info(context.Background(), "TieredEnvironment Get: %s", name)
 
-	for _, env := range te.sources {
+	for _, env := range te.Sources {
 		val, err := env.Get(name)
 		if err == nil {
 			return val, nil
@@ -110,7 +157,7 @@ func (te *TieredEnvironment) Get(name string) (string, error) {
 func (te *TieredEnvironment) Force(name string) (string, error) {
 	Info(context.Background(), "TieredEnvironment Force: %s", name)
 
-	for _, env := range te.sources {
+	for _, env := range te.Sources {
 		val, err := env.Get(name)
 		if err == nil {
 			return val, nil
