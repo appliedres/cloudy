@@ -353,6 +353,26 @@ func (impl *datatypeTypedOperationsImpl[T]) Get(ctx context.Context, id string) 
 	return rtn, err
 }
 
+func (impl *datatypeTypedOperationsImpl[T]) GetAll(ctx context.Context) ([]*T, error) {
+	data, err := impl.dt.DataStore.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if data == nil {
+		return nil, nil
+	}
+
+    var results []*T
+    for _, item := range data {
+        var obj T
+        if err := json.Unmarshal(item, &obj); err != nil {
+            return nil, fmt.Errorf("unable to unmarshal item: %v", err)
+        }
+        results = append(results, &obj)
+    }
+    return results, nil
+}
+
 func (impl *datatypeTypedOperationsImpl[T]) Save(ctx context.Context, item *T) (*T, error) {
 	itemSaved, err := impl.dt.Save(ctx, item)
 	if err != nil {
