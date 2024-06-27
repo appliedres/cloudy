@@ -317,6 +317,7 @@ func NewUDatatype(name string, table string, objectType interface{}, options ...
 type DatatypeTypedOperations[T any] interface {
 	Name() string
 	Get(ctx context.Context, id string) (*T, error)
+	GetAll(ctx context.Context) ([]*T, error)
 	Save(ctx context.Context, item *T) (*T, error)
 	Query(ctx context.Context, query *SimpleQuery) ([]*T, error)
 	Delete(ctx context.Context, id string) error
