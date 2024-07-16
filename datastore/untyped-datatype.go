@@ -8,6 +8,7 @@ import (
 	"reflect"
 
 	"github.com/appliedres/cloudy"
+	"github.com/hashicorp/go-multierror"
 )
 
 type UDatatype struct {
@@ -25,8 +26,9 @@ type UDatatype struct {
 	BeforeGet  []UBeforeGetInterceptor
 	AfterGet   []UAfterGetInterceptor
 
-	initialized bool
-	OnCreateDS  OnCreateDS
+	initialized        bool
+	OnCreateDS         OnCreateDS
+	OnConnectionChange func()
 }
 
 // Go is really crazy in how it handles Generics.. So in order to call all the "non typed" methods
@@ -52,6 +54,48 @@ type UBeforeGetInterceptor interface {
 
 type UAfterGetInterceptor interface {
 	AfterGet(ctx context.Context, dt *UDatatype, item interface{}) (interface{}, error)
+}
+
+func (dt *UDatatype) GetAll(ctx context.Context) ([]interface{}, error) {
+	var err error
+	var output []interface{}
+
+	err = dt.initIfNeeded(ctx)
+	if err != nil {
+		return output, err
+	}
+	if dt.DataStore == nil {
+		return nil, errors.New("No Datastore Configured")
+	}
+
+	// Load the item
+	data, err := dt.DataStore.GetAll(ctx)
+	if err != nil {
+		return output, err
+	}
+
+	// Run the interceptors, fail on error
+	var merr *multierror.Error
+	for _, rawBytes := range data {
+
+		v := cloudy.NewInstancePtr(dt.ItemType)
+		err = json.Unmarshal(rawBytes, v)
+		if err != nil {
+			merr = multierror.Append(merr, err)
+			continue
+		}
+
+		output = append(output, v)
+		for _, interceptor := range dt.AfterGet {
+			_, err := interceptor.AfterGet(ctx, dt, v)
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+		}
+	}
+
+	// All good, now Return
+	return output, merr.ErrorOrNil()
 }
 
 func (dt *UDatatype) Get(ctx context.Context, ID string) (interface{}, error) {
@@ -96,6 +140,9 @@ func (dt *UDatatype) GetRaw(ctx context.Context, ID string) (interface{}, error)
 	err := dt.initIfNeeded(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if dt.DataStore == nil {
+		return nil, errors.New("Datastore not initialized yet")
 	}
 
 	rawBytes, err := dt.DataStore.Get(ctx, ID)
@@ -150,9 +197,12 @@ func (dt *UDatatype) SaveRaw(ctx context.Context, item interface{}) (interface{}
 	if err != nil {
 		return nil, err
 	}
+	if dt.DataStore == nil {
+		return nil, errors.New("Datastore not initialized")
+	}
 
 	key := dt.GetID(ctx, item)
-	if key == "" {
+	if key == "" || key == "<invalid Value>" {
 		return nil, cloudy.Error(ctx, "No ID Set")
 	}
 
@@ -244,12 +294,16 @@ func (dt *UDatatype) initIfNeeded(ctx context.Context) error {
 		// cloudy.Info(ctx, "dt.initIfNeeded already initialized")
 		return nil
 	}
+	dt.initialized = true
 
 	if dt.DataStore != nil {
 		dt.DataStore.OnCreate(dt.OnCreateDS)
 		err := dt.DataStore.Open(ctx, nil)
 		if err != nil {
 			return err
+		}
+		if dt.OnConnectionChange != nil {
+			dt.OnConnectionChange()
 		}
 	}
 
@@ -261,7 +315,6 @@ func (dt *UDatatype) initIfNeeded(ctx context.Context) error {
 	// }
 
 	// cloudy.Info(ctx, "dt.initIfNeeded complete")
-	dt.initialized = true
 	return nil
 }
 
@@ -317,9 +370,12 @@ func NewUDatatype(name string, table string, objectType interface{}, options ...
 type DatatypeTypedOperations[T any] interface {
 	Name() string
 	Get(ctx context.Context, id string) (*T, error)
+	GetAll(ctx context.Context) ([]*T, error)
 	Save(ctx context.Context, item *T) (*T, error)
 	Query(ctx context.Context, query *SimpleQuery) ([]*T, error)
 	Delete(ctx context.Context, id string) error
+	IsReady() bool
+	SetOnConnectionChange(fn func())
 }
 
 type datatypeTypedOperationsImpl[T any] struct {
@@ -353,6 +409,29 @@ func (impl *datatypeTypedOperationsImpl[T]) Get(ctx context.Context, id string) 
 	return rtn, err
 }
 
+func (impl *datatypeTypedOperationsImpl[T]) IsReady() bool {
+	return impl.dt != nil && impl.dt.DataStore != nil
+}
+
+func (impl *datatypeTypedOperationsImpl[T]) GetAll(ctx context.Context) ([]*T, error) {
+	data, err := impl.dt.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if data == nil {
+		return nil, nil
+	}
+	rtn := make([]*T, len(data))
+	for i, item := range data {
+		rtn[i] = item.(*T)
+	}
+	// rtn, isType := data.(*T)
+	// if !isType {
+	// 	return nil, fmt.Errorf("unable to cast %v to %v", reflect.TypeOf(data), reflect.TypeOf(impl.dt.ItemType))
+	// }
+	return rtn, err
+}
+
 func (impl *datatypeTypedOperationsImpl[T]) Save(ctx context.Context, item *T) (*T, error) {
 	itemSaved, err := impl.dt.Save(ctx, item)
 	if err != nil {
@@ -363,6 +442,10 @@ func (impl *datatypeTypedOperationsImpl[T]) Save(ctx context.Context, item *T) (
 		return nil, fmt.Errorf("unable to cast %v to %v", reflect.TypeOf(itemSaved), reflect.TypeOf(impl.dt.ItemType))
 	}
 	return rtn, err
+}
+
+func (impl *datatypeTypedOperationsImpl[T]) SetOnConnectionChange(fn func()) {
+	impl.dt.OnConnectionChange = fn
 }
 
 func (impl *datatypeTypedOperationsImpl[T]) Query(ctx context.Context, query *SimpleQuery) ([]*T, error) {
@@ -377,7 +460,7 @@ func (impl *datatypeTypedOperationsImpl[T]) Query(ctx context.Context, query *Si
 	for i, data := range results {
 		r := cloudy.NewInstancePtr(impl.dt.ItemType)
 		err := json.Unmarshal(data, r)
-		if err != nil {
+		if err == nil {
 			rtn[i] = r.(*T)
 		}
 	}

@@ -62,6 +62,15 @@ func ArrayFirst[T comparable](all []T, fn func(item T) bool) (found T, ok bool) 
 	return
 }
 
+func First[T comparable](all []T) (found T, ok bool) {
+	for _, item := range all {
+		found = item
+		ok = true
+		return
+	}
+	return
+}
+
 func ArrayRemoveIndex[T comparable](all []T, i int) []T {
 	all[i] = all[len(all)-1]
 	return all[:len(all)-1]

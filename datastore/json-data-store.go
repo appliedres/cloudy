@@ -197,6 +197,14 @@ func (ts *TypedJsonStore[T]) fromBytes(data []byte) (*T, error) {
 	return &v, err
 }
 
+type DatastoreEventHandler interface {
+	OnConnectionChange()
+	OnSave(item interface{})
+	OnDelete(item interface{})
+	OnGet(item interface{})
+	OnGetAll(items []interface{})
+}
+
 type UntypedJsonDataStore interface {
 
 	// Open will open the datastore for usage. This should
