@@ -409,27 +409,24 @@ func (impl *datatypeTypedOperationsImpl[T]) Get(ctx context.Context, id string) 
 	return rtn, err
 }
 
-func (impl *datatypeTypedOperationsImpl[T]) IsReady() bool {
-	return impl.dt != nil && impl.dt.DataStore != nil
-}
-
 func (impl *datatypeTypedOperationsImpl[T]) GetAll(ctx context.Context) ([]*T, error) {
-	data, err := impl.dt.GetAll(ctx)
+	data, err := impl.dt.DataStore.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 	if data == nil {
 		return nil, nil
 	}
-	rtn := make([]*T, len(data))
-	for i, item := range data {
-		rtn[i] = item.(*T)
+
+	var results []*T
+	for _, item := range data {
+		var obj T
+		if err := json.Unmarshal(item, &obj); err != nil {
+			return nil, fmt.Errorf("unable to unmarshal item: %v", err)
+		}
+		results = append(results, &obj)
 	}
-	// rtn, isType := data.(*T)
-	// if !isType {
-	// 	return nil, fmt.Errorf("unable to cast %v to %v", reflect.TypeOf(data), reflect.TypeOf(impl.dt.ItemType))
-	// }
-	return rtn, err
+	return results, nil
 }
 
 func (impl *datatypeTypedOperationsImpl[T]) Save(ctx context.Context, item *T) (*T, error) {
