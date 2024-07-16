@@ -386,6 +386,10 @@ func AsTypedDatatype[T any](dt *UDatatype) DatatypeTypedOperations[T] {
 	return &datatypeTypedOperationsImpl[T]{dt: dt}
 }
 
+func (impl *datatypeTypedOperationsImpl[T]) IsReady() bool {
+	return true
+}
+
 func (impl *datatypeTypedOperationsImpl[T]) Name() string {
 	return impl.dt.Name
 }
