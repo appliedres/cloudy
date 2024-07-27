@@ -1,0 +1,1 @@
+../arkloud-portal/swagger/swagger generate model
