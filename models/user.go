@@ -8,10 +8,8 @@ package models
 import (
 	"context"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // User user
@@ -19,103 +17,30 @@ import (
 // swagger:model User
 type User struct {
 
-	// account type
-	AccountType string `json:"AccountType,omitempty"`
-
-	// action log
-	ActionLog string `json:"ActionLog,omitempty"`
-
-	// citizenship
-	Citizenship string `json:"Citizenship,omitempty"`
-
-	// company
-	Company string `json:"Company,omitempty"`
-
-	// contract date
-	ContractDate string `json:"ContractDate,omitempty"`
-
-	// contract number
-	ContractNumber string `json:"ContractNumber,omitempty"`
-
-	// department
-	Department string `json:"Department,omitempty"`
+	// attributes
+	Attributes map[string]string `json:"attributes,omitempty"`
 
 	// display name
-	DisplayName string `json:"DisplayName,omitempty"`
+	DisplayName string `json:"displayName,omitempty"`
 
 	// email
-	Email string `json:"Email,omitempty"`
-
-	// enabled
-	Enabled bool `json:"Enabled,omitempty"`
+	Email string `json:"email,omitempty"`
 
 	// first name
-	FirstName string `json:"FirstName,omitempty"`
-
-	// git lab onboarding issue
-	GitLabOnboardingIssue int64 `json:"GitLabOnboardingIssue,omitempty"`
-
-	// ID
-	ID string `json:"ID,omitempty"`
-
-	// job title
-	JobTitle string `json:"JobTitle,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// last name
-	LastName string `json:"LastName,omitempty"`
+	LastName string `json:"lastName,omitempty"`
 
-	// last sign in date
-	// Format: datetime
-	LastSignInDate strfmt.DateTime `json:"LastSignInDate,omitempty"`
+	// uid
+	UID string `json:"uid,omitempty"`
 
-	// mobile phone
-	MobilePhone string `json:"MobilePhone,omitempty"`
-
-	// must change password
-	MustChangePassword bool `json:"MustChangePassword,omitempty"`
-
-	// office phone
-	OfficePhone string `json:"OfficePhone,omitempty"`
-
-	// organization
-	Organization string `json:"Organization,omitempty"`
-
-	// password
-	Password string `json:"Password,omitempty"`
-
-	// program role
-	ProgramRole string `json:"ProgramRole,omitempty"`
-
-	// project
-	Project string `json:"Project,omitempty"`
-
-	// u p n
-	UPN string `json:"UPN,omitempty"`
+	// username
+	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this user
 func (m *User) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateLastSignInDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *User) validateLastSignInDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.LastSignInDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("LastSignInDate", "body", "datetime", m.LastSignInDate.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 

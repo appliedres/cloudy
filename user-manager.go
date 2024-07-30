@@ -25,9 +25,8 @@ type UserManager interface {
 
 	// Retrieves a specific user.
 	GetUser(ctx context.Context, uid string) (*models.User, error)
-
-	// Retrieves a specific user.
 	GetUserByEmail(ctx context.Context, email string, opts *UserOptions) (*models.User, error)
+	GetUserWithAttributes(ctx context.Context, uid string, attrs []string) (*models.User, error)
 
 	// NewUser creates a new user with the given information and returns the new user with any additional
 	// fields populated
