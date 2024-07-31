@@ -21,7 +21,7 @@ type UserManager interface {
 	// Returns: string - updated user name, bool - if the user exists, error - if an error is encountered
 	ForceUserName(ctx context.Context, name string) (string, bool, error)
 
-	ListUsers(ctx context.Context, page interface{}, filter interface{}) ([]*models.User, interface{}, error)
+	ListUsers(ctx context.Context, filter string, attrs []string) (*[]models.User, error)
 
 	// Retrieves a specific user.
 	GetUser(ctx context.Context, uid string) (*models.User, error)
