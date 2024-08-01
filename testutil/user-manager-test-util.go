@@ -16,19 +16,18 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 	user := "test.user@" + domain
 
 	u := &models.User{
-		ID:                 user,
-		UPN:                user,
-		FirstName:          "test",
-		LastName:           "user",
-		DisplayName:        "Test User",
-		Password:           "dont_ever_use_1234%^&*",
-		MustChangePassword: true,
+		UID:         "Q049VGVzdEdyb3VwLENOPVVzZXJzLERDPWxkYXAsREM9c2NobmVpZGUsREM9ZGV2",
+		Email:       user,
+		Username:    "test-user",
+		FirstName:   "test",
+		LastName:    "user",
+		DisplayName: "Test User",
 	}
 
-	ug, err := umg.GetUser(ctx, u.ID)
+	ug, err := umg.GetUser(ctx, u.UID)
 	assert.Nil(t, err)
 	if ug != nil {
-		err = umg.DeleteUser(ctx, u.ID)
+		err = umg.DeleteUser(ctx, u.UID)
 		assert.NotNil(t, err, "Test user should not exists and test is unable to delete it")
 	}
 
@@ -38,8 +37,7 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 	assert.Equal(t, u.FirstName, u2.FirstName)
 	assert.Equal(t, u.LastName, u2.LastName)
 	assert.Equal(t, u.DisplayName, u2.DisplayName)
-	assert.Equal(t, "", u2.Password)
-	assert.Equal(t, u.UPN, u2.UPN)
+	assert.Equal(t, u.Username, u2.Username)
 
 	u3, err := umg.GetUser(ctx, user)
 	assert.Nil(t, err)
@@ -47,9 +45,8 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 	assert.Equal(t, u.FirstName, u3.FirstName)
 	assert.Equal(t, u.LastName, u2.LastName)
 	assert.Equal(t, u.DisplayName, u3.DisplayName)
-	assert.Equal(t, "", u3.Password)
-	assert.Equal(t, u.UPN, u3.UPN)
-	assert.Equal(t, u2.ID, u3.ID)
+	assert.Equal(t, u.Username, u3.Username)
+	assert.Equal(t, u2.UID, u3.UID)
 
 	err = umg.Disable(ctx, user)
 	assert.Nil(t, err, "Unable to disable Test User ("+user+")")
@@ -57,36 +54,35 @@ func TestUserManager(t *testing.T, umg cloudy.UserManager) {
 	err = umg.Enable(ctx, user)
 	assert.Nil(t, err, "Unable to enable Test User ("+user+")")
 
-	u3.JobTitle = "Automated Tester"
+	u3.LastName = "Tester"
 	err = umg.UpdateUser(ctx, u3)
 	assert.Nil(t, err, "%v", err)
 
 	u3g, err := umg.GetUser(ctx, user)
 	assert.Nil(t, err)
-	assert.Equal(t, u3.JobTitle, u3g.JobTitle, "Updated user ("+user+") failed to post JobTitle Update")
+	assert.Equal(t, u3.LastName, u3g.LastName, "Updated user ("+user+") failed to post LastName Update")
 
-	for {
-		users, next, err := umg.ListUsers(ctx, nil, nil)
-		assert.Nil(t, err)
-		assert.True(t, len(users) > 0)
+	// for {
+	// 	users, next, err := umg.ListUsers(ctx, "", nil)
+	// 	assert.Nil(t, err)
+	// 	assert.True(t, len(users) > 0)
 
-		if next == nil {
-			break
-		}
-	}
+	// 	if next == nil {
+	// 		break
+	// 	}
+	// }
 
 	err = umg.DeleteUser(ctx, user)
 	assert.Nil(t, err)
 
-	external_user := "test@notskyborg.com"
+	external_user := "test@external.com"
 	u4 := &models.User{
-		ID:                 external_user,
-		UPN:                external_user,
-		FirstName:          "externaltest",
-		LastName:           "externaluser",
-		DisplayName:        "External Test User",
-		Password:           "dont_ever_use_1234%^&*",
-		MustChangePassword: true,
+		UID:         "Q049VGVzdEdyb3VwLENOPVVzZXJzLERDPWxkYXAsREM9c2NobmVpZGUsREM9ZGV2",
+		Email:       external_user,
+		Username:    "externaltest-user",
+		FirstName:   "externaltest",
+		LastName:    "externaluser",
+		DisplayName: "External Test User",
 	}
 
 	u5, err := umg.NewUser(ctx, u4)

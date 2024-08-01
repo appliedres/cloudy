@@ -26,6 +26,9 @@ type User struct {
 	// email
 	Email string `json:"email,omitempty"`
 
+	// enabled
+	Enabled bool `json:"enabled,omitempty"`
+
 	// first name
 	FirstName string `json:"firstName,omitempty"`
 
