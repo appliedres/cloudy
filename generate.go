@@ -207,6 +207,11 @@ func GenerateRandom(num int) string {
 	return id
 }
 
+func GenerateOtp(num int) string {
+	id, _ := gonanoid.Generate("1234567890", num)
+	return id
+}
+
 func HashId(prefix string, parts ...string) string {
 	data := strings.Join(parts, "---")
 

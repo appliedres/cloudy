@@ -349,7 +349,7 @@ func (kva *KeyValueAggregator) GetObj(prefix string, v interface{}) error {
 	}
 
 	c := gabs.New()
-	for i, m := range allMaps {
+	for _, m := range allMaps {
 		for k, v := range m {
 			child := c.Path(k)
 			if child == nil {
@@ -359,12 +359,7 @@ func (kva *KeyValueAggregator) GetObj(prefix string, v interface{}) error {
 				}
 			}
 		}
-
-		fmt.Printf("AFTER %v\n", i)
-		fmt.Println(c.StringIndent("", "  "))
 	}
-
-	fmt.Println(c.StringIndent("", "  "))
 	return json.Unmarshal(c.Bytes(), v)
 }
 

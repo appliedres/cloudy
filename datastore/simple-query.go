@@ -183,3 +183,13 @@ func (cg *SimpleQueryConditionGroup) Not() *SimpleQueryConditionGroup {
 	cg.Groups = append(cg.Groups, grp)
 	return grp
 }
+func (cg *SimpleQueryConditionGroup) IsAny(field string, values []string) *SimpleQueryConditionGroup {
+	grp := &SimpleQueryConditionGroup{
+		Operator: "or",
+	}
+	for _, v := range values {
+		grp.Equals(field, v)
+	}
+	cg.Groups = append(cg.Groups, grp)
+	return grp
+}
