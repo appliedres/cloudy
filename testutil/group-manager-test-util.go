@@ -16,20 +16,19 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManag
 	user := "test.user@" + domain
 
 	u1 := &models.User{
-		ID:                 user,
-		UPN:                user,
-		FirstName:          "test",
-		LastName:           "user",
-		DisplayName:        "Test User",
-		Password:           "dont_ever_use_1234%^&*",
-		MustChangePassword: true,
+		UID:         "Q049VGVzdEdyb3VwLENOPVVzZXJzLERDPWxkYXAsREM9c2NobmVpZGUsREM9ZGV2",
+		Username:    "test-user",
+		Email:       user,
+		FirstName:   "test",
+		LastName:    "user",
+		DisplayName: "Test User",
 	}
 
-	u1g, err := umg.GetUser(ctx, u1.ID)
+	u1g, err := umg.GetUser(ctx, u1.UID)
 	assert.Nil(t, err)
 	if u1g != nil {
 
-		err = umg.DeleteUser(ctx, u1.ID)
+		err = umg.DeleteUser(ctx, u1.UID)
 		assert.NotNil(t, err)
 	}
 
@@ -37,15 +36,15 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManag
 	assert.Nil(t, err)
 	assert.NotNil(t, u2, "Should be there")
 
-	memberId := u2.ID
+	memberId := u2.UID
 
-	grps, err := gm.ListGroups(ctx)
+	grps, err := gm.ListGroups(ctx, "", nil)
 	assert.Nil(t, err)
 	assert.NotNil(t, grps)
 
 	// Now check to see if we have a "UNIT_TEST" group
 	var testG string
-	for _, g := range grps {
+	for _, g := range *grps {
 		if g.Name == "UNIT_TEST" {
 			testG = g.ID
 			break
@@ -77,7 +76,7 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManag
 	assert.NotNil(t, people)
 	var found *models.User
 	for _, u := range people {
-		if u.ID == memberId {
+		if u.UID == memberId {
 			found = u
 			break
 		}
@@ -93,7 +92,7 @@ func TestGroupManager(t *testing.T, gm cloudy.GroupManager, umg cloudy.UserManag
 	assert.NotNil(t, people2)
 	var found2 *models.User
 	for _, u := range people2 {
-		if u.UPN == memberId {
+		if u.Username == memberId {
 			found2 = u
 			break
 		}
