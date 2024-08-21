@@ -27,5 +27,5 @@ func NewKeyValueStore(ctx context.Context, prefix string, store *keyvalue.KeyVal
 
 func init() {
 	KeyValueStoreProviders["file"] = &keyvalue.FileKeyValueStoreFactory{}
-
+	KeyValueStoreProviders["directory"] = &keyvalue.DirectoryKeyValueStoreFactory{}
 }

@@ -23,57 +23,25 @@ paths:
 definitions:
   User:
     type: object
-    properties: 
-      ID:
+    properties:
+      uid:
         type: string
-      FirstName:
+      email:
         type: string
-      LastName:
+      firstName:
         type: string
-      JobTitle:
+      lastName:
         type: string
-      DisplayName:
+      displayName:
         type: string
-      Email:
+      username:
         type: string
-      Company: 
-        type: string
-      Department:
-        type: string
-      Citizenship:
-        type: string
-      ContractNumber:
-        type: string
-      ContractDate:
-        type: string
-      ProgramRole:
-        type: string
-      AccountType:
-        type: string
-      UPN:
-        type: string
-      MobilePhone:
-        type: string
-      OfficePhone:
-        type: string
-      Password:
-        type: string
-      MustChangePassword:
+      enabled:
         type: boolean
-      GitLabOnboardingIssue:
-        type: number
-        format: integer
-      LastSignInDate:
-        type: string
-        format: datetime
-      Enabled: 
-        type: boolean
-      ActionLog:
-        type: string
-      Organization:
-        type: string
-      Project:
-        type: string
+      attributes:
+        type: object
+        additionalProperties:
+          type: string
   ErrorMessage: 
     type: object
     properties: 

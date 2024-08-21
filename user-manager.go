@@ -21,13 +21,12 @@ type UserManager interface {
 	// Returns: string - updated user name, bool - if the user exists, error - if an error is encountered
 	ForceUserName(ctx context.Context, name string) (string, bool, error)
 
-	ListUsers(ctx context.Context, page interface{}, filter interface{}) ([]*models.User, interface{}, error)
+	ListUsers(ctx context.Context, filter string, attrs []string) (*[]models.User, error)
 
 	// Retrieves a specific user.
 	GetUser(ctx context.Context, uid string) (*models.User, error)
-
-	// Retrieves a specific user.
 	GetUserByEmail(ctx context.Context, email string, opts *UserOptions) (*models.User, error)
+	GetUserWithAttributes(ctx context.Context, uid string, attrs []string) (*models.User, error)
 
 	// NewUser creates a new user with the given information and returns the new user with any additional
 	// fields populated
