@@ -36,6 +36,7 @@ type ObjectStorageManager interface {
 	Delete(ctx context.Context, key string) error
 }
 
+// ObjectStorage represents a "container".
 type ObjectStorage interface {
 	Upload(ctx context.Context, key string, data io.Reader, tags map[string]string) error
 	Exists(ctx context.Context, key string) (bool, error)
@@ -43,4 +44,10 @@ type ObjectStorage interface {
 	Delete(ctx context.Context, key string) error
 	List(ctx context.Context, prefix string) ([]*StoredObject, []*StoredPrefix, error)
 	UpdateMetadata(ctx context.Context, key string, tags map[string]string) error
+}
+
+type ObjectStorageCloud interface {
+	ObjectStorage
+	GenUploadURL(ctx context.Context, key string) (string, error)
+	GenDownloadURL(ctx context.Context, key string) (string, error)
 }
