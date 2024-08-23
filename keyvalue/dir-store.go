@@ -128,7 +128,7 @@ func (fs *DirectoryKeyValueStore) GetAll() (map[string]string, error) {
 			continue
 		}
 		normKey := NormalizeKey(item.Name())
-		v, err := fs.Load(normKey)
+		v, err := fs.Load(item.Name())
 		if err != nil {
 			merr = multierror.Append(merr, err)
 		} else {
@@ -186,8 +186,8 @@ func (fs *DirectoryKeyValueStore) Delete(name string) error {
 
 func (fs *DirectoryKeyValueStore) Load(key string) (string, error) {
 
-	keyNorm := NormalizeKey(key)
-	filename := fs.Filename(keyNorm)
+	// keyNorm := NormalizeKey(key)
+	filename := fs.Filename(key)
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return "", nil
