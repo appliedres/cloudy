@@ -185,9 +185,24 @@ func (fs *DirectoryKeyValueStore) Delete(name string) error {
 }
 
 func (fs *DirectoryKeyValueStore) Load(key string) (string, error) {
+	filename := fs.Filename(key)
+	exists, err := cloudy.Exists(filename)
+	if err != nil {
+		return "", nil
+	}
+	if !exists {
+		nkey := NormalizeKey(key)
+		filename = fs.Filename(nkey)
+		exists, err := cloudy.Exists(filename)
+		if err != nil {
+			return "", nil
+		}
+		if !exists {
+			return "", nil
+		}
+	}
 
 	// keyNorm := NormalizeKey(key)
-	filename := fs.Filename(key)
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return "", nil
