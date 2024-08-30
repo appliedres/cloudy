@@ -246,6 +246,10 @@ func (dt *UDatatype) Query(ctx context.Context, query *SimpleQuery) ([][]byte, e
 		return nil, err
 	}
 
+	if dt.DataStore == nil {
+		return nil, cloudy.Error(ctx, "dt.Datastore %s is nil", dt.Name)
+	}
+
 	return dt.DataStore.Query(ctx, query)
 }
 
