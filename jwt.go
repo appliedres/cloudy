@@ -33,6 +33,8 @@ type UserJWT struct {
 	Email             string                 `json:"email"`
 	UPN               string                 `json:"upn"`
 	Groups            []string               `json:"groups"`
+	UserID            string                 `json:"userid"`
+	MapClaims         jwt.MapClaims          `json:"-"`
 }
 
 type UserJWTRealmAccess struct {
@@ -165,6 +167,13 @@ func ParseToken(tokenstr string) (*UserJWT, error) {
 		return nil, err
 	}
 
+	mapClaims := jwt.MapClaims(make(map[string]interface{}))
+	_, _, err = parser.ParseUnverified(tokenToParse, &mapClaims)
+	if err != nil {
+		// fmt.Printf("%v\n", err)
+		return nil, err
+	}
+
 	// UPN and Email must be lower!
 	claims.Email = strings.ToLower(claims.Email)
 	claims.UPN = strings.ToLower(claims.UPN)
@@ -172,6 +181,7 @@ func ParseToken(tokenstr string) (*UserJWT, error) {
 	if claims.UPN == "" {
 		Info(context.Background(), "UPN not found in JWT (Email: %s)", claims.Email)
 	}
+	claims.MapClaims = mapClaims
 
 	return &claims, nil
 }
