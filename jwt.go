@@ -163,14 +163,14 @@ func ParseToken(tokenstr string) (*UserJWT, error) {
 
 	_, _, err := parser.ParseUnverified(tokenToParse, &claims)
 	if err != nil {
-		// fmt.Printf("%v\n", err)
+		fmt.Printf("CUSTOM CLAIMS ERROR: %v\n", err)
 		return nil, err
 	}
 
 	mapClaims := jwt.MapClaims(make(map[string]interface{}))
 	_, _, err = parser.ParseUnverified(tokenToParse, &mapClaims)
 	if err != nil {
-		// fmt.Printf("%v\n", err)
+		fmt.Printf("MAP CLAIMS ERROR: %v\n", err)
 		return nil, err
 	}
 

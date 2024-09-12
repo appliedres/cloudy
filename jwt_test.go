@@ -23,7 +23,6 @@ func TestJWT2(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.True(t, jwt.IsAuthenticated())
-	//		assert.Equal(t, jwt.Email, "test.user@email.com")
-	//		assert.Equal(t, jwt.UPN, "test.user@upn.com")
-	//	}
+	assert.NotEmpty(t, jwt.Email)
+
 }
