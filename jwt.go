@@ -10,12 +10,12 @@ import (
 )
 
 type UserJWT struct {
-	EXP               int64                  `json:"exp"`
-	IAT               int64                  `json:"iat"`
-	AuthTime          int64                  `json:"auth_time"`
-	JTI               string                 `json:"jti"`
-	ISS               string                 `json:"iss"`
-	AUD               string                 `json:"aud"`
+	EXP      int64  `json:"exp"`
+	IAT      int64  `json:"iat"`
+	AuthTime int64  `json:"auth_time"`
+	JTI      string `json:"jti"`
+	ISS      string `json:"iss"`
+	// AUD               string                 `json:"aud"`
 	TYP               string                 `json:"typ"`
 	AZP               string                 `json:"azp"`
 	Nonce             string                 `json:"nonce"`
@@ -33,7 +33,7 @@ type UserJWT struct {
 	Email             string                 `json:"email"`
 	UPN               string                 `json:"upn"`
 	Groups            []string               `json:"groups"`
-	UserID            string                 `json:"userid"`
+	UserID            string                 `json:"-"`
 	MapClaims         jwt.MapClaims          `json:"-"`
 }
 
