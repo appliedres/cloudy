@@ -10,12 +10,12 @@ import (
 )
 
 type UserJWT struct {
-	EXP               int64                  `json:"exp"`
-	IAT               int64                  `json:"iat"`
-	AuthTime          int64                  `json:"auth_time"`
-	JTI               string                 `json:"jti"`
-	ISS               string                 `json:"iss"`
-	AUD               string                 `json:"aud"`
+	EXP      int64  `json:"exp"`
+	IAT      int64  `json:"iat"`
+	AuthTime int64  `json:"auth_time"`
+	JTI      string `json:"jti"`
+	ISS      string `json:"iss"`
+	// AUD               string                 `json:"aud"`
 	TYP               string                 `json:"typ"`
 	AZP               string                 `json:"azp"`
 	Nonce             string                 `json:"nonce"`
@@ -33,6 +33,8 @@ type UserJWT struct {
 	Email             string                 `json:"email"`
 	UPN               string                 `json:"upn"`
 	Groups            []string               `json:"groups"`
+	UserID            string                 `json:"-"`
+	MapClaims         jwt.MapClaims          `json:"-"`
 }
 
 type UserJWTRealmAccess struct {
@@ -161,7 +163,14 @@ func ParseToken(tokenstr string) (*UserJWT, error) {
 
 	_, _, err := parser.ParseUnverified(tokenToParse, &claims)
 	if err != nil {
-		// fmt.Printf("%v\n", err)
+		fmt.Printf("CUSTOM CLAIMS ERROR: %v\n", err)
+		return nil, err
+	}
+
+	mapClaims := jwt.MapClaims(make(map[string]interface{}))
+	_, _, err = parser.ParseUnverified(tokenToParse, &mapClaims)
+	if err != nil {
+		fmt.Printf("MAP CLAIMS ERROR: %v\n", err)
 		return nil, err
 	}
 
@@ -172,6 +181,7 @@ func ParseToken(tokenstr string) (*UserJWT, error) {
 	if claims.UPN == "" {
 		Info(context.Background(), "UPN not found in JWT (Email: %s)", claims.Email)
 	}
+	claims.MapClaims = mapClaims
 
 	return &claims, nil
 }
