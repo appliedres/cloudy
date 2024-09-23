@@ -40,7 +40,7 @@ type UserManager interface {
 
 	DeleteUser(ctx context.Context, uid string) error
 
-	SetUserPassword(ctc context.Context, uid string, pwd string) error
+	SetUserPassword(ctc context.Context, uid string, pwd string, mustChange bool) error
 }
 
 type AvatarManager interface {
