@@ -235,6 +235,12 @@ type UntypedJsonDataStore interface {
 
 	// Hook for the datastore to call when the table is created
 	OnCreate(fn OnCreateDS)
+
+	QueryAndUpdate(ctx context.Context, query *SimpleQuery, updater func(ctx context.Context, items [][]byte) ([][]byte, error)) ([][]byte, error)
+	SaveAll(ctx context.Context, item [][]byte, key []string) error
+	DeleteAll(ctx context.Context, key []string) error
+	QueryAsMap(ctx context.Context, query *SimpleQuery) ([]map[string]any, error)
+	QueryTable(ctx context.Context, query *SimpleQuery) ([][]interface{}, error)
 }
 
 type OnCreateDS = func(ctx context.Context, ds UntypedJsonDataStore) error

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"io/ioutil"
 
 	"github.com/appliedres/cloudy"
 )
@@ -57,7 +56,7 @@ func (mem *InMemoryStore) Save(ctx context.Context, data []byte, key string) err
 	return nil
 }
 func (mem *InMemoryStore) SaveStream(ctx context.Context, data io.ReadCloser, key string) (int64, error) {
-	out, err := ioutil.ReadAll(data)
+	out, err := io.ReadAll(data)
 	if err != nil {
 		return 0, err
 	}
@@ -92,5 +91,30 @@ func (mem *InMemoryStore) OnCreate(fn OnCreateDS) {
 }
 
 func (mem *InMemoryStore) Query(ctx context.Context, query *SimpleQuery) ([][]byte, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (mem *InMemoryStore) QueryAndUpdate(ctx context.Context, query *SimpleQuery, updater func(ctx context.Context, items [][]byte) ([][]byte, error)) ([][]byte, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (mem *InMemoryStore) SaveAll(ctx context.Context, items [][]byte, key []string) error {
+	for i, key := range key {
+		mem.items[key] = items[i]
+	}
+	return nil
+}
+
+func (mem *InMemoryStore) DeleteAll(ctx context.Context, key []string) error {
+	for _, k := range key {
+		_ = mem.Delete(ctx, k)
+	}
+	return nil
+}
+
+func (mem *InMemoryStore) QueryAsMap(ctx context.Context, query *SimpleQuery) ([]map[string]any, error) {
+	return nil, errors.New("not implemented")
+}
+func (mem *InMemoryStore) QueryTable(ctx context.Context, query *SimpleQuery) ([][]interface{}, error) {
 	return nil, errors.New("not implemented")
 }
