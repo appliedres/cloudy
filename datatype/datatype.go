@@ -435,6 +435,20 @@ func (dt *Datatype[T]) QueryTable(ctx context.Context, query *datastore.SimpleQu
 	return rtn, nil
 }
 
+func (dt *Datatype[T]) AddIfMissing(ctx context.Context, item *T) (bool, error) {
+	id := dt.GetID(ctx, item)
+	exists, err := dt.Exists(ctx, id)
+	if err != nil {
+		return false, err
+	}
+	if exists {
+		return false, nil
+	}
+
+	_, err = dt.Save(ctx, item)
+	return true, err
+}
+
 // type Datatype2Option[T any] = func(dt *Datatype2[T])
 
 func WithIdField[T any](idField string) func(dt *Datatype[T]) {
