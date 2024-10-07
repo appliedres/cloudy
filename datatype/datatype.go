@@ -435,6 +435,10 @@ func (dt *Datatype[T]) QueryTable(ctx context.Context, query *datastore.SimpleQu
 	return rtn, nil
 }
 
+func (dt *Datatype[T]) IsReady() bool {
+	return dt.DataStore != nil && dt.initialized
+}
+
 func (dt *Datatype[T]) AddIfMissing(ctx context.Context, item *T) (bool, error) {
 	id := dt.GetID(ctx, item)
 	exists, err := dt.Exists(ctx, id)
