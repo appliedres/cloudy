@@ -105,3 +105,486 @@ definitions:
         type: string
       AuthenticationRequired:
         type: boolean
+  VirtualMachine:
+    type: object
+    properties:
+      id:
+        description: id of the virtual machine
+        type: string
+      name:
+        description: the name of the virtual machine
+        type: string
+      description:
+        description: the description of the virtual machine
+        type: string
+      template:
+        description: template associated with the virtual machine
+        $ref: "#/definitions/VirtualMachineTemplate"
+      userId:
+        description: id of the user of the virtual machine
+        type: string
+      creatorId:
+        description: id of the creator of the virtual machine
+        type: string
+      osBaseImageId:
+        description: operating system base image id used when the virtual machine was created
+        type: string
+      state:
+        description: power state of the virtual machine (retrieved from the cloud)
+        type: string
+      status:
+        description: status of actions being taken on the virtual machine (installing, updating)
+        type: string
+      estimatedCostPerHour:
+        description: estimated cost per hour of the virtual machine (rolled up from family and disk)
+        type: number
+        format: double
+      estimatedCostAccumulated:
+        description: estimated cost total cost accumulated during the operation of the virtual machine (rolled up from family and disk)
+        type: number
+        format: double
+      nics:
+        description: nics attached to the virtual machine.
+        type: array
+        items:
+          $ref: "#/definitions/VirtualMachineNic"
+      osDisk:
+        description: os disk attached to the virtual machine.
+        $ref: "#/definitions/VirtualMachineDisk"          
+      disks:
+        description: disks attached to the virtual machine.
+        type: array
+        items:
+          $ref: "#/definitions/VirtualMachineDisk"     
+      location:
+        description: location where this virtual machine is running
+        $ref: "#/definitions/VirtualMachineLocation"
+      activity:
+        description: history of the virtual machine's activity.
+        type: array
+        items:
+          $ref: "#/definitions/VirtualMachineActivity"
+      logs:
+        description: logs generated during virtual machine creation or the last modification.
+        type: array
+        items:
+          $ref: "#/definitions/VirtualMachineLogs"
+      apps:
+        description: list of the version ids of the apps installed on the virtual machine.
+        type: array
+        items:
+          $ref: "#/definitions/VirtualMachineAppDetail"
+      tags:
+        description: tags for grouping virtual machines (group, user, purpose, etc)
+        type: object
+        additionalProperties:
+          type: string
+          x-nullable: true          
+  VirtualMachineDisk:
+    type: object
+    properties:
+      id:
+        description: full path id of the disk
+        type: string
+      osDisk:
+        description: flag is true for if this disk is an operating system disk
+        type: boolean
+      premiumIo:
+        description: flag is true if the virtual machine disk has premium IO enabled
+        type: boolean
+      size:
+        description: disk size in GB
+        type: integer
+      estimatedCostPerHour:
+        description: estimated cost per hour for the disk (based on size)
+        type: number
+        format: double
+  VirtualMachineNic:
+    type: object
+    properties:
+      id:
+        description: id of the network interface (more properties may be added later)
+        type: string
+      name:
+        description: name of the network interface 
+        type: string
+      privateIp:
+        description: private IP of the network interface 
+        type: string
+  VirtualMachineActivity:
+    type: object
+    properties:
+      id:
+        description: id of the activity (timestamp+vmid+activtyname)
+        type: string
+      name:
+        description: name of the activity
+        type: string
+      startTimestamp:
+        description: the time the activity started
+        type: string
+        format: datetime
+      endTimestamp:
+        description: the time the activity ended
+        type: string
+        format: datetime
+  VirtualMachineLogs:
+    type: object
+    properties:
+      id:
+        description: id of the log (timestamp+vmid)
+        type: string
+      vmId:
+        description: id of the vm associated with the log
+        type: string
+      timestamp:
+        description: the time the log was recorded
+        type: string
+        format: datetime
+      log:
+        description: the log text
+        type: string
+  VirtualMachineTemplate:
+    type: object
+    properties:
+      id:
+        description: the id of the virtual machine template
+        type: string
+      fromTemplateId:
+        description: the id of the virtual machine template used to start this template
+        type: string
+      name:
+        description: the name of the virtual machine template
+        type: string
+      description:
+        description: the description of the virtual machine template
+        type: string
+      iconPath:
+        description: the path to the icon to show for this template
+        type: string
+      bannerPath:
+        description: the path to the banner to show for this template
+        type: string
+      notes:
+        description: administrative notes concerning this template
+        type: string
+      localAdministratorId:
+        description: local admin account
+        type: string
+      ownerUserId:
+        description: id of the user who owns this template
+        type: string
+      ownerGroupId:
+        description: id of the group who owns this template
+        type: string
+      allowedUserIds:
+        description: users who can view this template during virtual machine creation.
+        type: array
+        items:
+          type: string
+      allowedGroupIds:
+        description: groups who can view this template during virtual machine creation.
+        type: array
+        items:
+          type: string
+      virtualMachinePoolIds:
+        description: pools where this virtual machine can start.
+        type: array
+        items:
+          type: string
+      vdiTypes:
+        description: VDIs compatible with this template.
+        type: array
+        items:
+          type: string
+      minCpu:
+        description: requested minimum number of virtual CPUs to use when selecting virtual machine family
+        type: integer
+      maxCpu:
+        description: requested maximum number of virtual CPUs to use when selecting virtual machine family
+        type: integer
+      cpuVendor:
+        description: requested CPU vendor to use when selecting virtual machine family
+        type: string
+      cpuGeneration:
+        description: requested CPU generation to use when selecting virtual machine family
+        type: string
+      minRam:
+        description: requested minimum amount of RAM in GB to use when selecting virtual machine family
+        type: number
+        format: double
+      maxRam:
+        description: requested maximum amount of RAM in GB to use when selecting virtual machine family
+        type: number
+        format: double
+      minNic:
+        description: requested minimum number of network devices to use when selecting virtual machine family
+        type: integer
+      maxNic:
+        description: requested maximum number of network devices to use when selecting virtual machine family
+        type: integer
+      acceleratedNetworking:
+        description: requested accelerated networking feature to use when selecting virtual machine family
+        type: boolean
+      minGpu:
+        description: requested minimum number of GPUs to use when selecting virtual machine family
+        type: integer
+      maxGpu:
+        description: requested maximum number of GPUs to use when selecting virtual machine family
+        type: integer
+      gpuVendor:
+        description: requested GPU vendor to use when selecting virtual machine family
+        type: string
+      operatingSystem:
+        description: requested operating system
+        type: string
+      size:
+        $ref: "#/definitions/VirtualMachineSize"
+      disks:
+        description: requested disks to be attached to the virtual machine.
+        type: array
+        items:
+          $ref: "#/definitions/VirtualMachineDisk"
+      apps:
+        description: list of the ids of the apps (and version id if desired) to be installed on the virtual machine.
+        type: array
+        items:
+          $ref: "#/definitions/AppCatalogItem"
+      tags:
+        description: tags for grouping virtual machines (group, user, purpose, etc)
+        type: object
+        additionalProperties:
+          type: string
+          x-nullable: true
+      featured:
+        description: flag to determine featured sorting order when displayed on the dashboard
+        type: boolean
+      timeout:
+        description: the details used to determine when to automatically stop the virtual machine
+        $ref: "#/definitions/VirtualMachineTimeout"
+  VirtualMachineAppDetail:
+    type: object
+    properties:
+      appVersionId:
+        description: the id of the version of the app installed on the vm
+        type: string
+  VirtualMachineTemplateAppDetail:
+    type: object
+    properties:
+      appId:
+        description: the id of the app to be installed on the vm
+        type: string
+      appVersionId:
+        description: Optional - the id of the version of the app to be installed on the vm
+        type: string
+  VirtualMachineTimeout:
+    description: types of virtual machine timeout categories
+    type: string
+    enum: [workinghours, weekdays, never]
+  VirtualMachineLocation:
+    type: object
+    properties:
+      id:
+        description: the id of the virtual machine location
+        type: string
+      cloud:
+        description: the cloud the virtual machine is located in
+        type: string
+      region:
+        description: the region of the cloud the virtual machine is located In
+        type: string
+      subscription:
+        description: the subscription associated with the virtual machine
+        type: string
+  VirtualMachineSize:
+    description: the details associated with the virtual machine family (most of the values are retrieved from the cloud)
+    type: object
+    properties:
+      id:
+        description: the id of virtual machine family
+        type: string
+      name:
+        description: the name of the virtual machine family
+        type: string
+      description:
+        description: the name of the virtual machine family
+        type: string
+      notes:
+        description: administrative notes concerning this virtual machine family (not from the cloud)
+        type: string
+      cpu:
+        description: the number of CPUs available to this virtual machine family
+        type: integer
+      cpuVendor:
+        description: the vendor of the CPU of this virtual machine family
+        type: string
+      ram:
+        description: the amount of RAM in GB available to this virtual machine family
+        type: number
+        format: double
+      gpu:
+        description: the number of GPUs available to this virtual machine family
+        type: integer
+      gpuVendor:
+        description: the vendor of the GPU of this virtual machine family
+        type: string
+      available:
+        description: remaining number of this family of virtual machines that may be used
+        type: integer
+      restricted:
+        description: flag for if this family of virtual machines may be used
+        type: boolean
+      acceleratedNetworking:
+        description: flag for if this family of virtual machines can use accelerated networking
+        type: boolean
+      premiumIo:
+        description: flag for if this family of virtual machines can use premium IO
+        type: boolean
+      estimatedCostPerHour:
+        description: estimated cost per hour of this virtual machine family
+        type: number
+        format: double
+      maxDataDisks:
+        description: maximum number of data disks that can be attached to this virtual machine family
+        type: integer
+      maxNetworkInterfaces:
+        description: maximum number of network interfaces that can be attached to this virtual machine family
+        type: integer
+      maxIops:
+        description: maximum amount of disk IO per second available to this virtual machine family
+        type: integer
+      maxNetworkBandwidth:
+        description: maximum network bandwidth per second available to this virtual machine family
+        type: integer
+      locations:
+        description: array of locations where this family is available
+        type: array
+        items: 
+          $ref: "#/definitions/VirtualMachineLocation"
+      family:
+        description: the vm size family
+        $ref: "#/definitions/VirtualMachineFamily"
+      tags:
+        type: object
+        additionalProperties:
+          type: string
+          x-nullable: true
+  VirtualMachineFamily:
+    type: object
+    properties: 
+      id: 
+        type: string
+        description: Unique identifier for the virtual machine family
+      name: 
+        type: string
+        description: the name of the virtual machine family
+      usage:
+        description: total number of this family of virtual machines that are in use
+        type: integer
+      quota:
+        description: total number of this family of virtual machines that may be used
+        type: integer
+
+  AppCatalogItem:
+    type: object
+    properties:
+      id:
+        type: string
+        description: "Unique identifier for the app catalog item."
+      name:
+        type: string
+        description: "Name of the app in the catalog."
+      description:
+        type: string
+        description: "A short description of what this app does."
+      enabled:
+        type: boolean
+        description: "Boolean value indicating whether this app is enabled or not."
+      restricted:
+        type: boolean
+        description: "Indicates if the app is restricted to certain users or groups. If true, it is not available globally."
+      approvedGlobally:
+        type: boolean
+        description: "Indicates whether the app is approved for global use. Only relevant if the app is restricted."
+      approvedUserIDs:
+        type: array
+        description: "List of user IDs that are approved to access this app if restricted."
+        items:
+          type: string
+      multisessionEnabled:
+        type: boolean
+        description: "Indicates if the app is enabled for use with multisession Virtual Machines."
+      iconPath:
+        type: string
+        description: "Path to the icon image file for this app."
+      bannerPath:
+        type: string
+        description: "Path to the banner image file used for this app."
+      screenshotPaths:
+        type: array
+        description: "Array of paths to screenshot images, showcasing the app’s interface."
+        items:
+          type: string
+      notes:
+        type: string
+        description: "Additional notes related to this app, useful for documentation purposes."
+      websiteURL:
+        type: string
+        description: "URL of the official website for this app."
+      type:
+        type: string
+        enum: ["web", "vm"]
+        description: "Defines the type of app—either 'web' for web-based apps or 'vm' for virtual machine apps."
+      tags:
+        description: "List of tags for categorizing or describing the app."
+        type: object
+        additionalProperties:
+          type: string
+          x-nullable: true
+      featured:
+        type: boolean
+        description: "Boolean indicating if the app is featured in the catalog."
+      restrictedUserIds:
+        type: array
+        description: "List of user IDs that are restricted from accessing the app."
+        items:
+          type: string
+      restrictedGroupIds:
+        type: array
+        description: "List of group IDs restricted from accessing the app."
+        items:
+          type: string
+      dependentAppItemIDs:
+        type: array
+        description: "Array of app catalog item IDs that this app depends on to function."
+        items:
+          type: string
+      incompatibleAppItemIDs:
+        type: array
+        description: "Array of app catalog item IDs that are incompatible with this app."
+        items:
+          type: string
+      allowMutlipleVersions:
+        type: boolean
+        description: "Boolean indicating if multiple versions of this app are allowed to coexist."
+      versionIds:
+        type: array
+        description: "List of IDs of the different versions associated with this app."
+        items:
+          type: string
+      CPURequirement:
+        type: number
+        format: double
+        description: "Minimum CPU requirement for the app, expressed in cores."
+      RAMRequirement:
+        type: number
+        format: double
+        description: "Minimum amount of RAM required for the app, expressed in GB."
+      requiresGPU:
+        type: boolean
+        description: "Boolean indicating if the app requires GPU resources."
+      locations:
+        type: array
+        description: "List of VM locations where this app is available."
+        items:
+          $ref: "#/definitions/VirtualMachineLocation"
