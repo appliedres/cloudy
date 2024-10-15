@@ -2,6 +2,8 @@ package logging
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -37,7 +39,18 @@ func CtxWithLogger(ctx context.Context, logger *slog.Logger) context.Context {
 }
 
 func WithError(err error) slog.Attr {
-	return slog.String("error", err.Error())
+	var stack []string
+
+	for err != nil {
+		stack = append(stack, err.Error())
+		unwrappedErr := errors.Unwrap(err)
+		if unwrappedErr == nil {
+			break
+		}
+		err = unwrappedErr
+	}
+
+	return slog.String("error", fmt.Sprintf("%s", stack))
 }
 
 func AddRequest(ctx context.Context, logger *slog.Logger, req *http.Request) {

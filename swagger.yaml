@@ -186,6 +186,9 @@ definitions:
       id:
         description: full path id of the disk
         type: string
+      name:
+        description: name of the disk
+        type: string
       osDisk:
         description: flag is true for if this disk is an operating system disk
         type: boolean

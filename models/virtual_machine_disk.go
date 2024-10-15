@@ -23,6 +23,9 @@ type VirtualMachineDisk struct {
 	// full path id of the disk
 	ID string `json:"id,omitempty"`
 
+	// name of the disk
+	Name string `json:"name,omitempty"`
+
 	// flag is true for if this disk is an operating system disk
 	OsDisk bool `json:"osDisk,omitempty"`
 
