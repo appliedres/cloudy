@@ -6,10 +6,14 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"io"
 	"log"
 	"os"
 	"os/exec"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -40,6 +44,7 @@ func main() {
 		Commands: []*cli.Command{
 			runTestCmd(),
 			runOutputsCmd(),
+			runSummarize(),
 		},
 		Name:                 "Arkloud Test CLI",
 		EnableBashCompletion: true,
@@ -258,6 +263,124 @@ func runTestCmd() *cli.Command {
 			},
 		},
 	}
+}
+
+func runSummarize() *cli.Command {
+	return &cli.Command{
+		Name:  "summarize",
+		Usage: "summarize <file> -o <markdown file>",
+		Action: func(c *cli.Context) error {
+			fileName := c.Args().First()
+
+			data, err := os.ReadFile(fileName)
+			if err != nil {
+				fmt.Println("Error parsing file:", err)
+				return err
+			}
+			lines := strings.Split(string(data), "\n")
+
+			fset := token.NewFileSet()
+			node, err := parser.ParseFile(fset, fileName, nil, parser.AllErrors)
+			if err != nil {
+				fmt.Println("Error parsing file:", err)
+				return err
+			}
+
+			var funcs []fnRec
+
+			for _, decl := range node.Decls {
+				if fn, isFn := decl.(*ast.FuncDecl); isFn {
+					if strings.HasPrefix(fn.Name.Name, "Test") {
+						start := fset.Position(fn.Pos()).Line
+						end := fset.Position(fn.End()).Line
+						funcs = append(funcs, fnRec{
+							name:  fn.Name.Name,
+							start: start,
+							end:   end,
+						})
+					}
+				}
+			}
+
+			for _, fr := range funcs {
+				fr.getComments(lines)
+				fr.PrintMD()
+			}
+
+			return nil
+		},
+		Args: true,
+		Flags: []cli.Flag{
+			&cli.StringSliceFlag{
+				Name:     "output",
+				Aliases:  []string{"o"},
+				Required: false,
+			},
+		},
+	}
+}
+
+type fnRec struct {
+	name      string
+	start     int
+	end       int
+	fnComment string
+	comments  []string
+}
+
+func (rec *fnRec) getComments(lines []string) {
+	// Get the function level comments
+	var fnCommentLines []string
+
+	for i := rec.start - 2; i >= 0; i-- {
+		c := rec.GetComment(lines[i])
+		if c == "" {
+			break
+		}
+		fnCommentLines = append(fnCommentLines, c)
+	}
+	slices.Reverse(fnCommentLines)
+	rec.fnComment = strings.Join(fnCommentLines, " ")
+
+	var current []string
+	for i := rec.start + 1; i < rec.end; i++ {
+		comment := rec.GetComment(lines[i])
+		if comment == "" {
+			if len(current) > 0 {
+				c := strings.Join(current, " ")
+				rec.comments = append(rec.comments, c)
+				current = []string{}
+			}
+			continue
+		}
+		current = append(current, comment)
+	}
+}
+
+func (rec *fnRec) PrintMD() {
+	name := rec.camelCaseToSpaces(rec.name[4:])
+	fmt.Printf("## %v\n", name)
+	fmt.Printf("\n")
+	fmt.Printf("%v\n", rec.fnComment)
+	fmt.Printf("\n")
+	for i, comment := range rec.comments {
+		fmt.Printf("%v. %v\n", i+1, comment)
+	}
+}
+
+func (rec *fnRec) camelCaseToSpaces(str string) string {
+	// Use a regex to identify where to add spaces
+	regex := regexp.MustCompile("([a-z])([A-Z])")
+	withSpaces := regex.ReplaceAllString(str, "${1} ${2}")
+	return withSpaces
+}
+
+func (rec *fnRec) GetComment(line string) string {
+	trimmed := strings.TrimSpace(line)
+	if strings.HasPrefix(trimmed, "//") {
+		return strings.TrimSpace(trimmed[2:])
+	}
+	return ""
 }
 
 func runOutputsCmd() *cli.Command {
