@@ -460,10 +460,11 @@ definitions:
         description: maximum network bandwidth per second available to this virtual machine family
         type: integer
       locations:
-        description: array of locations where this family is available
-        type: array
-        items: 
+        description: map of locations where this family is available
+        type: object
+        additionalProperties:
           $ref: "#/definitions/VirtualMachineLocation"
+          x-nullable: true
       family:
         description: the vm size family
         $ref: "#/definitions/VirtualMachineFamily"

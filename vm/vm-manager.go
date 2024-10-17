@@ -32,6 +32,9 @@ type VirtualMachineManager interface {
 	// Stops the vm with the provided id
 	Stop(ctx context.Context, id string) error
 
+	// Deallocate the vm with the provided id
+	Deallocate(ctx context.Context, id string) error
+
 	// Deletes the vm with the provided id
 	Delete(ctx context.Context, id string) error
 

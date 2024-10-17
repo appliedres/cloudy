@@ -7,11 +7,11 @@ package models
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // VirtualMachineSize the details associated with the virtual machine family (most of the values are retrieved from the cloud)
@@ -49,8 +49,8 @@ type VirtualMachineSize struct {
 	// the id of virtual machine family
 	ID string `json:"id,omitempty"`
 
-	// array of locations where this family is available
-	Locations []*VirtualMachineLocation `json:"locations"`
+	// map of locations where this family is available
+	Locations map[string]*VirtualMachineLocation `json:"locations,omitempty"`
 
 	// maximum number of data disks that can be attached to this virtual machine family
 	MaxDataDisks int64 `json:"maxDataDisks,omitempty"`
@@ -125,17 +125,17 @@ func (m *VirtualMachineSize) validateLocations(formats strfmt.Registry) error {
 		return nil
 	}
 
-	for i := 0; i < len(m.Locations); i++ {
-		if swag.IsZero(m.Locations[i]) { // not required
-			continue
-		}
+	for k := range m.Locations {
 
-		if m.Locations[i] != nil {
-			if err := m.Locations[i].Validate(formats); err != nil {
+		if err := validate.Required("locations"+"."+k, "body", m.Locations[k]); err != nil {
+			return err
+		}
+		if val, ok := m.Locations[k]; ok {
+			if err := val.Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("locations" + "." + strconv.Itoa(i))
+					return ve.ValidateName("locations" + "." + k)
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("locations" + "." + strconv.Itoa(i))
+					return ce.ValidateName("locations" + "." + k)
 				}
 				return err
 			}
@@ -182,15 +182,10 @@ func (m *VirtualMachineSize) contextValidateFamily(ctx context.Context, formats 
 
 func (m *VirtualMachineSize) contextValidateLocations(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(m.Locations); i++ {
+	for k := range m.Locations {
 
-		if m.Locations[i] != nil {
-			if err := m.Locations[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("locations" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("locations" + "." + strconv.Itoa(i))
-				}
+		if val, ok := m.Locations[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
