@@ -170,9 +170,9 @@ definitions:
         items:
           $ref: "#/definitions/VirtualMachineLogs"
       apps:
-        description: list of the version ids of the apps installed on the virtual machine.
-        type: array
-        items:
+        description: map of the ids of the apps (and version id if desired) installed on the virtual machine.
+        type: object
+        additionalProperties:
           $ref: "#/definitions/VirtualMachineAppDetail"
       tags:
         description: tags for grouping virtual machines (group, user, purpose, etc)
@@ -350,9 +350,9 @@ definitions:
           $ref: "#/definitions/VirtualMachineDisk"
       apps:
         description: list of the ids of the apps (and version id if desired) to be installed on the virtual machine.
-        type: array
-        items:
-          $ref: "#/definitions/AppCatalogItem"
+        type: object
+        additionalProperties:
+          $ref: "#/definitions/VirtualMachineAppDetail"
       tags:
         description: tags for grouping virtual machines (group, user, purpose, etc)
         type: object
@@ -368,17 +368,11 @@ definitions:
   VirtualMachineAppDetail:
     type: object
     properties:
-      appVersionId:
-        description: the id of the version of the app installed on the vm
-        type: string
-  VirtualMachineTemplateAppDetail:
-    type: object
-    properties:
       appId:
         description: the id of the app to be installed on the vm
         type: string
       appVersionId:
-        description: Optional - the id of the version of the app to be installed on the vm
+        description: the id of the version of the app installed on the vm
         type: string
   VirtualMachineTimeout:
     description: types of virtual machine timeout categories
@@ -488,107 +482,3 @@ definitions:
       quota:
         description: total number of this family of virtual machines that may be used
         type: integer
-
-  AppCatalogItem:
-    type: object
-    properties:
-      id:
-        type: string
-        description: "Unique identifier for the app catalog item."
-      name:
-        type: string
-        description: "Name of the app in the catalog."
-      description:
-        type: string
-        description: "A short description of what this app does."
-      enabled:
-        type: boolean
-        description: "Boolean value indicating whether this app is enabled or not."
-      restricted:
-        type: boolean
-        description: "Indicates if the app is restricted to certain users or groups. If true, it is not available globally."
-      approvedGlobally:
-        type: boolean
-        description: "Indicates whether the app is approved for global use. Only relevant if the app is restricted."
-      approvedUserIDs:
-        type: array
-        description: "List of user IDs that are approved to access this app if restricted."
-        items:
-          type: string
-      multisessionEnabled:
-        type: boolean
-        description: "Indicates if the app is enabled for use with multisession Virtual Machines."
-      iconPath:
-        type: string
-        description: "Path to the icon image file for this app."
-      bannerPath:
-        type: string
-        description: "Path to the banner image file used for this app."
-      screenshotPaths:
-        type: array
-        description: "Array of paths to screenshot images, showcasing the app’s interface."
-        items:
-          type: string
-      notes:
-        type: string
-        description: "Additional notes related to this app, useful for documentation purposes."
-      websiteURL:
-        type: string
-        description: "URL of the official website for this app."
-      type:
-        type: string
-        enum: ["web", "vm"]
-        description: "Defines the type of app—either 'web' for web-based apps or 'vm' for virtual machine apps."
-      tags:
-        description: "List of tags for categorizing or describing the app."
-        type: object
-        additionalProperties:
-          type: string
-          x-nullable: true
-      featured:
-        type: boolean
-        description: "Boolean indicating if the app is featured in the catalog."
-      restrictedUserIds:
-        type: array
-        description: "List of user IDs that are restricted from accessing the app."
-        items:
-          type: string
-      restrictedGroupIds:
-        type: array
-        description: "List of group IDs restricted from accessing the app."
-        items:
-          type: string
-      dependentAppItemIDs:
-        type: array
-        description: "Array of app catalog item IDs that this app depends on to function."
-        items:
-          type: string
-      incompatibleAppItemIDs:
-        type: array
-        description: "Array of app catalog item IDs that are incompatible with this app."
-        items:
-          type: string
-      allowMutlipleVersions:
-        type: boolean
-        description: "Boolean indicating if multiple versions of this app are allowed to coexist."
-      versionIds:
-        type: array
-        description: "List of IDs of the different versions associated with this app."
-        items:
-          type: string
-      CPURequirement:
-        type: number
-        format: double
-        description: "Minimum CPU requirement for the app, expressed in cores."
-      RAMRequirement:
-        type: number
-        format: double
-        description: "Minimum amount of RAM required for the app, expressed in GB."
-      requiresGPU:
-        type: boolean
-        description: "Boolean indicating if the app requires GPU resources."
-      locations:
-        type: array
-        description: "List of VM locations where this app is available."
-        items:
-          $ref: "#/definitions/VirtualMachineLocation"

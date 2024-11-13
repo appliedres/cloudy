@@ -17,6 +17,9 @@ import (
 // swagger:model VirtualMachineAppDetail
 type VirtualMachineAppDetail struct {
 
+	// the id of the app to be installed on the vm
+	AppID string `json:"appId,omitempty"`
+
 	// the id of the version of the app installed on the vm
 	AppVersionID string `json:"appVersionId,omitempty"`
 }

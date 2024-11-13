@@ -12,6 +12,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // VirtualMachine virtual machine
@@ -22,8 +23,8 @@ type VirtualMachine struct {
 	// history of the virtual machine's activity.
 	Activity []*VirtualMachineActivity `json:"activity"`
 
-	// list of the version ids of the apps installed on the virtual machine.
-	Apps []*VirtualMachineAppDetail `json:"apps"`
+	// map of the ids of the apps (and version id if desired) installed on the virtual machine.
+	Apps map[string]VirtualMachineAppDetail `json:"apps,omitempty"`
 
 	// id of the creator of the virtual machine
 	CreatorID string `json:"creatorId,omitempty"`
@@ -150,17 +151,17 @@ func (m *VirtualMachine) validateApps(formats strfmt.Registry) error {
 		return nil
 	}
 
-	for i := 0; i < len(m.Apps); i++ {
-		if swag.IsZero(m.Apps[i]) { // not required
-			continue
-		}
+	for k := range m.Apps {
 
-		if m.Apps[i] != nil {
-			if err := m.Apps[i].Validate(formats); err != nil {
+		if err := validate.Required("apps"+"."+k, "body", m.Apps[k]); err != nil {
+			return err
+		}
+		if val, ok := m.Apps[k]; ok {
+			if err := val.Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("apps" + "." + strconv.Itoa(i))
+					return ve.ValidateName("apps" + "." + k)
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("apps" + "." + strconv.Itoa(i))
+					return ce.ValidateName("apps" + "." + k)
 				}
 				return err
 			}
@@ -370,15 +371,10 @@ func (m *VirtualMachine) contextValidateActivity(ctx context.Context, formats st
 
 func (m *VirtualMachine) contextValidateApps(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(m.Apps); i++ {
+	for k := range m.Apps {
 
-		if m.Apps[i] != nil {
-			if err := m.Apps[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("apps" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("apps" + "." + strconv.Itoa(i))
-				}
+		if val, ok := m.Apps[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
