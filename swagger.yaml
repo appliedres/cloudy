@@ -482,3 +482,16 @@ definitions:
       quota:
         description: total number of this family of virtual machines that may be used
         type: integer
+  VirtualMachineConnection:
+    type: object
+    description: Information required to establish a connection to a virtual machine.
+    properties:
+      vmId:
+        type: string
+        description: Unique identifier of the virtual machine.
+      remoteDesktopProvider:
+        description: The remote desktop provider
+        type: string
+      url:
+        type: string
+        description: URL to establish the remote desktop connection.

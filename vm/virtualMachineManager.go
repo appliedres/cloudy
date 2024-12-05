@@ -46,4 +46,6 @@ type VirtualMachineManager interface {
 
 	// Gets the vm family data with usage info filled in
 	GetUsage(ctx context.Context) (map[string]models.VirtualMachineFamily, error)
+
+	Connect(ctx context.Context, id string) (*models.VirtualMachineConnection, error) 
 }
