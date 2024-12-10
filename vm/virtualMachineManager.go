@@ -39,10 +39,13 @@ type VirtualMachineManager interface {
 	Delete(ctx context.Context, id string) error
 
 	// Gets the vm size data with capabilities info filled in
-	GetData(ctx context.Context) (map[string]models.VirtualMachineSize, error)
+	GetAllSizes(ctx context.Context) (map[string]*models.VirtualMachineSize, error)
+
+	// Given a VM template, generates a ranked list of VM Sizes
+	GetSizesForTemplate(ctx context.Context, template models.VirtualMachineTemplate) (map[string]*models.VirtualMachineSize, error)
 
 	// Gets the vm size data with capabilities and usage info filled in
-	GetDataWithUsage(ctx context.Context) (map[string]models.VirtualMachineSize, error)
+	GetSizesWithUsage(ctx context.Context) (map[string]*models.VirtualMachineSize, error)
 
 	// Gets the vm family data with usage info filled in
 	GetUsage(ctx context.Context) (map[string]models.VirtualMachineFamily, error)
