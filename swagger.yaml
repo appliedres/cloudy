@@ -249,6 +249,7 @@ definitions:
         type: string
   VirtualMachineTemplate:
     type: object
+    description: "defines the requirements for VM creation. Optional fields are defined as nullable and become pointers in go."
     properties:
       id:
         description: the id of the virtual machine template
@@ -300,71 +301,89 @@ definitions:
         type: array
         items:
           type: string
+      operatingSystem:
+        description: requested operating system
+        type: string
       minCpu:
         description: requested minimum number of virtual CPUs to use when selecting virtual machine family
         type: integer
+        x-nullable: true
       maxCpu:
         description: requested maximum number of virtual CPUs to use when selecting virtual machine family
         type: integer
+        x-nullable: true
       cpuVendor:
         description: requested CPU vendor to use when selecting virtual machine family
         type: string
+        x-nullable: true
       cpuGeneration:
         description: requested CPU generation to use when selecting virtual machine family
         type: string
+        x-nullable: true
       minRam:
         description: requested minimum amount of RAM in GB to use when selecting virtual machine family
         type: number
         format: double
+        x-nullable: true
       maxRam:
         description: requested maximum amount of RAM in GB to use when selecting virtual machine family
         type: number
         format: double
+        x-nullable: true
       minNic:
         description: requested minimum number of network devices to use when selecting virtual machine family
         type: integer
+        x-nullable: true
       maxNic:
         description: requested maximum number of network devices to use when selecting virtual machine family
         type: integer
+        x-nullable: true
       acceleratedNetworking:
         description: requested accelerated networking feature to use when selecting virtual machine family
         type: boolean
+        x-nullable: true
       minGpu:
         description: requested minimum number of GPUs to use when selecting virtual machine family
         type: integer
+        x-nullable: true
       maxGpu:
         description: requested maximum number of GPUs to use when selecting virtual machine family
         type: integer
+        x-nullable: true
       gpuVendor:
         description: requested GPU vendor to use when selecting virtual machine family
         type: string
-      operatingSystem:
-        description: requested operating system
-        type: string
+        x-nullable: true
       size:
         $ref: "#/definitions/VirtualMachineSize"
+        x-nullable: true
       disks:
         description: requested disks to be attached to the virtual machine.
         type: array
         items:
           $ref: "#/definitions/VirtualMachineDisk"
+        x-nullable: true
       apps:
         description: list of the ids of the apps (and version id if desired) to be installed on the virtual machine.
         type: object
         additionalProperties:
           $ref: "#/definitions/VirtualMachineAppDetail"
+        x-nullable: true
       tags:
         description: tags for grouping virtual machines (group, user, purpose, etc)
         type: object
         additionalProperties:
           type: string
           x-nullable: true
+        x-nullable: true
       featured:
         description: flag to determine featured sorting order when displayed on the dashboard
         type: boolean
+        x-nullable: true
       timeout:
         description: the details used to determine when to automatically stop the virtual machine
         $ref: "#/definitions/VirtualMachineTimeout"
+        x-nullable: true
   VirtualMachineAppDetail:
     type: object
     properties:

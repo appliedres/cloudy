@@ -42,8 +42,12 @@ type VirtualMachineManager interface {
 	GetAllSizes(ctx context.Context) (map[string]*models.VirtualMachineSize, error)
 
 	// Given a VM template, generates a ranked list of VM Sizes
-	GetSizesForTemplate(ctx context.Context, template models.VirtualMachineTemplate) (map[string]*models.VirtualMachineSize, error)
-
+	GetSizesForTemplate(ctx context.Context, template models.VirtualMachineTemplate) (
+		matches map[string]*models.VirtualMachineSize, 
+		worse map[string]*models.VirtualMachineSize, 
+		better map[string]*models.VirtualMachineSize, 
+		err error)
+		
 	// Gets the vm size data with capabilities and usage info filled in
 	GetSizesWithUsage(ctx context.Context) (map[string]*models.VirtualMachineSize, error)
 
