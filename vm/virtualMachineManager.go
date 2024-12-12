@@ -13,10 +13,10 @@ type VirtualMachineOptions struct {
 Vm interface manager
 */
 type VirtualMachineManager interface {
-	GetAll(ctx context.Context, filter string, attrs []string) (*[]models.VirtualMachine, error)
+	GetAll(ctx context.Context, filter string, attrs []string, statusOnly bool) (*[]models.VirtualMachine, error)
 
 	// Retrieves a specific vm
-	GetById(ctx context.Context, id string) (*models.VirtualMachine, error)
+	GetById(ctx context.Context, id string, statusOnly bool) (*models.VirtualMachine, error)
 
 	// Create a new vm from a vm and returns it vm with any additional
 	// fields populated
