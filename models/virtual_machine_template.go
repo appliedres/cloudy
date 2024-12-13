@@ -15,13 +15,13 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// VirtualMachineTemplate virtual machine template
+// VirtualMachineTemplate defines the requirements for VM creation. Optional fields are defined as nullable and become pointers in go.
 //
 // swagger:model VirtualMachineTemplate
 type VirtualMachineTemplate struct {
 
 	// requested accelerated networking feature to use when selecting virtual machine family
-	AcceleratedNetworking bool `json:"acceleratedNetworking,omitempty"`
+	AcceleratedNetworking *bool `json:"acceleratedNetworking,omitempty"`
 
 	// groups who can view this template during virtual machine creation.
 	AllowedGroupIds []string `json:"allowedGroupIds"`
@@ -36,10 +36,10 @@ type VirtualMachineTemplate struct {
 	BannerPath string `json:"bannerPath,omitempty"`
 
 	// requested CPU generation to use when selecting virtual machine family
-	CPUGeneration string `json:"cpuGeneration,omitempty"`
+	CPUGeneration *string `json:"cpuGeneration,omitempty"`
 
 	// requested CPU vendor to use when selecting virtual machine family
-	CPUVendor string `json:"cpuVendor,omitempty"`
+	CPUVendor *string `json:"cpuVendor,omitempty"`
 
 	// the description of the virtual machine template
 	Description string `json:"description,omitempty"`
@@ -48,13 +48,13 @@ type VirtualMachineTemplate struct {
 	Disks []*VirtualMachineDisk `json:"disks"`
 
 	// flag to determine featured sorting order when displayed on the dashboard
-	Featured bool `json:"featured,omitempty"`
+	Featured *bool `json:"featured,omitempty"`
 
 	// the id of the virtual machine template used to start this template
 	FromTemplateID string `json:"fromTemplateId,omitempty"`
 
 	// requested GPU vendor to use when selecting virtual machine family
-	GpuVendor string `json:"gpuVendor,omitempty"`
+	GpuVendor *string `json:"gpuVendor,omitempty"`
 
 	// the path to the icon to show for this template
 	IconPath string `json:"iconPath,omitempty"`
@@ -66,28 +66,28 @@ type VirtualMachineTemplate struct {
 	LocalAdministratorID string `json:"localAdministratorId,omitempty"`
 
 	// requested maximum number of virtual CPUs to use when selecting virtual machine family
-	MaxCPU int64 `json:"maxCpu,omitempty"`
+	MaxCPU *int64 `json:"maxCpu,omitempty"`
 
 	// requested maximum number of GPUs to use when selecting virtual machine family
-	MaxGpu int64 `json:"maxGpu,omitempty"`
+	MaxGpu *int64 `json:"maxGpu,omitempty"`
 
 	// requested maximum number of network devices to use when selecting virtual machine family
-	MaxNic int64 `json:"maxNic,omitempty"`
+	MaxNic *int64 `json:"maxNic,omitempty"`
 
 	// requested maximum amount of RAM in GB to use when selecting virtual machine family
-	MaxRAM float64 `json:"maxRam,omitempty"`
+	MaxRAM *float64 `json:"maxRam,omitempty"`
 
 	// requested minimum number of virtual CPUs to use when selecting virtual machine family
-	MinCPU int64 `json:"minCpu,omitempty"`
+	MinCPU *int64 `json:"minCpu,omitempty"`
 
 	// requested minimum number of GPUs to use when selecting virtual machine family
-	MinGpu int64 `json:"minGpu,omitempty"`
+	MinGpu *int64 `json:"minGpu,omitempty"`
 
 	// requested minimum number of network devices to use when selecting virtual machine family
-	MinNic int64 `json:"minNic,omitempty"`
+	MinNic *int64 `json:"minNic,omitempty"`
 
 	// requested minimum amount of RAM in GB to use when selecting virtual machine family
-	MinRAM float64 `json:"minRam,omitempty"`
+	MinRAM *float64 `json:"minRam,omitempty"`
 
 	// the name of the virtual machine template
 	Name string `json:"name,omitempty"`
