@@ -129,9 +129,9 @@ definitions:
       osBaseImageId:
         description: operating system base image id used when the virtual machine was created
         type: string
-      state:
-        description: power state of the virtual machine (retrieved from the cloud)
-        type: string
+      cloudState:
+        description: power state of the virtual machine (retrieved from the cloud).
+        $ref: "#/definitions/VirtualMachineCloudState"
       status:
         description: status of actions being taken on the virtual machine (installing, updating)
         type: string
@@ -501,3 +501,18 @@ definitions:
       quota:
         description: total number of this family of virtual machines that may be used
         type: integer
+  VirtualMachineCloudState:
+    type: string
+    x-nullable: true
+    description: State of the virtual machine as retrieved from the cloud.
+    enum:
+      - creating
+      - running
+      - stopping
+      - stopped
+      - starting
+      - restarting
+      - deleting
+      - deleted
+      - failed
+      - unknown

@@ -26,6 +26,9 @@ type VirtualMachine struct {
 	// map of the ids of the apps (and version id if desired) installed on the virtual machine.
 	Apps map[string]VirtualMachineAppDetail `json:"apps,omitempty"`
 
+	// power state of the virtual machine (retrieved from the cloud).
+	CloudState *VirtualMachineCloudState `json:"cloudState,omitempty"`
+
 	// id of the creator of the virtual machine
 	CreatorID string `json:"creatorId,omitempty"`
 
@@ -62,9 +65,6 @@ type VirtualMachine struct {
 	// os disk attached to the virtual machine.
 	OsDisk *VirtualMachineDisk `json:"osDisk,omitempty"`
 
-	// power state of the virtual machine (retrieved from the cloud)
-	State string `json:"state,omitempty"`
-
 	// status of actions being taken on the virtual machine (installing, updating)
 	Status string `json:"status,omitempty"`
 
@@ -87,6 +87,10 @@ func (m *VirtualMachine) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateApps(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCloudState(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -167,6 +171,25 @@ func (m *VirtualMachine) validateApps(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *VirtualMachine) validateCloudState(formats strfmt.Registry) error {
+	if swag.IsZero(m.CloudState) { // not required
+		return nil
+	}
+
+	if m.CloudState != nil {
+		if err := m.CloudState.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("cloudState")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("cloudState")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -319,6 +342,10 @@ func (m *VirtualMachine) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateCloudState(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDisks(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -379,6 +406,22 @@ func (m *VirtualMachine) contextValidateApps(ctx context.Context, formats strfmt
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *VirtualMachine) contextValidateCloudState(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CloudState != nil {
+		if err := m.CloudState.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("cloudState")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("cloudState")
+			}
+			return err
+		}
 	}
 
 	return nil
