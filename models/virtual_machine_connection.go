@@ -22,9 +22,6 @@ type VirtualMachineConnection struct {
 
 	// URL to establish the remote desktop connection.
 	URL string `json:"url,omitempty"`
-
-	// Unique identifier of the virtual machine.
-	VMID string `json:"vmId,omitempty"`
 }
 
 // Validate validates this virtual machine connection

@@ -26,6 +26,9 @@ type VirtualMachine struct {
 	// map of the ids of the apps (and version id if desired) installed on the virtual machine.
 	Apps map[string]VirtualMachineAppDetail `json:"apps,omitempty"`
 
+	// Remote desktop connection info
+	Connect *VirtualMachineConnection `json:"connect,omitempty"`
+
 	// id of the creator of the virtual machine
 	CreatorID string `json:"creatorId,omitempty"`
 
@@ -87,6 +90,10 @@ func (m *VirtualMachine) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateApps(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateConnect(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -167,6 +174,25 @@ func (m *VirtualMachine) validateApps(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *VirtualMachine) validateConnect(formats strfmt.Registry) error {
+	if swag.IsZero(m.Connect) { // not required
+		return nil
+	}
+
+	if m.Connect != nil {
+		if err := m.Connect.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("connect")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("connect")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -319,6 +345,10 @@ func (m *VirtualMachine) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateConnect(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDisks(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -379,6 +409,22 @@ func (m *VirtualMachine) contextValidateApps(ctx context.Context, formats strfmt
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *VirtualMachine) contextValidateConnect(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Connect != nil {
+		if err := m.Connect.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("connect")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("connect")
+			}
+			return err
+		}
 	}
 
 	return nil

@@ -174,6 +174,9 @@ definitions:
         type: object
         additionalProperties:
           $ref: "#/definitions/VirtualMachineAppDetail"
+      connect:
+        description: Remote desktop connection info
+        $ref: "#/definitions/VirtualMachineConnection"
       tags:
         description: tags for grouping virtual machines (group, user, purpose, etc)
         type: object
@@ -505,9 +508,6 @@ definitions:
     type: object
     description: Information required to establish a connection to a virtual machine.
     properties:
-      vmId:
-        type: string
-        description: Unique identifier of the virtual machine.
       remoteDesktopProvider:
         description: The remote desktop provider
         type: string
