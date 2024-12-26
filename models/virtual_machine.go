@@ -29,6 +29,9 @@ type VirtualMachine struct {
 	// power state of the virtual machine (retrieved from the cloud).
 	CloudState *VirtualMachineCloudState `json:"cloudState,omitempty"`
 
+	// Remote desktop connection info
+	Connect *VirtualMachineConnection `json:"connect,omitempty"`
+
 	// id of the creator of the virtual machine
 	CreatorID string `json:"creatorId,omitempty"`
 
@@ -91,6 +94,10 @@ func (m *VirtualMachine) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCloudState(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateConnect(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -187,6 +194,25 @@ func (m *VirtualMachine) validateCloudState(formats strfmt.Registry) error {
 				return ve.ValidateName("cloudState")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("cloudState")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *VirtualMachine) validateConnect(formats strfmt.Registry) error {
+	if swag.IsZero(m.Connect) { // not required
+		return nil
+	}
+
+	if m.Connect != nil {
+		if err := m.Connect.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("connect")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("connect")
 			}
 			return err
 		}
@@ -346,6 +372,10 @@ func (m *VirtualMachine) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateConnect(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDisks(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -419,6 +449,22 @@ func (m *VirtualMachine) contextValidateCloudState(ctx context.Context, formats 
 				return ve.ValidateName("cloudState")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("cloudState")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *VirtualMachine) contextValidateConnect(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Connect != nil {
+		if err := m.Connect.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("connect")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("connect")
 			}
 			return err
 		}
