@@ -126,9 +126,6 @@ definitions:
       creatorId:
         description: id of the creator of the virtual machine
         type: string
-      osBaseImageId:
-        description: operating system base image id used when the virtual machine was created
-        type: string
       cloudState:
         description: power state of the virtual machine (retrieved from the cloud).
         $ref: "#/definitions/VirtualMachineCloudState"
@@ -306,6 +303,9 @@ definitions:
           type: string
       operatingSystem:
         description: requested operating system
+        type: string
+      osBaseImageId:
+        description: operating system base image id to be used when the virtual machine is created
         type: string
       minCpu:
         description: requested minimum number of virtual CPUs to use when selecting virtual machine family

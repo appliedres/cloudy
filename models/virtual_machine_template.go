@@ -98,6 +98,9 @@ type VirtualMachineTemplate struct {
 	// requested operating system
 	OperatingSystem string `json:"operatingSystem,omitempty"`
 
+	// operating system base image id to be used when the virtual machine is created
+	OsBaseImageID string `json:"osBaseImageId,omitempty"`
+
 	// id of the group who owns this template
 	OwnerGroupID string `json:"ownerGroupId,omitempty"`
 

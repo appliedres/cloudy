@@ -62,9 +62,6 @@ type VirtualMachine struct {
 	// nics attached to the virtual machine.
 	Nics []*VirtualMachineNic `json:"nics"`
 
-	// operating system base image id used when the virtual machine was created
-	OsBaseImageID string `json:"osBaseImageId,omitempty"`
-
 	// os disk attached to the virtual machine.
 	OsDisk *VirtualMachineDisk `json:"osDisk,omitempty"`
 
