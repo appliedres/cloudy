@@ -107,6 +107,9 @@ type VirtualMachineTemplate struct {
 	// id of the user who owns this template
 	OwnerUserID string `json:"ownerUserId,omitempty"`
 
+	// special case security flag configuration
+	SecurityProfile *VirtualMachineSecurityProfileConfiguration `json:"securityProfile,omitempty"`
+
 	// size
 	Size *VirtualMachineSize `json:"size,omitempty"`
 
@@ -132,6 +135,10 @@ func (m *VirtualMachineTemplate) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDisks(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecurityProfile(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -201,6 +208,25 @@ func (m *VirtualMachineTemplate) validateDisks(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *VirtualMachineTemplate) validateSecurityProfile(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecurityProfile) { // not required
+		return nil
+	}
+
+	if m.SecurityProfile != nil {
+		if err := m.SecurityProfile.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("securityProfile")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("securityProfile")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *VirtualMachineTemplate) validateSize(formats strfmt.Registry) error {
 	if swag.IsZero(m.Size) { // not required
 		return nil
@@ -249,6 +275,10 @@ func (m *VirtualMachineTemplate) ContextValidate(ctx context.Context, formats st
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSecurityProfile(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSize(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -293,6 +323,22 @@ func (m *VirtualMachineTemplate) contextValidateDisks(ctx context.Context, forma
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *VirtualMachineTemplate) contextValidateSecurityProfile(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SecurityProfile != nil {
+		if err := m.SecurityProfile.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("securityProfile")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("securityProfile")
+			}
+			return err
+		}
 	}
 
 	return nil

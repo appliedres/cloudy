@@ -296,6 +296,9 @@ definitions:
         type: array
         items:
           type: string
+      securityProfile:
+        description: special case security flag configuration
+        $ref: "#/definitions/VirtualMachineSecurityProfileConfiguration"
       vdiTypes:
         description: VDIs compatible with this template.
         type: array
@@ -387,6 +390,18 @@ definitions:
         description: the details used to determine when to automatically stop the virtual machine
         $ref: "#/definitions/VirtualMachineTimeout"
         x-nullable: true
+  VirtualMachineSecurityProfileConfiguration:
+    type: object
+    properties: 
+      securityTypes:
+        description: flag for the trusted launch setting when creating a virtual machine
+        $ref: "#/definitions/VirtualMachineSecurityTypes"
+  VirtualMachineSecurityTypes:
+    type: string
+    enum:
+     - None
+     - ConfidentialVM
+     - TrustedLaunch
   VirtualMachineAppDetail:
     type: object
     properties:
