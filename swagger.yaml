@@ -546,7 +546,6 @@ definitions:
       - unknown
   VirtualMachineStatus:
     type: string
-    x-nullable: true
     description: |
       The overall status of the VM used to track readiness. A status should be set when taking an action on the VM, 
       such as installing software, configuring AVD, or updating the cloud VM itself. VM should be marked 'ready' when actions 

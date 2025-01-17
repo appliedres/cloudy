@@ -66,7 +66,7 @@ type VirtualMachine struct {
 	OsDisk *VirtualMachineDisk `json:"osDisk,omitempty"`
 
 	// status of actions being taken on the virtual machine (installing, updating)
-	Status string `json:"status,omitempty"`
+	Status VirtualMachineStatus `json:"status,omitempty"`
 
 	// tags for grouping virtual machines (group, user, purpose, etc)
 	Tags map[string]*string `json:"tags,omitempty"`
@@ -115,6 +115,10 @@ func (m *VirtualMachine) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOsDisk(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -334,6 +338,23 @@ func (m *VirtualMachine) validateOsDisk(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *VirtualMachine) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *VirtualMachine) validateTemplate(formats strfmt.Registry) error {
 	if swag.IsZero(m.Template) { // not required
 		return nil
@@ -390,6 +411,10 @@ func (m *VirtualMachine) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := m.contextValidateOsDisk(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -557,6 +582,20 @@ func (m *VirtualMachine) contextValidateOsDisk(ctx context.Context, formats strf
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *VirtualMachine) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
+		}
+		return err
 	}
 
 	return nil
