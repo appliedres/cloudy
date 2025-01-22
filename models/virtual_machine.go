@@ -53,9 +53,6 @@ type VirtualMachine struct {
 	// location where this virtual machine is running
 	Location *VirtualMachineLocation `json:"location,omitempty"`
 
-	// logs generated during virtual machine creation or the last modification.
-	Logs []*VirtualMachineLogs `json:"logs"`
-
 	// the name of the virtual machine
 	Name string `json:"name,omitempty"`
 
@@ -103,10 +100,6 @@ func (m *VirtualMachine) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateLocation(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateLogs(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -263,32 +256,6 @@ func (m *VirtualMachine) validateLocation(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *VirtualMachine) validateLogs(formats strfmt.Registry) error {
-	if swag.IsZero(m.Logs) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.Logs); i++ {
-		if swag.IsZero(m.Logs[i]) { // not required
-			continue
-		}
-
-		if m.Logs[i] != nil {
-			if err := m.Logs[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("logs" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("logs" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
 func (m *VirtualMachine) validateNics(formats strfmt.Registry) error {
 	if swag.IsZero(m.Nics) { // not required
 		return nil
@@ -378,10 +345,6 @@ func (m *VirtualMachine) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := m.contextValidateLocation(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateLogs(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -501,26 +464,6 @@ func (m *VirtualMachine) contextValidateLocation(ctx context.Context, formats st
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *VirtualMachine) contextValidateLogs(ctx context.Context, formats strfmt.Registry) error {
-
-	for i := 0; i < len(m.Logs); i++ {
-
-		if m.Logs[i] != nil {
-			if err := m.Logs[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("logs" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("logs" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
 	}
 
 	return nil

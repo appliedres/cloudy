@@ -161,11 +161,6 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/VirtualMachineActivity"
-      logs:
-        description: logs generated during virtual machine creation or the last modification.
-        type: array
-        items:
-          $ref: "#/definitions/VirtualMachineLogs"
       apps:
         description: map of the ids of the apps (and version id if desired) installed on the virtual machine.
         type: object
@@ -231,22 +226,6 @@ definitions:
         description: the time the activity ended
         type: string
         format: datetime
-  VirtualMachineLogs:
-    type: object
-    properties:
-      id:
-        description: id of the log (timestamp+vmid)
-        type: string
-      vmId:
-        description: id of the vm associated with the log
-        type: string
-      timestamp:
-        description: the time the log was recorded
-        type: string
-        format: datetime
-      log:
-        description: the log text
-        type: string
   VirtualMachineTemplate:
     type: object
     description: "defines the requirements for VM creation. Optional fields are defined as nullable and become pointers in go."
