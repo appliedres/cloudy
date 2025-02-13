@@ -12,8 +12,6 @@ AVD interface manager
 type AzureVirtualDesktopManager interface {
 	PreRegister(ctx context.Context, vm *models.VirtualMachine) (hostPoolName, token *string, err error)
 
-	GetRegistrationScript(ctx context.Context, vm *models.VirtualMachine, registrationToken string) (*string, error)
-
 	PostRegister(ctx context.Context, vm *models.VirtualMachine, hpName string) (*models.VirtualMachine, error)
 
 	Cleanup(ctx context.Context, vmID string) error
