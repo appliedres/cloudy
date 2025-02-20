@@ -2,6 +2,7 @@ package vm
 
 import (
 	"context"
+	"time"
 
 	"github.com/appliedres/cloudy/models"
 )
@@ -54,7 +55,7 @@ type VirtualMachineManager interface {
 	// Gets the vm family data with usage info filled in
 	GetUsage(ctx context.Context) (map[string]models.VirtualMachineFamily, error)
 
-	ExecuteSetupPowershell(ctx context.Context, vm *models.VirtualMachine) (*models.VirtualMachine, error)
+	InitialVirtualMachineSetup(ctx context.Context, vm *models.VirtualMachine) (*models.VirtualMachine, error)
 
-	RunPowershell(ctx context.Context, vmID, script string) error
+	ExecuteRemotePowershell(ctx context.Context, vmID string, script *string, timeout, pollInterval time.Duration) error
 }
