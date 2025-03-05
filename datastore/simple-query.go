@@ -96,6 +96,22 @@ func (cg *SimpleQueryConditionGroup) Contains(field string, value string) {
 	})
 }
 
+func (cg *SimpleQueryConditionGroup) In(field string, value string) {
+	c := &SimpleQueryCondition{Type: "in"}
+	c.Data = []string{field}
+	c.Set("value", value)
+	c.Set("field", field)
+	cg.Conditions = append(cg.Conditions, c)
+}
+
+func (cg *SimpleQueryConditionGroup) AnyIn(field string, values []string) {
+	c := &SimpleQueryCondition{Type: "anyin"}
+	c.Data = []string{field}
+	c.Set("value", values)
+	c.Set("field", field)
+	cg.Conditions = append(cg.Conditions, c)
+}
+
 func (cg *SimpleQueryConditionGroup) Includes(field string, values []string) {
 	c := &SimpleQueryCondition{Type: "includes"}
 	c.Data = []string{field}
