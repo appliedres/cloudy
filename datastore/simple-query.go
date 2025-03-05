@@ -98,7 +98,7 @@ func (cg *SimpleQueryConditionGroup) Contains(field string, value string) {
 
 func (cg *SimpleQueryConditionGroup) In(field string, value string) {
 	c := &SimpleQueryCondition{Type: "in"}
-	c.Data = []string{field}
+	c.Data = []string{field, value}
 	c.Set("value", value)
 	c.Set("field", field)
 	cg.Conditions = append(cg.Conditions, c)
