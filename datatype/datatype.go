@@ -25,9 +25,10 @@ type Datatype[T any] struct {
 	DataStore JsonDataStore[T]
 
 	// BeforeSave []BeforeSaveInterceptor[T]
-	BeforeSave []BeforeSaveFunc[T]
-	AfterSave  []AfterSaveInterceptor[T]
-	AfterGet   []AfterGetInterceptor[T]
+	BeforeSave  []InterceptItem[T]
+	AfterSave   []InterceptItem[T]
+	AfterGet    []InterceptItem[T]
+	AfterDelete []AfterDeleteFunc[T]
 
 	initialized        bool
 	OnConnectionChange func()
@@ -48,11 +49,7 @@ type BeforeSaveInterceptor[T any] interface {
 	BeforeSave(ctx context.Context, dt *Datatype[T], item *T) (*T, error)
 }
 
-type BeforeSaveFunc[T any] func(ctx context.Context, dt *Datatype[T], item *T) (*T, error)
-
-// func (f BeforeSaveFunc[T]) BeforeSave(ctx context.Context, dt *Datatype[T], item *T) (*T, error) {
-// 	return f(ctx, dt, item)
-// }
+type InterceptItem[T any] func(ctx context.Context, dt *Datatype[T], item *T) (*T, error)
 
 type AfterSaveInterceptor[T any] interface {
 	AfterSave(ctx context.Context, dt *Datatype[T], item *T) (*T, error)
@@ -62,26 +59,51 @@ type AfterGetInterceptor[T any] interface {
 	AfterGet(ctx context.Context, dt *Datatype[T], item *T) (*T, error)
 }
 
+type AfterDeleteInterceptor[T any] interface {
+	AfterDelete(ctx context.Context, dt *Datatype[T], key []string) error
+}
+type AfterDeleteFunc[T any] func(ctx context.Context, dt *Datatype[T], key []string) error
+
 func (dt *Datatype[T]) interceptGet(ctx context.Context, item *T) (*T, error) {
-	for _, interceptor := range dt.AfterGet {
-		_, err := interceptor.AfterGet(ctx, dt, item)
-		return item, err
+	var me *multierror.Error
+	for _, fn := range dt.AfterGet {
+		_, err := fn(ctx, dt, item)
+		if err != nil {
+			me = multierror.Append(me, err)
+		}
 	}
-	return item, nil
+	return item, me.ErrorOrNil()
 }
 func (dt *Datatype[T]) interceptBeforeSave(ctx context.Context, item *T) (*T, error) {
+	var me *multierror.Error
 	for _, fn := range dt.BeforeSave {
 		_, err := fn(ctx, dt, item)
-		return item, err
+		if err != nil {
+			me = multierror.Append(me, err)
+		}
 	}
-	return item, nil
+	return item, me.ErrorOrNil()
 }
 func (dt *Datatype[T]) interceptAfterSave(ctx context.Context, item *T) (*T, error) {
-	for _, interceptor := range dt.AfterSave {
-		_, err := interceptor.AfterSave(ctx, dt, item)
-		return item, err
+	var me *multierror.Error
+	for _, fn := range dt.AfterSave {
+		_, err := fn(ctx, dt, item)
+		if err != nil {
+			me = multierror.Append(me, err)
+		}
 	}
-	return item, nil
+	return item, me.ErrorOrNil()
+}
+
+func (dt *Datatype[T]) interceptAfterDelete(ctx context.Context, key []string) error {
+	var me *multierror.Error
+	for _, fn := range dt.AfterDelete {
+		err := fn(ctx, dt, key)
+		if err != nil {
+			me = multierror.Append(me, err)
+		}
+	}
+	return me.ErrorOrNil()
 }
 
 func (dt *Datatype[T]) SetDatastore(ds JsonDataStore[T]) {
@@ -239,13 +261,21 @@ func (dt *Datatype[T]) GetID(ctx context.Context, item *T) string {
 }
 
 func (dt *Datatype[T]) Delete(ctx context.Context, key string) error {
-	return dt.DataStore.Delete(ctx, key)
+	err := dt.DataStore.Delete(ctx, key)
+	if err != nil {
+		return err
+	}
+	return dt.interceptAfterDelete(ctx, []string{key})
 }
 
 func (dt *Datatype[T]) DeleteAll(ctx context.Context, keys []string) error {
 	bulkDs, isBulk := dt.DataStore.(BulkJsonDataStore[T])
 	if isBulk {
-		return bulkDs.DeleteAll(ctx, keys)
+		err := bulkDs.DeleteAll(ctx, keys)
+		if err != nil {
+			return err
+		}
+		return dt.interceptAfterDelete(ctx, keys)
 	}
 
 	for _, key := range keys {
@@ -473,20 +503,26 @@ func WithGetId[T any](fn func(dt *Datatype[T], item *T) string) func(dt *Datatyp
 	}
 }
 
-func WithBeforeSave[T any](fn BeforeSaveFunc[T]) func(dt *Datatype[T]) {
+func WithBeforeSave[T any](fn InterceptItem[T]) func(dt *Datatype[T]) {
 	return func(dt *Datatype[T]) {
 		dt.BeforeSave = append(dt.BeforeSave, fn)
 	}
 }
 
-func WithAfterSave[T any](fn AfterSaveInterceptor[T]) func(dt *Datatype[T]) {
+func WithAfterSave[T any](fn InterceptItem[T]) func(dt *Datatype[T]) {
 	return func(dt *Datatype[T]) {
 		dt.AfterSave = append(dt.AfterSave, fn)
 	}
 }
 
-func WithAfterGet[T any](fn AfterGetInterceptor[T]) func(dt *Datatype[T]) {
+func WithAfterGet[T any](fn InterceptItem[T]) func(dt *Datatype[T]) {
 	return func(dt *Datatype[T]) {
 		dt.AfterGet = append(dt.AfterGet, fn)
+	}
+}
+
+func WithAfterDelete[T any](fn AfterDeleteFunc[T]) func(dt *Datatype[T]) {
+	return func(dt *Datatype[T]) {
+		dt.AfterDelete = append(dt.AfterDelete, fn)
 	}
 }
