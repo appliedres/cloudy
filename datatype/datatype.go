@@ -3,13 +3,13 @@ package datatype
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/Jeffail/gabs/v2"
 	"github.com/appliedres/cloudy"
 	"github.com/appliedres/cloudy/datastore"
 	"github.com/hashicorp/go-multierror"
+	"github.com/pkg/errors"
 )
 
 // type any struct{}
@@ -347,17 +347,20 @@ func (dt *Datatype[T]) Exists(ctx context.Context, id string) (bool, error) {
 
 func (dt *Datatype[T]) initIfNeeded(ctx context.Context) error {
 	if dt.DataStore == nil {
-		return fmt.Errorf("dt.Datastore %s is nil", dt.Name)
+		return fmt.Errorf("initIfNeeded dt.Datastore %s is nil", dt.Name)
 	}
+
 	if dt.initialized {
 		return nil
 	}
-	dt.initialized = true
 
-	err := dt.DataStore.Open(ctx, nil)
+	cloudy.Info(ctx, "dt.initIfNeeded %s", dt.Name)
+
+	err := dt.Initialize(ctx)
 	if err != nil {
 		return err
 	}
+
 	if dt.OnConnectionChange != nil {
 		dt.OnConnectionChange()
 	}
@@ -367,12 +370,16 @@ func (dt *Datatype[T]) initIfNeeded(ctx context.Context) error {
 func (dt *Datatype[T]) Initialize(ctx context.Context) error {
 	cloudy.Info(ctx, "dt.Initialize %s", dt.Name)
 
-	if dt.DataStore != nil {
-		err := dt.DataStore.Open(ctx, nil)
-		if err != nil {
-			return err
-		}
+	if dt.DataStore == nil {
+		return fmt.Errorf("Initialize dt.Datastore %s is nil", dt.Name)
 	}
+
+	err := dt.DataStore.Open(ctx, nil)
+	if err != nil {
+		return errors.Wrap(err, "Datastore Open")
+	}
+	dt.initialized = true
+
 	return nil
 }
 
