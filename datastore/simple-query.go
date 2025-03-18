@@ -12,11 +12,31 @@ func NewQuery() *SimpleQuery {
 
 // SimpleQuery is a simple way to describe conditions and a query
 type SimpleQuery struct {
-	Size       int
-	Offset     int
-	Colums     []string
-	Conditions *SimpleQueryConditionGroup
-	SortBy     []*SortBy
+	Size          int
+	Offset        int
+	Colums        []string
+	Conditions    *SimpleQueryConditionGroup
+	SortBy        []*SortBy
+	RecurseConfig *SimpleQueryRecurse
+}
+
+type SimpleQueryRecurse struct {
+	FromField string
+	ToField   string
+}
+
+// Recurse will setup this query as a recursive query. The FromField is the field that
+// that is the starting point. The ToField is the field that is the ending point.
+// For example, to go UP a hierarchy, the FromField would be the parent field and the
+// to the child field, e.g. `Recurse("parent", "id")`. To go DOWN the hierarchy, the
+// FromField would be the child field and the ToField would be the parent field, e.g.
+// `Recurse("id", "parent")`
+func (sq *SimpleQuery) Recurse(FromField string, ToField string) *SimpleQuery {
+	sq.RecurseConfig = &SimpleQueryRecurse{
+		FromField: FromField,
+		ToField:   ToField,
+	}
+	return sq
 }
 
 type SimpleQueryCondition struct {

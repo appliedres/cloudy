@@ -49,6 +49,8 @@ type BulkJsonDataStore[T any] interface {
 	DeleteAll(ctx context.Context, key []string) error
 
 	SaveAll(ctx context.Context, item []*T, key []string) error
+
+	DeleteQuery(ctx context.Context, query *datastore.SimpleQuery) ([]string, error)
 }
 
 type AdvQueryJsonDatastore[T any] interface {
@@ -57,4 +59,6 @@ type AdvQueryJsonDatastore[T any] interface {
 	QueryAsMap(ctx context.Context, query *datastore.SimpleQuery) ([]map[string]any, error)
 
 	QueryTable(ctx context.Context, query *datastore.SimpleQuery) ([][]any, error)
+
+	// DeleteHierarcy(ctx context.Context, parentField string, parentKey string) error
 }
