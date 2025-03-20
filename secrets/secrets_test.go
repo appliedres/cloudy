@@ -39,3 +39,9 @@ func SecretsTest(t *testing.T, ctx context.Context, provider SecretProvider) {
 	assert.Nil(t, err)
 	assert.Nil(t, secBin2)
 }
+
+func TestInMemorySecretProvider(t *testing.T) {
+	ctx := context.Background()
+	provider := NewInMemorySecretProvider()
+	SecretsTest(t, ctx, provider)
+}

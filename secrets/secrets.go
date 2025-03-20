@@ -36,3 +36,42 @@ func GetSecret[T any](ctx context.Context, driver SecretProvider, key string) (*
 	err = json.Unmarshal([]byte(data), &item)
 	return &item, err
 }
+
+func NewInMemorySecretProvider() SecretProvider {
+	return &InMemorySecretProvider{
+		Store: make(map[string]string),
+	}
+}
+
+type InMemorySecretProvider struct {
+	Store map[string]string
+}
+
+func (p *InMemorySecretProvider) SaveSecret(ctx context.Context, key string, data string) error {
+	p.Store[key] = data
+	return nil
+}
+
+func (p *InMemorySecretProvider) GetSecret(ctx context.Context, key string) (string, error) {
+	if val, ok := p.Store[key]; ok {
+		return val, nil
+	}
+	return "", nil
+}
+
+func (p *InMemorySecretProvider) DeleteSecret(ctx context.Context, key string) error {
+	delete(p.Store, key)
+	return nil
+}
+
+func (p *InMemorySecretProvider) SaveSecretBinary(ctx context.Context, key string, secret []byte) error {
+	p.Store[key] = string(secret)
+	return nil
+}
+
+func (p *InMemorySecretProvider) GetSecretBinary(ctx context.Context, key string) ([]byte, error) {
+	if val, ok := p.Store[key]; ok {
+		return []byte(val), nil
+	}
+	return nil, nil
+}
