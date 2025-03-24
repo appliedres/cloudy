@@ -32,6 +32,9 @@ type VirtualMachine struct {
 	// Remote desktop connection info
 	Connect *VirtualMachineConnection `json:"connect,omitempty"`
 
+	// id of the connection where the virtual machine is located
+	ConnectionID string `json:"connectionId,omitempty"`
+
 	// id of the creator of the virtual machine
 	CreatorID string `json:"creatorId,omitempty"`
 
@@ -67,6 +70,9 @@ type VirtualMachine struct {
 
 	// tags for grouping virtual machines (group, user, purpose, etc)
 	Tags map[string]*string `json:"tags,omitempty"`
+
+	// id of the team that the virtual machine belongs to
+	TeamID string `json:"teamId,omitempty"`
 
 	// template associated with the virtual machine
 	Template *VirtualMachineTemplate `json:"template,omitempty"`

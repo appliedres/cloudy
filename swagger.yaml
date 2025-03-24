@@ -126,6 +126,12 @@ definitions:
       creatorId:
         description: id of the creator of the virtual machine
         type: string
+      teamId:
+        description: id of the team that the virtual machine belongs to
+        type: string
+      connectionId:
+        description: id of the connection where the virtual machine is located
+        type: string
       cloudState:
         description: power state of the virtual machine (retrieved from the cloud).
         $ref: "#/definitions/VirtualMachineCloudState"
