@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type UserJWT struct {
@@ -54,6 +55,57 @@ func (jwt UserJWT) Valid() error {
 
 func (jwt *UserJWT) IsAuthenticated() bool {
 	return !(jwt.Email == "" || jwt.Email == "None")
+}
+
+func (u *UserJWT) GetExpirationTime() (*jwt.NumericDate, error) {
+	if u.EXP == 0 {
+		return nil, nil
+	}
+	return jwt.NewNumericDate(time.Unix(u.EXP, 0)), nil
+}
+
+func (u *UserJWT) GetIssuedAt() (*jwt.NumericDate, error) {
+	if u.IAT == 0 {
+		return nil, nil
+	}
+	return jwt.NewNumericDate(time.Unix(u.IAT, 0)), nil
+}
+
+func (u *UserJWT) GetNotBefore() (*jwt.NumericDate, error) {
+	if u.AuthTime == 0 {
+		return nil, nil
+	}
+	return jwt.NewNumericDate(time.Unix(u.AuthTime, 0)), nil
+}
+
+func (u *UserJWT) GetAudience() (jwt.ClaimStrings, error) {
+	if audVal, ok := u.MapClaims["aud"]; ok {
+		switch aud := audVal.(type) {
+		case string:
+			return jwt.ClaimStrings{aud}, nil
+		case []interface{}:
+			var result jwt.ClaimStrings
+			for _, v := range aud {
+				if s, ok := v.(string); ok {
+					result = append(result, s)
+				}
+			}
+			return result, nil
+		}
+	}
+	return nil, nil
+}
+
+func (u *UserJWT) GetIssuer() (string, error) {
+	return u.ISS, nil
+}
+
+func (u *UserJWT) GetSubject() (string, error) {
+	return u.UPN, nil
+}
+
+func (u *UserJWT) GetID() (string, error) {
+	return u.JTI, nil
 }
 
 const UserAnonymous = "ANONYMOUS"

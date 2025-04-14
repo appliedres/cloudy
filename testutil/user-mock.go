@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/appliedres/cloudy"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func CreateTestJWT(upn string, isAdmin bool) *cloudy.UserJWT {
