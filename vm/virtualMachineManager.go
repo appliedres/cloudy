@@ -2,7 +2,6 @@ package vm
 
 import (
 	"context"
-	"time"
 
 	"github.com/appliedres/cloudy/models"
 )
@@ -13,49 +12,42 @@ type VirtualMachineOptions struct {
 /*
 Vm interface manager
 */
-type VirtualMachineManager interface {
-	GetAll(ctx context.Context, filter string, attrs []string, includeState bool) (*[]models.VirtualMachine, error)
+type VirtualDesktopOrchestrator interface {
+	GetAllVirtualMachines(ctx context.Context, attrs []string, includeState bool) (*[]models.VirtualMachine, error)
 
-	// Retrieves a specific vm
-	GetById(ctx context.Context, id string, includeState bool) (*models.VirtualMachine, error)
+	// Retrieves a specific virtual machine
+	GetVirtualMachine(ctx context.Context, id string, includeState bool) (*models.VirtualMachine, error)
 
-	// Create a new vm from a vm and returns it vm with any additional
+	// Create a new virtual machine and returns it with any additional
 	// fields populated
-	Create(ctx context.Context, vm *models.VirtualMachine) (*models.VirtualMachine, error)
+	CreateVirtualMachine(ctx context.Context, vm *models.VirtualMachine) (*models.VirtualMachine, error)
 
-	// Update an existing vm from a vm and returns it with any additional
+	// Update an existing virtual machine and returns it with any additional
 	// fields populated
-	Update(ctx context.Context, vm *models.VirtualMachine) (*models.VirtualMachine, error)
+	UpdateVirtualMachine(ctx context.Context, vm *models.VirtualMachine) (*models.VirtualMachine, error)
 
-	// Starts the vm with the provided id
-	Start(ctx context.Context, id string) error
+	// Starts the virtual machine with the provided id
+	StartVirtualMachine(ctx context.Context, id string) error
 
-	// Stops the vm with the provided id
-	Stop(ctx context.Context, id string) error
+	// Stops (deallocates) the virtual machine with the provided id
+	StopVirtualMachine(ctx context.Context, id string) error
 
-	// Deallocate the vm with the provided id
-	Deallocate(ctx context.Context, id string) error
+	// Deletes the virtual machine with the provided id
+	DeleteVirtualMachine(ctx context.Context, id string) error
 
-	// Deletes the vm with the provided id
-	Delete(ctx context.Context, id string) error
+	// Gets the virtual machine size data with capabilities info filled in
+	GetAllVirtualMachineSizes(ctx context.Context) (map[string]*models.VirtualMachineSize, error)
 
-	// Gets the vm size data with capabilities info filled in
-	GetAllSizes(ctx context.Context) (map[string]*models.VirtualMachineSize, error)
-
-	// Given a VM template, generates a ranked list of VM Sizes
-	GetSizesForTemplate(ctx context.Context, template models.VirtualMachineTemplate) (
+	// Given a virtual machine template, generates a ranked list of virtual machine sizes
+	GetVirtualMachineSizesForTemplate(ctx context.Context, template models.VirtualMachineTemplate) (
 		matches map[string]*models.VirtualMachineSize,
 		worse map[string]*models.VirtualMachineSize,
 		better map[string]*models.VirtualMachineSize,
 		err error)
 
-	// Gets the vm size data with capabilities and usage info filled in
-	GetSizesWithUsage(ctx context.Context) (map[string]*models.VirtualMachineSize, error)
+	// Gets the virtual machine size data with capabilities and usage info filled in
+	GetVirtualMachineSizesWithUsage(ctx context.Context) (map[string]*models.VirtualMachineSize, error)
 
-	// Gets the vm family data with usage info filled in
-	GetUsage(ctx context.Context) (map[string]models.VirtualMachineFamily, error)
-
-	InitialVirtualMachineSetup(ctx context.Context, vm *models.VirtualMachine) (*models.VirtualMachine, error)
-
-	ExecuteRemotePowershell(ctx context.Context, vmID string, script *string, timeout, pollInterval time.Duration) error
+	// Gets the virtual machine family data with usage info filled in
+	GetVirtualMachineUsage(ctx context.Context) (map[string]models.VirtualMachineFamily, error)
 }
