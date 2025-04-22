@@ -290,11 +290,18 @@ definitions:
         items:
           type: string
       operatingSystem:
-        description: requested operating system
+        description: Requested operating system used in osBaseImageId.
         type: string
+        enum: [windows, linux_deb, linux_rhel]
       osBaseImageId:
-        description: operating system base image id to be used when the virtual machine is created
-        type: string
+          description: |
+            operating system base image id to be used when the virtual machine is created.
+            Format:
+              marketplace:
+                "marketplace::<Publisher>::<Offer>::<SKU>::<Version>[::PlanName]"
+              gallery:
+                "/subscriptions/<SubscriptionID>/resourceGroups/<ResourceGroup>/providers/Microsoft.Compute/galleries/<ImageGalleryName>/images/<ImageName>/versions/<version>"
+          type: string    
       minCpu:
         description: requested minimum number of virtual CPUs to use when selecting virtual machine family
         type: integer

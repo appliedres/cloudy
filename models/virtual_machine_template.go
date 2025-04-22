@@ -7,6 +7,7 @@ package models
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -95,10 +96,17 @@ type VirtualMachineTemplate struct {
 	// administrative notes concerning this template
 	Notes string `json:"notes,omitempty"`
 
-	// requested operating system
+	// Requested operating system used in osBaseImageId.
+	// Enum: [windows linux_deb linux_rhel]
 	OperatingSystem string `json:"operatingSystem,omitempty"`
 
-	// operating system base image id to be used when the virtual machine is created
+	// operating system base image id to be used when the virtual machine is created.
+	// Format:
+	//   marketplace:
+	//     "marketplace::<Publisher>::<Offer>::<SKU>::<Version>[::PlanName]"
+	//   gallery:
+	//     "/subscriptions/<SubscriptionID>/resourceGroups/<ResourceGroup>/providers/Microsoft.Compute/galleries/<ImageGalleryName>/images/<ImageName>/versions/<version>"
+	//
 	OsBaseImageID string `json:"osBaseImageId,omitempty"`
 
 	// id of the group who owns this template
@@ -135,6 +143,10 @@ func (m *VirtualMachineTemplate) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDisks(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOperatingSystem(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -203,6 +215,51 @@ func (m *VirtualMachineTemplate) validateDisks(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+var virtualMachineTemplateTypeOperatingSystemPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["windows","linux_deb","linux_rhel"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		virtualMachineTemplateTypeOperatingSystemPropEnum = append(virtualMachineTemplateTypeOperatingSystemPropEnum, v)
+	}
+}
+
+const (
+
+	// VirtualMachineTemplateOperatingSystemWindows captures enum value "windows"
+	VirtualMachineTemplateOperatingSystemWindows string = "windows"
+
+	// VirtualMachineTemplateOperatingSystemLinuxDeb captures enum value "linux_deb"
+	VirtualMachineTemplateOperatingSystemLinuxDeb string = "linux_deb"
+
+	// VirtualMachineTemplateOperatingSystemLinuxRhel captures enum value "linux_rhel"
+	VirtualMachineTemplateOperatingSystemLinuxRhel string = "linux_rhel"
+)
+
+// prop value enum
+func (m *VirtualMachineTemplate) validateOperatingSystemEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, virtualMachineTemplateTypeOperatingSystemPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *VirtualMachineTemplate) validateOperatingSystem(formats strfmt.Registry) error {
+	if swag.IsZero(m.OperatingSystem) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateOperatingSystemEnum("operatingSystem", "body", m.OperatingSystem); err != nil {
+		return err
 	}
 
 	return nil
