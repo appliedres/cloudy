@@ -4,7 +4,10 @@ import (
 	"crypto/rand"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"math/big"
 	mrand "math/rand"
@@ -229,4 +232,40 @@ func HashId(prefix string, parts ...string) string {
 	// }
 	// sum := sha256.Sum(nil)
 	// return string(sum)
+}
+
+// GenerateID returns a 10‑char string: 
+// 	9 for the millisecond timestamp in Base36 format,
+// 	1 for a monotonic counter in the range 0–35. (to ensure uniqueness)
+const timestampGenCounterMod = 36 // 0‑z  ⇒ one base‑36 digit
+var timestampGenCounter uint32  // global timestampGenCounter (per‑process)
+func GenerateTimestampID(t time.Time) string {
+	// 1. Timestamp part (exactly 9 chars, zero‑padded)
+	tsPart := strconv.FormatInt(t.UnixMilli(), 36)
+	tsPart = strings.ToLower(fmt.Sprintf("%09s", tsPart))
+
+	// 2. Counter part (exactly 1 char)
+	n := atomic.AddUint32(&timestampGenCounter, 1) % timestampGenCounterMod
+	ctPart := strconv.FormatUint(uint64(n), 36) // already lower
+
+	return tsPart + ctPart
+}
+
+// GenerateID returns a 10‑char string: 
+// 	9 for the millisecond timestamp in Base36 format,
+// 	1 for a monotonic counter in the range 0–35. (to ensure uniqueness)
+func GenerateTimestampIDNow() string {
+	return GenerateTimestampID(time.Now())
+}
+
+// DecodeTime extracts the millisecond timestamp and converts it back to time.Time.
+func DecodeTimestampID(id string) (time.Time, error) {
+	if len(id) != 10 {
+		return time.Time{}, fmt.Errorf("id must be 10 characters")
+	}
+	ms, err := strconv.ParseInt(id[:9], 36, 64) // first 9 chars
+	if err != nil {
+		return time.Time{}, err
+	}
+	return time.UnixMilli(ms), nil
 }
