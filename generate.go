@@ -234,6 +234,39 @@ func HashId(prefix string, parts ...string) string {
 	// return string(sum)
 }
 
+// returns a new VM ID prefixed with "uvm-".
+func GenerateUVMID() string {
+	id, _ := GenerateVMIDFromPrefix("uvm")
+	return id
+}
+
+// returns a new VM ID prefixed with "shvm-".
+func GenerateSHVMID() string {
+	id, _ := GenerateVMIDFromPrefix("shvm")
+	return id
+}
+
+// Using the prefix, generates a new VM ID is 15 or less characters.
+// ID is a custom base36 encoded timestamp
+// if prefix = 'uvm', returns 'uvm-0123456789'
+func GenerateVMIDFromPrefix(prefix string) (string, error) {
+	const (
+		maxLen = 15
+		sep    = "-"
+	)
+	idPart := GenerateTimestampID(time.Now())
+
+	total := len(prefix) + len(sep) + len(idPart)
+	if total > maxLen {
+		return "", fmt.Errorf(
+			"prefix %q too long: would produce ID length %d (max %d)",
+			prefix, total, maxLen,
+		)
+	}
+
+	return prefix + sep + idPart, nil
+}
+
 // GenerateID returns a 10‑char string: 
 // 	9 for the millisecond timestamp in Base36 format,
 // 	1 for a monotonic counter in the range 0–35. (to ensure uniqueness)
