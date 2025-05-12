@@ -38,7 +38,6 @@ func TestGeneratePassword(t *testing.T) {
 	pv = IsValidPassword(p)
 	assert.False(t, pv, p)
 
-
 	pv = IsValidPasswordNoSpecial("testpassword123456")
 	assert.False(t, pv, p)
 }
@@ -110,7 +109,6 @@ func TestGenerateSHVMID(t *testing.T) {
 		t.Errorf("GenerateSHVMID: expected length %d, got %d", len("shvm-")+10, len(id))
 	}
 }
-
 
 func TestGenerateTimestampID_FormatAndLength(t *testing.T) {
 	// Reset counter for deterministic behavior

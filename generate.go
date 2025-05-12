@@ -267,11 +267,12 @@ func GenerateVMIDFromPrefix(prefix string) (string, error) {
 	return prefix + sep + idPart, nil
 }
 
-// GenerateID returns a 10‑char string: 
-// 	9 for the millisecond timestamp in Base36 format,
-// 	1 for a monotonic counter in the range 0–35. (to ensure uniqueness)
+// GenerateID returns a 10‑char string:
+//
+//	9 for the millisecond timestamp in Base36 format,
+//	1 for a monotonic counter in the range 0–35. (to ensure uniqueness)
 const timestampGenCounterMod = 36 // 0‑z  ⇒ one base‑36 digit
-var timestampGenCounter uint32  // global timestampGenCounter (per‑process)
+var timestampGenCounter uint32    // global timestampGenCounter (per‑process)
 func GenerateTimestampID(t time.Time) string {
 	// 1. Timestamp part (exactly 9 chars, zero‑padded)
 	tsPart := strconv.FormatInt(t.UnixMilli(), 36)
@@ -284,9 +285,10 @@ func GenerateTimestampID(t time.Time) string {
 	return tsPart + ctPart
 }
 
-// GenerateID returns a 10‑char string: 
-// 	9 for the millisecond timestamp in Base36 format,
-// 	1 for a monotonic counter in the range 0–35. (to ensure uniqueness)
+// GenerateID returns a 10‑char string:
+//
+//	9 for the millisecond timestamp in Base36 format,
+//	1 for a monotonic counter in the range 0–35. (to ensure uniqueness)
 func GenerateTimestampIDNow() string {
 	return GenerateTimestampID(time.Now())
 }
