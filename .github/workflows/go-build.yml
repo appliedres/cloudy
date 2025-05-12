@@ -1,0 +1,58 @@
+name: Master
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 10  # Ensure enough history for coverage comparison
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.19
+          cache: true
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Run Tests with Coverage
+        uses: gwatts/go-coverage-action@v1
+        id: coverage
+        with:
+          coverage-threshold: 10
+          cover-pkg: ./...
+          ignore-pattern: |
+            \.pb\.go$
+            \_string\.go$
+            models/.*\.go$
+            testutil/.*\.go$
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-coverage.html
+          path: ${{ steps.coverage.outputs.report-pathname }}
+
+      - name: Update Coverage Badge
+        if: ${{ github.ref_name == 'master' || github.ref_name == 'main' }}
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: 3652cbbb7e810afda7a001bf1859e16c
+          filename: cloudy-coverage.json
+          label: Go Coverage
+          message: "${{ steps.coverage.outputs.coverage-pct }}%"
+          color: "${{ steps.coverage.outputs.meets-threshold == 'true' && 'green' || 'red' }}"
