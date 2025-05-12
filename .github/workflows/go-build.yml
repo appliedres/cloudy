@@ -45,13 +45,12 @@ jobs:
           name: go-coverage.html
           path: ${{ steps.coverage.outputs.report-pathname }}
 
-      - name: Update Coverage Badge
+      - name: Output Coverage Info
         if: ${{ github.ref_name == 'master' || github.ref_name == 'main' }}
-        uses: schneegans/dynamic-badges-action@v1.6.0
-        with:
-          auth: ${{ secrets.GIST_TOKEN }}
-          gistID: 3652cbbb7e810afda7a001bf1859e16c
-          filename: cloudy-coverage.json
-          label: Go Coverage
-          message: "${{ steps.coverage.outputs.coverage-pct }}%"
-          color: "${{ steps.coverage.outputs.meets-threshold == 'true' && 'green' || 'red' }}"
+        run: |
+          echo "Go Coverage: ${{ steps.coverage.outputs.coverage-pct }}%"
+          if [[ "${{ steps.coverage.outputs.meets-threshold }}" == "true" ]]; then
+            echo "Coverage meets the required threshold."
+          else
+            echo "Coverage does not meet the required threshold."
+          fi
