@@ -189,7 +189,7 @@ func (kva *KeyValueAggregator) Set(key string, value string) error {
 	found, store, err := kva.getInternal(key)
 	// Log error and continue
 	if err != nil {
-		slog.Error("Error in KeyValue store: %v", err)
+		slog.Error("Error in KeyValue store", slog.Any("err", err))
 	}
 
 	if found != "" && store != nil {
@@ -199,7 +199,7 @@ func (kva *KeyValueAggregator) Set(key string, value string) error {
 			if err == nil {
 				return nil
 			}
-			slog.Error("Error in Writable KeyValue store: %v", err)
+			slog.Error("Error in Writable KeyValue store", slog.Any("err", err))
 		}
 	}
 
@@ -210,7 +210,7 @@ func (kva *KeyValueAggregator) Set(key string, value string) error {
 			if err == nil {
 				return nil
 			}
-			slog.Error("Error in Writable KeyValue store: %v", err)
+			slog.Error("Error in Writable KeyValue store", slog.Any("err", err))
 		}
 	}
 	return errors.New("No writable store found")
@@ -235,7 +235,7 @@ func (kva *KeyValueAggregator) SetSecure(key string, value strfmt.Password) erro
 	value, store, err := kva.getSecureInternal(key)
 
 	// Log error and continue
-	slog.Error("Error in KeyValue store: %v", err)
+	slog.Error("Error in KeyValue store", slog.Any("err", err))
 
 	if value != "" && store != nil {
 		writeable, is := store.(WritableSecureKeyValueStore)
@@ -244,7 +244,7 @@ func (kva *KeyValueAggregator) SetSecure(key string, value strfmt.Password) erro
 			if err == nil {
 				return nil
 			}
-			slog.Error("Error in Writable secure KeyValue store: %v", err)
+			slog.Error("Error in Writable secure KeyValue store", slog.Any("err", err))
 		}
 	}
 
@@ -255,7 +255,7 @@ func (kva *KeyValueAggregator) SetSecure(key string, value strfmt.Password) erro
 			if err == nil {
 				return nil
 			}
-			slog.Error("Error in Writable secure KeyValue store: %v", err)
+			slog.Error("Error in Writable secure KeyValue store", slog.Any("err", err))
 		}
 	}
 	return errors.New("No writable secure store found")
