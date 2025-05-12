@@ -154,7 +154,11 @@ jobs:
       - run: go build -o /dev/null ./...
 
       - name: Install gotestsum
-        run: go install gotest.tools/gotestsum@latest
+        shell: bash
+        run: |
+          go install gotest.tools/gotestsum@latest
+          # make sure the install location is on PATH
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Go test with coverage & JUnit
         run: |
