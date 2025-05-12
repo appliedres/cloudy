@@ -1,8 +1,8 @@
 module github.com/appliedres/cloudy
 
-go 1.23.0
+go 1.24
 
-toolchain go1.23.2
+toolchain go1.24.3
 
 require (
 	github.com/Jeffail/gabs/v2 v2.7.0
