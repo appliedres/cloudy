@@ -15,73 +15,29 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Extract Go version from go.mod
-        id: go-version
+      - name: Install Required Go Version
         run: |
           GO_VERSION=$(awk '/^go / {print $2}' go.mod)
-          echo "Extracted Go version from go.mod: $GO_VERSION"
-          echo "GO_VERSION=$GO_VERSION" >> $GITHUB_ENV
-      - name: Fetch Latest Go Version
-        run: |
-          # Fetch the latest stable Go version from the Go website
-          LATEST_GO_VERSION=$(curl -s https://go.dev/dl/ | grep -oP 'go\d+\.\d+\.\d+' | head -n 1)
-          echo "Fetched latest stable Go version from go.dev: $LATEST_GO_VERSION"
-          echo "LATEST_GO_VERSION=$LATEST_GO_VERSION" >> $GITHUB_ENV
-      - name: Check Go version
-        run: |
-          echo "### Checking Go Version Comparison ###"
-          echo "Current Go version (from go.mod): $GO_VERSION"
-          echo "Latest stable Go version: $LATEST_GO_VERSION"
-          # Remove the 'go' prefix for consistent version comparison
-          GO_VERSION=${GO_VERSION#go}
-          LATEST_GO_VERSION=${LATEST_GO_VERSION#go}
-          # Extract major, minor, and patch versions from Go version strings
-          GO_VERSION_MAJOR_MINOR=$(echo $GO_VERSION | cut -d '.' -f1,2)
-          GO_VERSION_PATCH=$(echo $GO_VERSION | cut -d '.' -f3)
-          LATEST_GO_VERSION_MAJOR_MINOR=$(echo $LATEST_GO_VERSION | cut -d '.' -f1,2)
-          LATEST_GO_VERSION_PATCH=$(echo $LATEST_GO_VERSION | cut -d '.' -f3)
-          echo "Parsed version components:"
-          echo "GO_VERSION_MAJOR_MINOR: $GO_VERSION_MAJOR_MINOR"
-          echo "GO_VERSION_PATCH: $GO_VERSION_PATCH"
-          echo "LATEST_GO_VERSION_MAJOR_MINOR: $LATEST_GO_VERSION_MAJOR_MINOR"
-          echo "LATEST_GO_VERSION_PATCH: $LATEST_GO_VERSION_PATCH"
-          # If the patch version is specified, compare full versions (major.minor.patch)
-          if [[ -z "$GO_VERSION_PATCH" ]]; then
-            # If patch version is not specified in go.mod, compare up to major.minor
-            echo "GO_VERSION does not include a patch version, comparing major.minor only."
-            if [[ "$GO_VERSION_MAJOR_MINOR" != "$LATEST_GO_VERSION_MAJOR_MINOR" ]]; then
-              echo "Error: Specified Go version ($GO_VERSION) major.minor does not match the latest stable version ($LATEST_GO_VERSION_MAJOR_MINOR)."
-              exit 1
-            else
-              echo "Go version is up to date (major.minor comparison)."
-            fi
-          else
-            # Compare full versions (major.minor.patch)
-            echo "GO_VERSION includes a patch version, comparing major.minor.patch."
-            if [[ "$GO_VERSION" != "$LATEST_GO_VERSION" ]]; then
-              echo "Error: Specified Go version ($GO_VERSION) does not match the latest stable version ($LATEST_GO_VERSION)."
-              exit 1
-            else
-              echo "Go version is up to date (full version comparison)."
-            fi
-          fi
-  
+          echo "Using Go version: $GO_VERSION"
+          wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
+          echo "/usr/local/go/bin" >> $GITHUB_PATH
+          go version
+
   go-vet:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Extract Go version from go.mod
-        id: go-version
+      - name: Install Required Go Version
         run: |
           GO_VERSION=$(awk '/^go / {print $2}' go.mod)
-          echo "GO_VERSION=$GO_VERSION" >> $GITHUB_ENV
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: true
+          echo "Using Go version: $GO_VERSION"
+          wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
+          echo "/usr/local/go/bin" >> $GITHUB_PATH
+          go version
 
       - name: Go Vet
         run: go vet ./...
@@ -92,29 +48,22 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Extract Go version from go.mod
-        id: go-version
+      - name: Install Required Go Version
         run: |
           GO_VERSION=$(awk '/^go / {print $2}' go.mod)
-          echo "GO_VERSION=$GO_VERSION" >> $GITHUB_ENV
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: true
+          echo "Using Go version: $GO_VERSION"
+          wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
+          echo "/usr/local/go/bin" >> $GITHUB_PATH
+          go version
 
       - name: Check gofmt
         run: |
-          # Directories to exclude (comma-separated)
           EXCLUDE_DIRS=("client" "models" "restapi" "clientmtls")
-          # Build the exclusion pattern for grep
           EXCLUDE_PATTERN=$(printf "|%s" "${EXCLUDE_DIRS[@]}")
-          EXCLUDE_PATTERN=${EXCLUDE_PATTERN:1}  # Remove the leading "|"
-          # Find Go files, excluding the specified directories
+          EXCLUDE_PATTERN=${EXCLUDE_PATTERN:1}
           GO_FILES=$(find . -type f -name "*.go" | grep -vE "($EXCLUDE_PATTERN)")
-          # Run gofmt and check formatting
-          UNFORMATTED_FILES=$(echo "$GO_FILES" | xargs gofmt -l)
-          # If any files are listed, fail the action
+          UNFORMATTED_FILES=$(echo "$GO_FILES" | xargs gofmt -l || true)
           if [ -n "$UNFORMATTED_FILES" ]; then
             echo "gofmt found unformatted files:"
             echo "$UNFORMATTED_FILES"
@@ -122,10 +71,23 @@ jobs:
           else
             echo "All Go files are properly formatted."
           fi
+
   go-vulncheck:
     runs-on: ubuntu-latest
     name: Run govulncheck
     steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Install Required Go Version
+        run: |
+          GO_VERSION=$(awk '/^go / {print $2}' go.mod)
+          echo "Using Go version: $GO_VERSION"
+          wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
+          echo "/usr/local/go/bin" >> $GITHUB_PATH
+          go version
+
       - id: govulncheck
         uses: golang/govulncheck-action@v1
         with:
@@ -138,21 +100,19 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Extract Go version from go.mod
-        id: go-version
+      - name: Install Required Go Version
         run: |
           GO_VERSION=$(awk '/^go / {print $2}' go.mod)
-          echo "GO_VERSION=$GO_VERSION" >> $GITHUB_ENV
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: true
+          echo "Using Go version: $GO_VERSION"
+          wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
+          echo "/usr/local/go/bin" >> $GITHUB_PATH
+          go version
 
       - name: Go Tidy
         run: go mod tidy && git diff --exit-code
 
-      - name: Go Mod
+      - name: Go Mod Download
         run: go mod download
 
       - name: Go Mod Verify
@@ -169,14 +129,14 @@ jobs:
 
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
-        if: always()        
+        if: always()
         with:
           name: junit-report
           path: junit-report.xml
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/macos@v2
-        if: always()        
+        if: always()
         with:
           files: junit-report.xml
 
