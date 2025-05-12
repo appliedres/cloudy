@@ -26,14 +26,14 @@ type VirtualDesktopOrchestrator interface {
 	// fields populated
 	UpdateVirtualMachine(ctx context.Context, vm *models.VirtualMachine) (*models.VirtualMachine, error)
 
-	// Starts the virtual machine with the provided id
-	StartVirtualMachine(ctx context.Context, id string) error
+	// Starts the virtual machine
+	StartVirtualMachine(ctx context.Context, vm *models.VirtualMachine) error
 
-	// Stops (deallocates) the virtual machine with the provided id
-	StopVirtualMachine(ctx context.Context, id string) error
+	// Stops (deallocates) the virtual machine
+	StopVirtualMachine(ctx context.Context, vm *models.VirtualMachine) error
 
-	// Deletes the virtual machine with the provided id
-	DeleteVirtualMachine(ctx context.Context, id string) error
+	// Deletes the virtual machine
+	DeleteVirtualMachine(ctx context.Context, vm *models.VirtualMachine) error
 
 	// Gets the virtual machine size data with capabilities info filled in
 	GetAllVirtualMachineSizes(ctx context.Context) (map[string]*models.VirtualMachineSize, error)
