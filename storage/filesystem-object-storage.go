@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/appliedres/cloudy"
 )
@@ -59,8 +60,72 @@ func (fso *FilesystemObjectStorage) Delete(ctx context.Context, key string) erro
 	fullpath := filepath.Join(fso.rootDir, key)
 	return os.Remove(fullpath)
 }
+
 func (fso *FilesystemObjectStorage) List(ctx context.Context, prefix string) ([]*StoredObject, []*StoredPrefix, error) {
-	return nil, nil, nil
+	var files []*StoredObject
+	var dirs []*StoredPrefix
+
+	entries, err := os.ReadDir(fso.rootDir)
+	if err != nil {
+		return files, dirs, err
+	}
+
+	if !strings.HasPrefix(prefix, "/") {
+		prefix = "/" + prefix
+	}
+	for _, entry := range entries {
+		err = fso.listinternal(entry, "/", prefix, &files, &dirs)
+		if err != nil {
+			return files, dirs, err
+		}
+	}
+
+	return files, dirs, nil
+}
+
+func (fso *FilesystemObjectStorage) listinternal(entry os.DirEntry, path string, prefixFilter string, files *[]*StoredObject, dirs *[]*StoredPrefix) error {
+	fpath := filepath.Join(path, entry.Name())
+
+	if entry.IsDir() {
+		fpath = fpath + "/"
+	}
+
+	if prefixFilter != "" && prefixFilter != "/" && !strings.HasPrefix(fpath, prefixFilter) {
+		return nil
+	}
+
+	if !entry.IsDir() {
+		info, err := entry.Info()
+		if err != nil {
+			return err
+		}
+
+		*files = append(*files, &StoredObject{
+			Key:  fpath,
+			Size: info.Size(),
+		})
+		return nil
+	}
+
+	// Handle Directory
+	*dirs = append(*dirs, &StoredPrefix{
+		Key: fpath,
+	})
+
+	root := filepath.Join(fso.rootDir, fpath)
+	entries, err := os.ReadDir(root)
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		err = fso.listinternal(entry, fpath, prefixFilter, files, dirs)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (fso *FilesystemObjectStorage) UpdateMetadata(ctx context.Context, key string, tags map[string]string) error {
