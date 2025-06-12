@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -57,4 +58,15 @@ func DeferableClose(ctx context.Context, closeme io.Closer) {
 func IsMap(suspect interface{}) bool {
 	mp := suspect.(map[string]interface{})
 	return mp != nil
+}
+
+func HasPrefixOverlap(s string, prefix string) bool {
+	if strings.HasPrefix(s, prefix) {
+		return true
+	}
+	// If the input string is smaller than the prefix, it cannot have a the full prefix
+	if len(prefix) > len(s) {
+		return strings.HasPrefix(prefix, s)
+	}
+	return false
 }

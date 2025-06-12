@@ -90,11 +90,19 @@ func (fso *FilesystemObjectStorage) listinternal(entry os.DirEntry, path string,
 		fpath = fpath + "/"
 	}
 
-	if prefixFilter != "" && prefixFilter != "/" && !strings.HasPrefix(fpath, prefixFilter) {
+	partialMatch := cloudy.HasPrefixOverlap(fpath, prefixFilter)
+	fullMatch := strings.HasPrefix(fpath, prefixFilter)
+	if !partialMatch {
 		return nil
 	}
 
+	// Is a file
 	if !entry.IsDir() {
+		// Only add full matches for files
+		if !fullMatch {
+			return nil
+		}
+
 		info, err := entry.Info()
 		if err != nil {
 			return err
@@ -108,9 +116,12 @@ func (fso *FilesystemObjectStorage) listinternal(entry os.DirEntry, path string,
 	}
 
 	// Handle Directory
-	*dirs = append(*dirs, &StoredPrefix{
-		Key: fpath,
-	})
+	// Only add full matches
+	if fullMatch {
+		*dirs = append(*dirs, &StoredPrefix{
+			Key: fpath,
+		})
+	}
 
 	root := filepath.Join(fso.rootDir, fpath)
 	entries, err := os.ReadDir(root)
