@@ -3,9 +3,17 @@ package datastore
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/appliedres/cloudy"
 )
+
+type RowMetadata struct {
+	Key         string
+	Version     int64
+	LastUpdated time.Time
+	DateCreated time.Time
+}
 
 // JsonDataStore stores data structures as JSON. The type argument can
 // be any struct that the json package can marshal. The type argument
@@ -28,6 +36,9 @@ type JsonDataStore[T any] interface {
 
 	// Get retrieves an item by it's unique id
 	Get(ctx context.Context, key string) (*T, error)
+
+	// Get Metadata for a key or keys
+	GetMetadata(ctx context.Context, key ...string) ([]*RowMetadata, error)
 
 	// Gets all the items in the store.
 	GetAll(ctx context.Context) ([]*T, error)
@@ -197,6 +208,10 @@ func (ts *TypedJsonStore[T]) fromBytes(data []byte) (*T, error) {
 	return &v, err
 }
 
+func (ts *TypedJsonStore[T]) GetMetadata(ctx context.Context, key ...string) ([]*RowMetadata, error) {
+	return ts.ds.GetMetadata(ctx, key...)
+}
+
 type DatastoreEventHandler interface {
 	OnConnectionChange()
 	OnSave(item interface{})
@@ -220,6 +235,9 @@ type UntypedJsonDataStore interface {
 
 	// Get retrieves an item by it's unique id
 	Get(ctx context.Context, key string) ([]byte, error)
+
+	// GEt Metadata for a key or keys
+	GetMetadata(ctx context.Context, key ...string) ([]*RowMetadata, error)
 
 	// Gets all the items in the store.
 	GetAll(ctx context.Context) ([][]byte, error)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"time"
 
 	"github.com/appliedres/cloudy"
 )
@@ -11,6 +12,11 @@ import (
 const InMemoryinaryStoreID = "memory"
 
 var _ UntypedJsonDataStore = (*InMemoryStore)(nil)
+
+type DatastoreRecord struct {
+	RowMetadata
+	Data []byte `json:"data"`
+}
 
 func init() {
 	BinaryDataStoreProviders.Register(InMemoryinaryStoreID, &InMemoryStoreFactory{})
@@ -27,8 +33,8 @@ func (f *InMemoryStoreFactory) FromEnv(env *cloudy.Environment) (interface{}, er
 }
 
 type InMemoryStore struct {
-	items map[string][]byte
-	fn    OnCreateDS
+	records map[string]*DatastoreRecord
+	fn      OnCreateDS
 }
 
 func NewInMemoryStore() *InMemoryStore {
@@ -36,7 +42,7 @@ func NewInMemoryStore() *InMemoryStore {
 }
 
 func (mem *InMemoryStore) Open(ctx context.Context, config interface{}) error {
-	mem.items = make(map[string][]byte)
+	mem.records = make(map[string]*DatastoreRecord)
 	if mem.fn != nil {
 		err := mem.fn(ctx, mem)
 		if err != nil {
@@ -47,12 +53,21 @@ func (mem *InMemoryStore) Open(ctx context.Context, config interface{}) error {
 }
 
 func (mem *InMemoryStore) Close(ctx context.Context) error {
-	mem.items = nil
+	mem.records = nil
 	return nil
 }
 
 func (mem *InMemoryStore) Save(ctx context.Context, data []byte, key string) error {
-	mem.items[key] = data
+	rec := &DatastoreRecord{
+		Data: data,
+		RowMetadata: RowMetadata{
+			Key:         key,
+			Version:     1,
+			DateCreated: time.Now(),
+			LastUpdated: time.Now(),
+		},
+	}
+	mem.records[key] = rec
 	return nil
 }
 func (mem *InMemoryStore) SaveStream(ctx context.Context, data io.ReadCloser, key string) (int64, error) {
@@ -63,24 +78,39 @@ func (mem *InMemoryStore) SaveStream(ctx context.Context, data io.ReadCloser, ke
 	return int64(len(out)), mem.Save(ctx, out, key)
 }
 
+func (mem *InMemoryStore) GetMetadata(ctx context.Context, key ...string) ([]*RowMetadata, error) {
+	rtn := make([]*RowMetadata, len(key))
+	for _, k := range key {
+		rec := mem.records[k]
+		if rec != nil {
+			rtn = append(rtn, &rec.RowMetadata)
+		}
+	}
+	return rtn, nil
+}
+
 func (mem *InMemoryStore) Get(ctx context.Context, key string) ([]byte, error) {
-	return mem.items[key], nil
+	found := mem.records[key]
+	if found != nil {
+		return found.Data, nil
+	}
+	return nil, nil
 }
 
 func (mem *InMemoryStore) Delete(ctx context.Context, key string) error {
-	delete(mem.items, key)
+	delete(mem.records, key)
 	return nil
 }
 func (mem *InMemoryStore) Exists(ctx context.Context, key string) (bool, error) {
-	_, found := mem.items[key]
+	_, found := mem.records[key]
 	return found, nil
 }
 
 func (mem *InMemoryStore) GetAll(ctx context.Context) ([][]byte, error) {
-	rtn := make([][]byte, len(mem.items))
+	rtn := make([][]byte, len(mem.records))
 	i := 0
-	for _, v := range rtn {
-		rtn[i] = v
+	for _, v := range mem.records {
+		rtn[i] = v.Data
 		i++
 	}
 	return rtn, nil
@@ -100,7 +130,7 @@ func (mem *InMemoryStore) QueryAndUpdate(ctx context.Context, query *SimpleQuery
 
 func (mem *InMemoryStore) SaveAll(ctx context.Context, items [][]byte, key []string) error {
 	for i, key := range key {
-		mem.items[key] = items[i]
+		mem.Save(ctx, items[i], key)
 	}
 	return nil
 }
@@ -115,6 +145,7 @@ func (mem *InMemoryStore) DeleteAll(ctx context.Context, key []string) error {
 func (mem *InMemoryStore) QueryAsMap(ctx context.Context, query *SimpleQuery) ([]map[string]any, error) {
 	return nil, errors.New("not implemented")
 }
+
 func (mem *InMemoryStore) QueryTable(ctx context.Context, query *SimpleQuery) ([][]interface{}, error) {
 	return nil, errors.New("not implemented")
 }
