@@ -22,7 +22,7 @@ type Datatype[T any] struct {
 	GetIDFunc func(dt *Datatype[T], item *T) string
 	SetIDFunc func(dt *Datatype[T], item *T, id string) string
 
-	DataStore JsonDataStore[T]
+	DataStore datastore.JsonDataStore[T]
 
 	// BeforeSave []BeforeSaveInterceptor[T]
 	BeforeSave  []InterceptItem[T]
@@ -106,7 +106,7 @@ func (dt *Datatype[T]) interceptAfterDelete(ctx context.Context, key []string) e
 	return me.ErrorOrNil()
 }
 
-func (dt *Datatype[T]) SetDatastore(ds JsonDataStore[T]) {
+func (dt *Datatype[T]) SetDatastore(ds datastore.JsonDataStore[T]) {
 	dt.DataStore = ds
 }
 
@@ -141,6 +141,16 @@ func (dt *Datatype[T]) GetAll(ctx context.Context) ([]*T, error) {
 
 	// All good, now Return
 	return output, merr.ErrorOrNil()
+}
+
+func (dt *Datatype[T]) GetMetadata(ctx context.Context, ID ...string) ([]*datastore.RowMetadata, error) {
+	err := dt.initIfNeeded(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Load the item
+	return dt.GetMetadata(ctx, ID...)
 }
 
 func (dt *Datatype[T]) Get(ctx context.Context, ID string) (*T, error) {
@@ -269,7 +279,7 @@ func (dt *Datatype[T]) Delete(ctx context.Context, key string) error {
 }
 
 func (dt *Datatype[T]) DeleteAll(ctx context.Context, keys []string) error {
-	bulkDs, isBulk := dt.DataStore.(BulkJsonDataStore[T])
+	bulkDs, isBulk := dt.DataStore.(datastore.BulkJsonDataStore[T])
 	if isBulk {
 		err := bulkDs.DeleteAll(ctx, keys)
 		if err != nil {
@@ -296,7 +306,7 @@ func (dt *Datatype[T]) GetIDs(ctx context.Context, items []*T) []string {
 }
 
 func (dt *Datatype[T]) SaveAll(ctx context.Context, items []*T) error {
-	bulkDs, isBulk := dt.DataStore.(BulkJsonDataStore[T])
+	bulkDs, isBulk := dt.DataStore.(datastore.BulkJsonDataStore[T])
 	if isBulk {
 		keys := dt.GetIDs(ctx, items)
 		return bulkDs.SaveAll(ctx, items, keys)
@@ -394,7 +404,7 @@ func (dt *Datatype[T]) Shutdown(ctx context.Context) error {
 }
 
 func (dt *Datatype[T]) QueryAsMap(ctx context.Context, query *datastore.SimpleQuery) ([]map[string]any, error) {
-	advDS, isAdv := dt.DataStore.(AdvQueryJsonDatastore[T])
+	advDS, isAdv := dt.DataStore.(datastore.AdvQueryJsonDatastore[T])
 	if isAdv {
 		return advDS.QueryAsMap(ctx, query)
 	}
@@ -438,7 +448,7 @@ func (dt *Datatype[T]) toGabs(item *T) (*gabs.Container, error) {
 }
 
 func (dt *Datatype[T]) QueryTable(ctx context.Context, query *datastore.SimpleQuery) ([][]any, error) {
-	advDS, isAdv := dt.DataStore.(AdvQueryJsonDatastore[T])
+	advDS, isAdv := dt.DataStore.(datastore.AdvQueryJsonDatastore[T])
 	if isAdv {
 		return advDS.QueryTable(ctx, query)
 	}
@@ -483,6 +493,25 @@ func (dt *Datatype[T]) AddIfMissing(ctx context.Context, item *T) (bool, error) 
 		return false, err
 	}
 	if exists {
+		return false, nil
+	}
+
+	_, err = dt.Save(ctx, item)
+	return true, err
+}
+
+// AddIfVersionLessEq will add the item if it does not exist or if the version is less than or equal to the version argument
+func (dt *Datatype[T]) AddIfVersionLessEq(ctx context.Context, item *T, version int64) (bool, error) {
+	// Get the ID
+	id := dt.GetID(ctx, item)
+
+	meta, err := dt.GetMetadata(ctx, id)
+	if err != nil {
+		return false, err
+	}
+
+	// Too New
+	if len(meta) > 0 && meta[0].Version > version {
 		return false, nil
 	}
 

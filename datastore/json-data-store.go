@@ -52,6 +52,10 @@ type JsonDataStore[T any] interface {
 	// Sends a simple Query
 	Query(ctx context.Context, query *SimpleQuery) ([]*T, error)
 
+	// QueryAndUpdate will run a query and then call the updater function. This is expected
+	// to update in a single transaction
+	QueryAndUpdate(ctx context.Context, query *SimpleQuery, updater func(ctx context.Context, items []*T) ([]*T, error)) ([]*T, error)
+
 	// *T
 	// Hook for the datastore to call when the table is created
 	OnCreate(fn func(ctx context.Context, ds JsonDataStore[T]) error)
@@ -212,6 +216,44 @@ func (ts *TypedJsonStore[T]) GetMetadata(ctx context.Context, key ...string) ([]
 	return ts.ds.GetMetadata(ctx, key...)
 }
 
+func (ts *TypedJsonStore[T]) QueryAndUpdate(ctx context.Context, query *SimpleQuery, updater func(ctx context.Context, items []*T) ([]*T, error)) ([]*T, error) {
+	databytes, err := ts.ds.QueryAndUpdate(ctx, query, func(ctx context.Context, items [][]byte) ([][]byte, error) {
+		rtn := make([]*T, len(items))
+		for i, v := range items {
+			obj, err := ts.fromBytes(v)
+			if err != nil {
+				return nil, err
+			}
+			rtn[i] = obj
+		}
+		updated, err := updater(ctx, rtn)
+		if err != nil {
+			return nil, err
+		}
+		rtnBytes := make([][]byte, len(updated))
+		for i, v := range updated {
+			data, err := json.Marshal(v)
+			if err != nil {
+				return nil, err
+			}
+			rtnBytes[i] = data
+		}
+		return rtnBytes, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	rtn := make([]*T, len(databytes))
+	for i, v := range databytes {
+		obj, err := ts.fromBytes(v)
+		if err != nil {
+			return nil, err
+		}
+		rtn[i] = obj
+	}
+	return rtn, nil
+}
+
 type DatastoreEventHandler interface {
 	OnConnectionChange()
 	OnSave(item interface{})
@@ -282,4 +324,24 @@ func NewJsonDatastore[M any](providerName string, cfg interface{}) (JsonDataStor
 	}
 	typed := NewTypedStore[M](ds)
 	return typed, nil
+}
+
+type BulkJsonDataStore[T any] interface {
+	JsonDataStore[T]
+
+	DeleteAll(ctx context.Context, key []string) error
+
+	SaveAll(ctx context.Context, item []*T, key []string) error
+
+	DeleteQuery(ctx context.Context, query *SimpleQuery) ([]string, error)
+}
+
+type AdvQueryJsonDatastore[T any] interface {
+	JsonDataStore[T]
+
+	QueryAsMap(ctx context.Context, query *SimpleQuery) ([]map[string]any, error)
+
+	QueryTable(ctx context.Context, query *SimpleQuery) ([][]any, error)
+
+	// DeleteHierarcy(ctx context.Context, parentField string, parentKey string) error
 }

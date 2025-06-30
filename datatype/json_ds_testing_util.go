@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/appliedres/cloudy/datastore"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +14,7 @@ type TestItem struct {
 	Name string
 }
 
-func JsonDataStoreTest(t *testing.T, ctx context.Context, ds JsonDataStore[TestItem]) {
+func JsonDataStoreTest(t *testing.T, ctx context.Context, ds datastore.JsonDataStore[TestItem]) {
 	testDoc := &TestItem{
 		ID:   "12345",
 		Name: "TEST",

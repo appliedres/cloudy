@@ -12,7 +12,7 @@ func TestDatatype(t *testing.T) {
 	ctx := context.Background()
 
 	dt := NewDatatype[datastore.TestItem]("test", "test")
-	ds := NewInMemoryStore[datastore.TestItem]()
+	ds := datastore.NewInMemoryTypedStore[datastore.TestItem]()
 	dt.SetDatastore(ds)
 
 	item := &datastore.TestItem{
@@ -42,7 +42,7 @@ func TestDatatype(t *testing.T) {
 func TestDTInterceptors(t *testing.T) {
 	ctx := context.Background()
 	ops := make(map[string]int)
-	ds := NewInMemoryStore[datastore.TestItem]()
+	ds := datastore.NewInMemoryTypedStore[datastore.TestItem]()
 	dt := NewDatatype("test", "test",
 		WithBeforeSave(func(ctx context.Context, dt *Datatype[datastore.TestItem], item *datastore.TestItem) (*datastore.TestItem, error) {
 			ops["beforeSave"]++
