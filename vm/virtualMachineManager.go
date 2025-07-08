@@ -20,7 +20,7 @@ type VirtualDesktopOrchestrator interface {
 
 	// Create a new virtual machine and returns it with any additional
 	// fields populated
-	CreateVirtualMachine(ctx context.Context, vm *models.VirtualMachine) (*models.VirtualMachine, error)
+	CreateVirtualMachine(ctx context.Context, vm *models.VirtualMachine, apiKeySecret, agentBinaryURL *string) (*models.VirtualMachine, error)
 
 	// Update an existing virtual machine and returns it with any additional
 	// fields populated
