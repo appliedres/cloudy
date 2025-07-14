@@ -74,8 +74,7 @@ func NewContext(ctx context.Context) context.Context {
 	return ctxWithLogging
 }
 
-// logAndWrap logs the 'msg' plus the original err, then returns errors.Wrap(err, msg).
-func LogAndWrapErr(ctx context.Context, logger *slog.Logger, err error, msg string) error {
-	logger.ErrorContext(ctx, msg, WithError(err))
-	return errors.Wrap(err, msg)
+func LogMsgAndErr(ctx context.Context, logger *slog.Logger, err error, msg string) error {
+    logger.ErrorContext(ctx, msg, "error", err)
+    return fmt.Errorf("%s: %w", msg, err)
 }
