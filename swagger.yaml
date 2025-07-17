@@ -522,6 +522,7 @@ definitions:
         type: string
         description: URL to establish the remote desktop connection.
   VirtualMachineCloudState:
+  
     type: string
     x-nullable: true
     description: State of the virtual machine as retrieved from the cloud.
@@ -536,3 +537,130 @@ definitions:
       - deleted
       - failed
       - unknown
+  AvdHostPool:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Host pool name or resource ID
+      resourceGroup:
+        type: string
+      location:
+        type: string
+      metadata:
+        type: object
+        additionalProperties:
+          type: string
+      status:
+        type: string
+        description: e.g., "Active", "Deleting"
+      lastSync:
+        type: string
+        format: date-time
+      expiresAt:
+        type: string
+        format: date-time
+      appGroups:
+        type: array
+        items:
+          $ref: "#/definitions/AvdAppGroup"
+        description: List of linked application groups
+      workspaces:
+        type: array
+        items:
+          $ref: "#/definitions/AvdWorkspace"
+        description: List of linked workspaces
+  AvdWorkspace:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Workspace name or resource ID
+      resourceGroup:
+        type: string
+      location:
+        type: string
+      metadata:
+        type: object
+        additionalProperties:
+          type: string
+      status:
+        type: string
+      lastSync:
+        type: string
+        format: date-time
+      expiresAt:
+        type: string
+        format: date-time
+      hostPools:
+        type: array
+        items:
+          $ref: "#/definitions/AvdHostPool"
+        description: List of linked host pools
+      appGroups:
+        type: array
+        items:
+          $ref: "#/definitions/AvdAppGroup"
+        description: List of linked application groups
+  AvdAppGroup:
+    type: object
+    properties:
+      id:
+        type: string
+        description: App group name or resource ID
+      resourceGroup:
+        type: string
+      location:
+        type: string
+      metadata:
+        type: object
+        additionalProperties:
+          type: string
+      status:
+        type: string
+      lastSync:
+        type: string
+        format: date-time
+      expiresAt:
+        type: string
+        format: date-time
+      hostPoolId:
+        type: string
+        description: Linked host pool ID
+      workspaceId:
+        type: string
+        description: Linked workspace ID
+      sessionHosts:
+        type: array
+        items:
+          $ref: "#/definitions/AvdSessionHost"
+        description: List of linked session hosts
+  AvdSessionHost:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Session host name or resource ID
+      hostPoolId:
+        type: string
+        description: Linked host pool ID
+      appGroupId:
+        type: string
+        description: Linked app group ID
+      resourceGroup:
+        type: string
+      vmName:
+        type: string
+      metadata:
+        type: object
+        additionalProperties:
+          type: string
+      status:
+        type: string
+        description: e.g., "Available", "Unavailable"
+      lastSync:
+        type: string
+        format: date-time
+      expiresAt:
+        type: string
+        format: date-time
