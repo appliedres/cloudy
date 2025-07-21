@@ -7,7 +7,6 @@ package models
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -19,10 +18,6 @@ import (
 //
 // swagger:model AvdAppGroup
 type AvdAppGroup struct {
-
-	// expires at
-	// Format: date-time
-	ExpiresAt strfmt.DateTime `json:"expiresAt,omitempty"`
 
 	// Linked host pool ID
 	HostPoolID string `json:"hostPoolId,omitempty"`
@@ -43,9 +38,6 @@ type AvdAppGroup struct {
 	// resource group
 	ResourceGroup string `json:"resourceGroup,omitempty"`
 
-	// List of linked session hosts
-	SessionHosts []*AvdSessionHost `json:"sessionHosts"`
-
 	// status
 	Status string `json:"status,omitempty"`
 
@@ -57,33 +49,13 @@ type AvdAppGroup struct {
 func (m *AvdAppGroup) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateExpiresAt(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateLastSync(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSessionHosts(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *AvdAppGroup) validateExpiresAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.ExpiresAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("expiresAt", "body", "date-time", m.ExpiresAt.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -99,63 +71,8 @@ func (m *AvdAppGroup) validateLastSync(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *AvdAppGroup) validateSessionHosts(formats strfmt.Registry) error {
-	if swag.IsZero(m.SessionHosts) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.SessionHosts); i++ {
-		if swag.IsZero(m.SessionHosts[i]) { // not required
-			continue
-		}
-
-		if m.SessionHosts[i] != nil {
-			if err := m.SessionHosts[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("sessionHosts" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("sessionHosts" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// ContextValidate validate this avd app group based on the context it is used
+// ContextValidate validates this avd app group based on context it is used
 func (m *AvdAppGroup) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateSessionHosts(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *AvdAppGroup) contextValidateSessionHosts(ctx context.Context, formats strfmt.Registry) error {
-
-	for i := 0; i < len(m.SessionHosts); i++ {
-
-		if m.SessionHosts[i] != nil {
-			if err := m.SessionHosts[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("sessionHosts" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("sessionHosts" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 

@@ -7,7 +7,6 @@ package models
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -19,16 +18,6 @@ import (
 //
 // swagger:model AvdWorkspace
 type AvdWorkspace struct {
-
-	// List of linked application groups
-	AppGroups []*AvdAppGroup `json:"appGroups"`
-
-	// expires at
-	// Format: date-time
-	ExpiresAt strfmt.DateTime `json:"expiresAt,omitempty"`
-
-	// List of linked host pools
-	HostPools []*AvdHostPool `json:"hostPools"`
 
 	// Workspace name or resource ID
 	ID string `json:"id,omitempty"`
@@ -54,18 +43,6 @@ type AvdWorkspace struct {
 func (m *AvdWorkspace) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAppGroups(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateExpiresAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateHostPools(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateLastSync(formats); err != nil {
 		res = append(res, err)
 	}
@@ -73,70 +50,6 @@ func (m *AvdWorkspace) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *AvdWorkspace) validateAppGroups(formats strfmt.Registry) error {
-	if swag.IsZero(m.AppGroups) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.AppGroups); i++ {
-		if swag.IsZero(m.AppGroups[i]) { // not required
-			continue
-		}
-
-		if m.AppGroups[i] != nil {
-			if err := m.AppGroups[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("appGroups" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("appGroups" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (m *AvdWorkspace) validateExpiresAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.ExpiresAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("expiresAt", "body", "date-time", m.ExpiresAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *AvdWorkspace) validateHostPools(formats strfmt.Registry) error {
-	if swag.IsZero(m.HostPools) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.HostPools); i++ {
-		if swag.IsZero(m.HostPools[i]) { // not required
-			continue
-		}
-
-		if m.HostPools[i] != nil {
-			if err := m.HostPools[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("hostPools" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("hostPools" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -152,61 +65,8 @@ func (m *AvdWorkspace) validateLastSync(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this avd workspace based on the context it is used
+// ContextValidate validates this avd workspace based on context it is used
 func (m *AvdWorkspace) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateAppGroups(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateHostPools(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *AvdWorkspace) contextValidateAppGroups(ctx context.Context, formats strfmt.Registry) error {
-
-	for i := 0; i < len(m.AppGroups); i++ {
-
-		if m.AppGroups[i] != nil {
-			if err := m.AppGroups[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("appGroups" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("appGroups" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (m *AvdWorkspace) contextValidateHostPools(ctx context.Context, formats strfmt.Registry) error {
-
-	for i := 0; i < len(m.HostPools); i++ {
-
-		if m.HostPools[i] != nil {
-			if err := m.HostPools[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("hostPools" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("hostPools" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 

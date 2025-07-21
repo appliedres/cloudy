@@ -557,19 +557,11 @@ definitions:
       lastSync:
         type: string
         format: date-time
-      expiresAt:
-        type: string
-        format: date-time
-      appGroups:
+      sessionHostIDs:
         type: array
         items:
-          $ref: "#/definitions/AvdAppGroup"
-        description: List of linked application groups
-      workspaces:
-        type: array
-        items:
-          $ref: "#/definitions/AvdWorkspace"
-        description: List of linked workspaces
+          type: string
+        description: List of linked session host IDs
   AvdWorkspace:
     type: object
     properties:
@@ -589,19 +581,6 @@ definitions:
       lastSync:
         type: string
         format: date-time
-      expiresAt:
-        type: string
-        format: date-time
-      hostPools:
-        type: array
-        items:
-          $ref: "#/definitions/AvdHostPool"
-        description: List of linked host pools
-      appGroups:
-        type: array
-        items:
-          $ref: "#/definitions/AvdAppGroup"
-        description: List of linked application groups
   AvdAppGroup:
     type: object
     properties:
@@ -621,35 +600,21 @@ definitions:
       lastSync:
         type: string
         format: date-time
-      expiresAt:
-        type: string
-        format: date-time
       hostPoolId:
         type: string
         description: Linked host pool ID
       workspaceId:
         type: string
         description: Linked workspace ID
-      sessionHosts:
-        type: array
-        items:
-          $ref: "#/definitions/AvdSessionHost"
-        description: List of linked session hosts
   AvdSessionHost:
     type: object
     properties:
       id:
         type: string
         description: Session host name or resource ID
-      hostPoolId:
-        type: string
-        description: Linked host pool ID
-      appGroupId:
-        type: string
-        description: Linked app group ID
       resourceGroup:
         type: string
-      vmName:
+      VMID:
         type: string
       metadata:
         type: object
@@ -661,6 +626,84 @@ definitions:
       lastSync:
         type: string
         format: date-time
+  AvdPersonalStack:
+    type: object
+    description: Represents a single AVD stack, with exactly one host pool, one workspace, one app group, one remote desktop app, and any session hosts.
+    properties:
+      id:
+        type: string
+        description: Unique identifier for the stack (resource group or generated ID)
+      suffix:
+        type: string
+        description: Suffix used for resource grouping
+      resourceGroup:
+        type: string
+        description: Resource group for the stack
+      location:
+        type: string
+        description: Azure location
+      metadata:
+        type: object
+        additionalProperties:
+          type: string
+      status:
+        type: string
+        description: Stack status (e.g., Active, Deleting)
+      lastSync:
+        type: string
+        format: date-time
       expiresAt:
         type: string
         format: date-time
+      appGroupId:
+        type: string
+        description: The application group ID in the stack
+      hostPoolId:
+        type: string
+        description: The host pool ID in the stack
+      workspaceId:
+        type: string
+        description: The workspace ID in the stack
+      sessionHostIds:
+        type: array
+        items:
+          type: string
+        description: List of session host IDs in the host pool
+  AvdPersonalLock:
+    type: object
+    description: \
+      Represents a distributed lock for AVD Personal stack operations.
+      Prevents simultaneous conflicting operations, such as creating new Personal AVD stacks
+      when another stack creation or deletion is already in progress.
+    properties:
+      ID:
+        type: string
+        description: Unique key for the lock (e.g., "avdManagerName::VMID")
+      acquiredAt:
+        type: string
+        format: date-time
+        description: Timestamp when the lock was acquired
+  AvdPersonalHostPoolReservation:
+    type: object
+    description: \
+      Represents a reservation of a PERSONAL host pool for a specific VM.
+      Ensures that while a VM is creating, it has a dedicated host pool reserved.
+      Prevents the user from making multiple VMs/SessionHosts in a single host pool.
+    properties:
+      ID:
+        type: string
+        description: Unique key for the reservation (e.g., "avdManagerName::HostPoolName::userID")
+      avdManager:
+        type: string
+        description: The AVD manager name handling this reservation
+      hostPoolName:
+        type: string
+        description: The reserved host pool name for the VM
+      userId:
+        type: string
+        description: The user ID for whom the reservation is made
+      reservedAt:
+        type: string
+        format: date-time
+        description: Timestamp when the reservation was made
+

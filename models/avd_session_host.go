@@ -19,15 +19,8 @@ import (
 // swagger:model AvdSessionHost
 type AvdSessionHost struct {
 
-	// Linked app group ID
-	AppGroupID string `json:"appGroupId,omitempty"`
-
-	// expires at
-	// Format: date-time
-	ExpiresAt strfmt.DateTime `json:"expiresAt,omitempty"`
-
-	// Linked host pool ID
-	HostPoolID string `json:"hostPoolId,omitempty"`
+	// VM ID
+	VMID string `json:"VMID,omitempty"`
 
 	// Session host name or resource ID
 	ID string `json:"id,omitempty"`
@@ -44,18 +37,11 @@ type AvdSessionHost struct {
 
 	// e.g., "Available", "Unavailable"
 	Status string `json:"status,omitempty"`
-
-	// vm name
-	VMName string `json:"vmName,omitempty"`
 }
 
 // Validate validates this avd session host
 func (m *AvdSessionHost) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateExpiresAt(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateLastSync(formats); err != nil {
 		res = append(res, err)
@@ -64,18 +50,6 @@ func (m *AvdSessionHost) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *AvdSessionHost) validateExpiresAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.ExpiresAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("expiresAt", "body", "date-time", m.ExpiresAt.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
